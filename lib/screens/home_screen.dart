@@ -4,6 +4,7 @@ import 'package:mythical_cats/providers/game_provider.dart';
 import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/utils/number_formatter.dart';
 import 'package:mythical_cats/screens/buildings_screen.dart';
+import 'package:mythical_cats/screens/settings_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +21,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final screens = [
       const _HomeTab(),
       const BuildingsScreen(),
+      const SettingsScreen(),
     ];
 
     return Scaffold(
@@ -35,6 +37,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.apartment),
             label: 'Buildings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
           ),
         ],
       ),
