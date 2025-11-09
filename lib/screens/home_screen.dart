@@ -3,9 +3,47 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
 import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/utils/number_formatter.dart';
+import 'package:mythical_cats/screens/buildings_screen.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  int _currentIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final screens = [
+      const _HomeTab(),
+      const BuildingsScreen(),
+    ];
+
+    return Scaffold(
+      body: screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.apartment),
+            label: 'Buildings',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeTab extends ConsumerWidget {
+  const _HomeTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,35 +53,33 @@ class HomeScreen extends ConsumerWidget {
     final cats = gameState.getResource(ResourceType.cats);
     final catsPerSecond = gameNotifier.catsPerSecond;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              // Resource display
-              _ResourceDisplay(
-                icon: ResourceType.cats.icon,
-                label: ResourceType.cats.displayName,
-                value: cats,
-                rate: catsPerSecond,
-              ),
-              const SizedBox(height: 24),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            // Resource display
+            _ResourceDisplay(
+              icon: ResourceType.cats.icon,
+              label: ResourceType.cats.displayName,
+              value: cats,
+              rate: catsPerSecond,
+            ),
+            const SizedBox(height: 24),
 
-              // Ritual button (click to generate cats)
-              _RitualButton(
-                onPressed: () => gameNotifier.performRitual(),
-              ),
+            // Ritual button (click to generate cats)
+            _RitualButton(
+              onPressed: () => gameNotifier.performRitual(),
+            ),
 
-              const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-              // Quick stats
-              _QuickStats(
-                currentGod: gameState.unlockedGods.last.displayName,
-                totalEarned: gameState.totalCatsEarned,
-              ),
-            ],
-          ),
+            // Quick stats
+            _QuickStats(
+              currentGod: gameState.unlockedGods.last.displayName,
+              totalEarned: gameState.totalCatsEarned,
+            ),
+          ],
         ),
       ),
     );
