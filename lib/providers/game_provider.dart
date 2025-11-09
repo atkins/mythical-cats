@@ -160,6 +160,20 @@ class GameNotifier extends StateNotifier<GameState> {
     state = loadedState;
   }
 
+  /// Calculate and apply offline progress
+  void applyOfflineProgress() {
+    final now = DateTime.now();
+    final lastUpdate = state.lastUpdate;
+    final elapsed = now.difference(lastUpdate);
+
+    // Cap at 24 hours
+    final cappedSeconds = elapsed.inSeconds.toDouble().clamp(0.0, 24.0 * 60 * 60);
+
+    if (cappedSeconds > 60) { // Only apply if more than 1 minute offline
+      _updateGame(cappedSeconds);
+    }
+  }
+
   @override
   void dispose() {
     _ticker?.dispose();
