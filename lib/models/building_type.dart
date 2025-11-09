@@ -9,7 +9,8 @@ enum BuildingType {
 
   // God-specific buildings (Phase 1: just Hermes and Hestia)
   messengerWaystation, // Hermes
-  hearthAltar; // Hestia
+  hearthAltar, // Hestia
+  harvestField; // Demeter
 
   /// Display name
   String get displayName {
@@ -24,6 +25,8 @@ enum BuildingType {
         return 'Messenger Waystation';
       case BuildingType.hearthAltar:
         return 'Hearth Altar';
+      case BuildingType.harvestField:
+        return 'Harvest Field';
     }
   }
 
@@ -40,6 +43,8 @@ enum BuildingType {
         return 'Boosts offline progression efficiency';
       case BuildingType.hearthAltar:
         return 'Generates offerings from the hearth';
+      case BuildingType.harvestField:
+        return 'Fields blessed by Demeter that generate prayers';
     }
   }
 
@@ -54,6 +59,8 @@ enum BuildingType {
         return God.hermes;
       case BuildingType.hearthAltar:
         return God.hestia;
+      case BuildingType.harvestField:
+        return God.demeter;
     }
   }
 }
