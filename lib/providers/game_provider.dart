@@ -6,14 +6,17 @@ import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/building_definition.dart';
 import 'package:mythical_cats/models/god.dart';
+import 'package:mythical_cats/services/save_service.dart';
 
 /// Game logic provider
 class GameNotifier extends StateNotifier<GameState> {
   Ticker? _ticker;
   Duration _lastElapsed = Duration.zero;
+  Timer? _saveTimer;
 
   GameNotifier() : super(GameState.initial()) {
     _startGameLoop();
+    _startAutoSave();
   }
 
   /// Start the game loop ticker
@@ -145,9 +148,22 @@ class GameNotifier extends StateNotifier<GameState> {
     return total;
   }
 
+  /// Start auto-save timer (every 30 seconds)
+  void _startAutoSave() {
+    _saveTimer = Timer.periodic(const Duration(seconds: 30), (_) {
+      SaveService.save(state);
+    });
+  }
+
+  /// Load saved state
+  void loadState(GameState loadedState) {
+    state = loadedState;
+  }
+
   @override
   void dispose() {
     _ticker?.dispose();
+    _saveTimer?.cancel();
     super.dispose();
   }
 }
@@ -155,4 +171,10 @@ class GameNotifier extends StateNotifier<GameState> {
 /// Provider for game state
 final gameProvider = StateNotifierProvider<GameNotifier, GameState>((ref) {
   return GameNotifier();
+});
+
+/// Provider that loads initial game state
+final initialGameStateProvider = FutureProvider<GameState>((ref) async {
+  final saved = await SaveService.load();
+  return saved ?? GameState.initial();
 });
