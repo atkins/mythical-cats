@@ -38,5 +38,14 @@ void main() {
         expect(def.type, type);
       }
     });
+
+    test('harvestField can be retrieved and has correct properties', () {
+      final def = BuildingDefinitions.get(BuildingType.harvestField);
+      expect(def.type, BuildingType.harvestField);
+      expect(def.baseCost[ResourceType.cats], 5000);
+      expect(def.baseCost[ResourceType.offerings], 500);
+      expect(def.baseProduction, 1.0);
+      expect(def.productionType, ResourceType.prayers);
+    });
   });
 }

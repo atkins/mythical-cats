@@ -76,6 +76,13 @@ class BuildingDefinitions {
     productionType: ResourceType.offerings,
   );
 
+  static const harvestField = BuildingDefinition(
+    type: BuildingType.harvestField,
+    baseCost: {ResourceType.cats: 5000, ResourceType.offerings: 500},
+    baseProduction: 1.0,
+    productionType: ResourceType.prayers,
+  );
+
   /// Get definition by type
   static BuildingDefinition get(BuildingType type) {
     switch (type) {
@@ -89,6 +96,8 @@ class BuildingDefinitions {
         return messengerWaystation;
       case BuildingType.hearthAltar:
         return hearthAltar;
+      case BuildingType.harvestField:
+        return harvestField;
     }
   }
 
@@ -99,5 +108,6 @@ class BuildingDefinitions {
     grandSanctuary,
     messengerWaystation,
     hearthAltar,
+    harvestField,
   ];
 }
