@@ -53,5 +53,27 @@ void main() {
       expect(restored.hasUnlockedGod(God.hestia), true);
       expect(restored.totalCatsEarned, 200.0);
     });
+
+    test('hasUnlockedAchievement works correctly', () {
+      final state = GameState.initial().copyWith(
+        unlockedAchievements: {'cats_100', 'buildings_10'},
+      );
+
+      expect(state.hasUnlockedAchievement('cats_100'), true);
+      expect(state.hasUnlockedAchievement('cats_1k'), false);
+    });
+
+    test('achievements serialize correctly', () {
+      final state = GameState.initial().copyWith(
+        unlockedAchievements: {'cats_100', 'buildings_10'},
+      );
+
+      final json = state.toJson();
+      final restored = GameState.fromJson(json);
+
+      expect(restored.unlockedAchievements.length, 2);
+      expect(restored.hasUnlockedAchievement('cats_100'), true);
+      expect(restored.hasUnlockedAchievement('buildings_10'), true);
+    });
   });
 }

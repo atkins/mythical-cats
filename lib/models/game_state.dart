@@ -9,6 +9,7 @@ class GameState {
   final Set<God> unlockedGods;
   final DateTime lastUpdate;
   final double totalCatsEarned; // For unlock tracking
+  final Set<String> unlockedAchievements;
 
   const GameState({
     required this.resources,
@@ -16,6 +17,7 @@ class GameState {
     required this.unlockedGods,
     required this.lastUpdate,
     this.totalCatsEarned = 0,
+    this.unlockedAchievements = const {},
   });
 
   /// Initial game state
@@ -30,6 +32,7 @@ class GameState {
       unlockedGods: {God.hermes},
       lastUpdate: DateTime.now(),
       totalCatsEarned: 0,
+      unlockedAchievements: {},
     );
   }
 
@@ -40,6 +43,7 @@ class GameState {
     Set<God>? unlockedGods,
     DateTime? lastUpdate,
     double? totalCatsEarned,
+    Set<String>? unlockedAchievements,
   }) {
     return GameState(
       resources: resources ?? Map.from(this.resources),
@@ -47,6 +51,7 @@ class GameState {
       unlockedGods: unlockedGods ?? Set.from(this.unlockedGods),
       lastUpdate: lastUpdate ?? this.lastUpdate,
       totalCatsEarned: totalCatsEarned ?? this.totalCatsEarned,
+      unlockedAchievements: unlockedAchievements ?? Set.from(this.unlockedAchievements),
     );
   }
 
@@ -65,6 +70,11 @@ class GameState {
     return unlockedGods.contains(god);
   }
 
+  /// Check if achievement is unlocked
+  bool hasUnlockedAchievement(String achievementId) {
+    return unlockedAchievements.contains(achievementId);
+  }
+
   /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
@@ -77,6 +87,7 @@ class GameState {
       'unlockedGods': unlockedGods.map((g) => g.name).toList(),
       'lastUpdate': lastUpdate.toIso8601String(),
       'totalCatsEarned': totalCatsEarned,
+      'unlockedAchievements': unlockedAchievements.toList(),
     };
   }
 
@@ -100,6 +111,9 @@ class GameState {
         .toSet(),
       lastUpdate: DateTime.parse(json['lastUpdate'] as String),
       totalCatsEarned: (json['totalCatsEarned'] as num).toDouble(),
+      unlockedAchievements: (json['unlockedAchievements'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toSet() ?? {},
     );
   }
 }
