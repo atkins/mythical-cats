@@ -189,6 +189,11 @@ class GameNotifier extends StateNotifier<GameState> {
     final newAchievements = Set<String>.from(state.unlockedAchievements);
     bool unlocked = false;
 
+    // Calculate total buildings once for efficiency
+    final totalBuildings = state.buildings.values.fold<int>(
+      0, (sum, count) => sum + count,
+    );
+
     for (final achievement in AchievementDefinitions.all) {
       if (state.hasUnlockedAchievement(achievement.id)) {
         continue; // Already unlocked
@@ -206,14 +211,8 @@ class GameNotifier extends StateNotifier<GameState> {
       }
       // Check building achievements
       else if (achievement.id == 'buildings_10') {
-        final totalBuildings = state.buildings.values.fold<int>(
-          0, (sum, count) => sum + count,
-        );
         if (totalBuildings >= 10) shouldUnlock = true;
       } else if (achievement.id == 'buildings_50') {
-        final totalBuildings = state.buildings.values.fold<int>(
-          0, (sum, count) => sum + count,
-        );
         if (totalBuildings >= 50) shouldUnlock = true;
       }
       // Check god achievements
