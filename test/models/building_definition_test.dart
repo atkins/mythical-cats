@@ -6,7 +6,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 void main() {
   group('BuildingDefinition', () {
     test('calculateCost scales with cost multiplier', () {
-      final def = BuildingDefinitions.smallShrine;
+      const def = BuildingDefinitions.smallShrine;
 
       // First building costs base amount
       expect(def.calculateCost(0)[ResourceType.cats], 15);
@@ -21,7 +21,7 @@ void main() {
     });
 
     test('calculateBulkCost sums individual costs', () {
-      final def = BuildingDefinitions.smallShrine;
+      const def = BuildingDefinitions.smallShrine;
 
       final bulkCost = def.calculateBulkCost(0, 3)[ResourceType.cats]!;
       final individualSum =
