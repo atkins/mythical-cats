@@ -6,6 +6,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/building_definition.dart';
 import 'package:mythical_cats/models/god.dart';
+import 'package:mythical_cats/models/achievement_definitions.dart';
 import 'package:mythical_cats/services/save_service.dart';
 
 /// Game logic provider
@@ -89,6 +90,7 @@ class GameNotifier extends StateNotifier<GameState> {
     );
 
     _checkGodUnlocks();
+    _checkAchievements();
   }
 
   /// Buy a building
@@ -118,6 +120,8 @@ class GameNotifier extends StateNotifier<GameState> {
       resources: newResources,
       buildings: newBuildings,
     );
+
+    _checkAchievements();
 
     return true;
   }
@@ -177,6 +181,58 @@ class GameNotifier extends StateNotifier<GameState> {
 
     if (cappedSeconds > 60) { // Only apply if more than 1 minute offline
       _updateGame(cappedSeconds);
+    }
+  }
+
+  /// Check and unlock achievements based on current state
+  void _checkAchievements() {
+    final newAchievements = Set<String>.from(state.unlockedAchievements);
+    bool unlocked = false;
+
+    for (final achievement in AchievementDefinitions.all) {
+      if (state.hasUnlockedAchievement(achievement.id)) {
+        continue; // Already unlocked
+      }
+
+      bool shouldUnlock = false;
+
+      // Check cat achievements
+      if (achievement.id == 'cats_100' && state.totalCatsEarned >= 100) {
+        shouldUnlock = true;
+      } else if (achievement.id == 'cats_1k' && state.totalCatsEarned >= 1000) {
+        shouldUnlock = true;
+      } else if (achievement.id == 'cats_10k' && state.totalCatsEarned >= 10000) {
+        shouldUnlock = true;
+      }
+      // Check building achievements
+      else if (achievement.id == 'buildings_10') {
+        final totalBuildings = state.buildings.values.fold<int>(
+          0, (sum, count) => sum + count,
+        );
+        if (totalBuildings >= 10) shouldUnlock = true;
+      } else if (achievement.id == 'buildings_50') {
+        final totalBuildings = state.buildings.values.fold<int>(
+          0, (sum, count) => sum + count,
+        );
+        if (totalBuildings >= 50) shouldUnlock = true;
+      }
+      // Check god achievements
+      else if (achievement.id == 'god_hestia' && state.hasUnlockedGod(God.hestia)) {
+        shouldUnlock = true;
+      } else if (achievement.id == 'god_demeter' && state.hasUnlockedGod(God.demeter)) {
+        shouldUnlock = true;
+      } else if (achievement.id == 'god_dionysus' && state.hasUnlockedGod(God.dionysus)) {
+        shouldUnlock = true;
+      }
+
+      if (shouldUnlock) {
+        newAchievements.add(achievement.id);
+        unlocked = true;
+      }
+    }
+
+    if (unlocked) {
+      state = state.copyWith(unlockedAchievements: newAchievements);
     }
   }
 

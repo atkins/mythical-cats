@@ -106,5 +106,36 @@ void main() {
       // Should have produced 100 prayers (1.0 per second * 100 seconds)
       expect(notifier.state.getResource(ResourceType.prayers), 100.0);
     });
+
+    test('achievements unlock at correct milestones', () {
+      // Click to 100 cats
+      for (int i = 0; i < 100; i++) {
+        notifier.performRitual();
+      }
+
+      expect(notifier.state.hasUnlockedAchievement('cats_100'), true);
+      expect(notifier.state.hasUnlockedAchievement('cats_1k'), false);
+
+      // Click to 1000 total
+      for (int i = 0; i < 900; i++) {
+        notifier.performRitual();
+      }
+
+      expect(notifier.state.hasUnlockedAchievement('cats_1k'), true);
+    });
+
+    test('building achievement unlocks correctly', () {
+      // Give cats to buy buildings
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.cats: 10000},
+      );
+
+      // Buy 10 small shrines
+      for (int i = 0; i < 10; i++) {
+        notifier.buyBuilding(BuildingType.smallShrine);
+      }
+
+      expect(notifier.state.hasUnlockedAchievement('buildings_10'), true);
+    });
   });
 }
