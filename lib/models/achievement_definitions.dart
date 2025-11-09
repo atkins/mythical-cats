@@ -1,6 +1,4 @@
 import 'package:mythical_cats/models/achievement.dart';
-import 'package:mythical_cats/models/building_type.dart';
-import 'package:mythical_cats/models/god.dart';
 
 /// All achievements in the game
 class AchievementDefinitions {

@@ -34,14 +34,4 @@ class Achievement {
     required this.category,
     this.bonusPercent = 0.5,
   });
-
-  /// Check if achievement is unlocked based on game state
-  bool isUnlocked(
-    double totalCats,
-    Map<String, int> buildingCounts,
-    Set<String> unlockedGods,
-  ) {
-    // Override in subclasses or use achievement definitions
-    return false;
-  }
 }
