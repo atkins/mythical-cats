@@ -83,6 +83,13 @@ class BuildingDefinitions {
     productionType: ResourceType.prayers,
   );
 
+  static const festivalGrounds = BuildingDefinition(
+    type: BuildingType.festivalGrounds,
+    baseCost: {ResourceType.cats: 15000, ResourceType.prayers: 1000},
+    baseProduction: 5.0,
+    productionType: ResourceType.cats,
+  );
+
   /// Get definition by type
   static BuildingDefinition get(BuildingType type) {
     switch (type) {
@@ -98,6 +105,8 @@ class BuildingDefinitions {
         return hearthAltar;
       case BuildingType.harvestField:
         return harvestField;
+      case BuildingType.festivalGrounds:
+        return festivalGrounds;
     }
   }
 
@@ -109,5 +118,6 @@ class BuildingDefinitions {
     messengerWaystation,
     hearthAltar,
     harvestField,
+    festivalGrounds,
   ];
 }

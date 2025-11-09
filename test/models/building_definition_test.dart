@@ -47,5 +47,14 @@ void main() {
       expect(def.baseProduction, 1.0);
       expect(def.productionType, ResourceType.prayers);
     });
+
+    test('festivalGrounds can be retrieved and has correct properties', () {
+      final def = BuildingDefinitions.get(BuildingType.festivalGrounds);
+      expect(def.type, BuildingType.festivalGrounds);
+      expect(def.baseCost[ResourceType.cats], 15000);
+      expect(def.baseCost[ResourceType.prayers], 1000);
+      expect(def.baseProduction, 5.0);
+      expect(def.productionType, ResourceType.cats);
+    });
   });
 }
