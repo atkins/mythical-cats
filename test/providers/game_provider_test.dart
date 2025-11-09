@@ -91,22 +91,20 @@ void main() {
           ResourceType.offerings: 1000,
         },
         unlockedGods: {God.hermes, God.hestia, God.demeter},
+        lastUpdate: DateTime.now().subtract(const Duration(seconds: 100)),
       );
 
-      // Buy harvest field (produces prayers)
+      // Buy harvest field (produces prayers at 1.0 per second)
       notifier.buyBuilding(BuildingType.harvestField);
 
       expect(notifier.state.getBuildingCount(BuildingType.harvestField), 1);
+      expect(notifier.state.getResource(ResourceType.prayers), 0.0);
 
-      // Manually trigger production update
-      notifier.state = notifier.state.copyWith(
-        resources: {
-          ...notifier.state.resources,
-          ResourceType.prayers: 10.0,
-        },
-      );
+      // Trigger automatic production by simulating 100 seconds of offline time
+      notifier.applyOfflineProgress();
 
-      expect(notifier.state.getResource(ResourceType.prayers), 10.0);
+      // Should have produced 100 prayers (1.0 per second * 100 seconds)
+      expect(notifier.state.getResource(ResourceType.prayers), 100.0);
     });
   });
 }
