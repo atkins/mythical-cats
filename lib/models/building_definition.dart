@@ -1,4 +1,4 @@
-import 'dart:math' as Math;
+import 'dart:math' as math;
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/resource_type.dart';
 
@@ -23,7 +23,7 @@ class BuildingDefinition {
     return baseCost.map(
       (resource, cost) => MapEntry(
         resource,
-        cost * Math.pow(costMultiplier, currentCount),
+        cost * math.pow(costMultiplier, currentCount),
       ),
     );
   }
