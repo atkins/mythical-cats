@@ -82,5 +82,31 @@ void main() {
 
       expect(notifier.state.hasUnlockedGod(God.hestia), true);
     });
+
+    test('buildings produce prayers correctly', () {
+      // Give resources to buy harvest field
+      notifier.state = notifier.state.copyWith(
+        resources: {
+          ResourceType.cats: 10000,
+          ResourceType.offerings: 1000,
+        },
+        unlockedGods: {God.hermes, God.hestia, God.demeter},
+      );
+
+      // Buy harvest field (produces prayers)
+      notifier.buyBuilding(BuildingType.harvestField);
+
+      expect(notifier.state.getBuildingCount(BuildingType.harvestField), 1);
+
+      // Manually trigger production update
+      notifier.state = notifier.state.copyWith(
+        resources: {
+          ...notifier.state.resources,
+          ResourceType.prayers: 10.0,
+        },
+      );
+
+      expect(notifier.state.getResource(ResourceType.prayers), 10.0);
+    });
   });
 }

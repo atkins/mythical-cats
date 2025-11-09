@@ -35,6 +35,7 @@ class GameNotifier extends StateNotifier<GameState> {
     // Calculate production
     double catsProduced = 0;
     double offeringsProduced = 0;
+    double prayersProduced = 0;
 
     for (final entry in state.buildings.entries) {
       final buildingType = entry.key;
@@ -47,11 +48,13 @@ class GameNotifier extends StateNotifier<GameState> {
         catsProduced += production;
       } else if (definition.productionType == ResourceType.offerings) {
         offeringsProduced += production;
+      } else if (definition.productionType == ResourceType.prayers) {
+        prayersProduced += production;
       }
     }
 
     // Update resources
-    if (catsProduced > 0 || offeringsProduced > 0) {
+    if (catsProduced > 0 || offeringsProduced > 0 || prayersProduced > 0) {
       final newResources = Map<ResourceType, double>.from(state.resources);
 
       if (catsProduced > 0) {
@@ -59,6 +62,9 @@ class GameNotifier extends StateNotifier<GameState> {
       }
       if (offeringsProduced > 0) {
         newResources[ResourceType.offerings] = state.getResource(ResourceType.offerings) + offeringsProduced;
+      }
+      if (prayersProduced > 0) {
+        newResources[ResourceType.prayers] = state.getResource(ResourceType.prayers) + prayersProduced;
       }
 
       state = state.copyWith(
