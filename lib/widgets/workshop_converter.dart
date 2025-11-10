@@ -55,7 +55,7 @@ class _WorkshopConverterState extends ConsumerState<WorkshopConverter> {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             if (hasDivineAlchemy)
-              Text(
+              const Text(
                 'Divine Alchemy research active: Improved ratio!',
                 style: TextStyle(
                   color: Colors.green,
