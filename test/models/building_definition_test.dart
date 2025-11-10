@@ -56,5 +56,59 @@ void main() {
       expect(def.baseProduction, 5.0);
       expect(def.productionType, ResourceType.cats);
     });
+
+    test('academy has correct properties', () {
+      final academy = BuildingDefinitions.academy;
+      expect(academy.type, BuildingType.academy);
+      expect(academy.baseCost[ResourceType.cats], 50000);
+      expect(academy.baseCost[ResourceType.prayers], 5000);
+      expect(academy.baseProduction, 1.0);
+      expect(academy.productionType, ResourceType.cats);
+    });
+
+    test('essenceRefinery has correct properties', () {
+      final refinery = BuildingDefinitions.essenceRefinery;
+      expect(refinery.type, BuildingType.essenceRefinery);
+      expect(refinery.baseCost[ResourceType.cats], 100000);
+      expect(refinery.baseCost[ResourceType.offerings], 10000);
+      expect(refinery.baseProduction, 0.5);
+      expect(refinery.productionType, ResourceType.divineEssence);
+      expect(refinery.costMultiplier, 1.20);
+    });
+
+    test('nectarBrewery has correct properties', () {
+      final brewery = BuildingDefinitions.nectarBrewery;
+      expect(brewery.type, BuildingType.nectarBrewery);
+      expect(brewery.baseCost[ResourceType.cats], 1000000);
+      expect(brewery.baseCost[ResourceType.divineEssence], 500);
+      expect(brewery.baseProduction, 0.1);
+      expect(brewery.productionType, ResourceType.ambrosia);
+      expect(brewery.costMultiplier, 1.25);
+    });
+
+    test('workshop has correct properties', () {
+      final workshop = BuildingDefinitions.workshop;
+      expect(workshop.type, BuildingType.workshop);
+      expect(workshop.baseCost[ResourceType.cats], 250000);
+      expect(workshop.baseCost[ResourceType.divineEssence], 100);
+      expect(workshop.baseProduction, 0); // Conversion building, no passive production
+    });
+
+    test('warMonument has correct properties', () {
+      final monument = BuildingDefinitions.warMonument;
+      expect(monument.type, BuildingType.warMonument);
+      expect(monument.baseCost[ResourceType.cats], 5000000);
+      expect(monument.baseCost[ResourceType.ambrosia], 1000);
+      expect(monument.baseProduction, 1.0);
+      expect(monument.productionType, ResourceType.conquestPoints);
+    });
+
+    test('get returns correct definition for Phase 3 buildings', () {
+      expect(BuildingDefinitions.get(BuildingType.academy).type, BuildingType.academy);
+      expect(BuildingDefinitions.get(BuildingType.essenceRefinery).type, BuildingType.essenceRefinery);
+      expect(BuildingDefinitions.get(BuildingType.nectarBrewery).type, BuildingType.nectarBrewery);
+      expect(BuildingDefinitions.get(BuildingType.workshop).type, BuildingType.workshop);
+      expect(BuildingDefinitions.get(BuildingType.warMonument).type, BuildingType.warMonument);
+    });
   });
 }

@@ -10,6 +10,8 @@ class GameState {
   final DateTime lastUpdate;
   final double totalCatsEarned; // For unlock tracking
   final Set<String> unlockedAchievements;
+  final Set<String> completedResearch;
+  final Set<String> conqueredTerritories;
 
   const GameState({
     required this.resources,
@@ -18,6 +20,8 @@ class GameState {
     required this.lastUpdate,
     this.totalCatsEarned = 0,
     this.unlockedAchievements = const {},
+    this.completedResearch = const {},
+    this.conqueredTerritories = const {},
   });
 
   /// Initial game state
@@ -33,6 +37,8 @@ class GameState {
       lastUpdate: DateTime.now(),
       totalCatsEarned: 0,
       unlockedAchievements: {},
+      completedResearch: {},
+      conqueredTerritories: {},
     );
   }
 
@@ -44,6 +50,8 @@ class GameState {
     DateTime? lastUpdate,
     double? totalCatsEarned,
     Set<String>? unlockedAchievements,
+    Set<String>? completedResearch,
+    Set<String>? conqueredTerritories,
   }) {
     return GameState(
       resources: resources ?? Map.from(this.resources),
@@ -52,6 +60,8 @@ class GameState {
       lastUpdate: lastUpdate ?? this.lastUpdate,
       totalCatsEarned: totalCatsEarned ?? this.totalCatsEarned,
       unlockedAchievements: unlockedAchievements ?? Set.from(this.unlockedAchievements),
+      completedResearch: completedResearch ?? Set.from(this.completedResearch),
+      conqueredTerritories: conqueredTerritories ?? Set.from(this.conqueredTerritories),
     );
   }
 
@@ -75,6 +85,16 @@ class GameState {
     return unlockedAchievements.contains(achievementId);
   }
 
+  /// Check if research is completed
+  bool hasCompletedResearch(String researchId) {
+    return completedResearch.contains(researchId);
+  }
+
+  /// Check if territory is conquered
+  bool hasConqueredTerritory(String territoryId) {
+    return conqueredTerritories.contains(territoryId);
+  }
+
   /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
@@ -88,6 +108,8 @@ class GameState {
       'lastUpdate': lastUpdate.toIso8601String(),
       'totalCatsEarned': totalCatsEarned,
       'unlockedAchievements': unlockedAchievements.toList(),
+      'completedResearch': completedResearch.toList(),
+      'conqueredTerritories': conqueredTerritories.toList(),
     };
   }
 
@@ -112,6 +134,12 @@ class GameState {
       lastUpdate: DateTime.parse(json['lastUpdate'] as String),
       totalCatsEarned: (json['totalCatsEarned'] as num).toDouble(),
       unlockedAchievements: (json['unlockedAchievements'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toSet() ?? {},
+      completedResearch: (json['completedResearch'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toSet() ?? {},
+      conqueredTerritories: (json['conqueredTerritories'] as List<dynamic>?)
         ?.map((e) => e as String)
         .toSet() ?? {},
     );

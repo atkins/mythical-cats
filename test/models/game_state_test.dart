@@ -75,5 +75,65 @@ void main() {
       expect(restored.hasUnlockedAchievement('cats_100'), true);
       expect(restored.hasUnlockedAchievement('buildings_10'), true);
     });
+
+    test('initial state has empty completed research', () {
+      final state = GameState.initial();
+      expect(state.completedResearch.isEmpty, true);
+    });
+
+    test('hasCompletedResearch returns false for incomplete research', () {
+      final state = GameState.initial();
+      expect(state.hasCompletedResearch('divine_architecture_1'), false);
+    });
+
+    test('hasCompletedResearch returns true for completed research', () {
+      final state = GameState.initial().copyWith(
+        completedResearch: {'divine_architecture_1'},
+      );
+      expect(state.hasCompletedResearch('divine_architecture_1'), true);
+    });
+
+    test('completedResearch serializes in toJson', () {
+      final state = GameState.initial().copyWith(
+        completedResearch: {'divine_architecture_1', 'essence_refinement'},
+      );
+      final json = state.toJson();
+      expect(json['completedResearch'], ['divine_architecture_1', 'essence_refinement']);
+    });
+
+    test('completedResearch deserializes from JSON', () {
+      final state = GameState.initial().copyWith(
+        completedResearch: {'divine_architecture_1'},
+      );
+      final json = state.toJson();
+      final restored = GameState.fromJson(json);
+
+      expect(restored.hasCompletedResearch('divine_architecture_1'), true);
+    });
+
+    test('initial state has empty conquered territories', () {
+      final state = GameState.initial();
+      expect(state.conqueredTerritories.isEmpty, true);
+    });
+
+    test('hasConqueredTerritory returns false for unconquered', () {
+      final state = GameState.initial();
+      expect(state.hasConqueredTerritory('northern_wilds'), false);
+    });
+
+    test('hasConqueredTerritory returns true for conquered', () {
+      final state = GameState.initial().copyWith(
+        conqueredTerritories: {'northern_wilds'},
+      );
+      expect(state.hasConqueredTerritory('northern_wilds'), true);
+    });
+
+    test('conqueredTerritories serializes correctly', () {
+      final state = GameState.initial().copyWith(
+        conqueredTerritories: {'northern_wilds', 'eastern_mountains'},
+      );
+      final json = state.toJson();
+      expect(json['conqueredTerritories'], ['northern_wilds', 'eastern_mountains']);
+    });
   });
 }

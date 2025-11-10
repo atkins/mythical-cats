@@ -2,53 +2,58 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
 import 'package:mythical_cats/models/resource_type.dart';
+import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/utils/number_formatter.dart';
 import 'package:mythical_cats/screens/buildings_screen.dart';
 import 'package:mythical_cats/screens/achievements_screen.dart';
 import 'package:mythical_cats/screens/settings_screen.dart';
+import 'package:mythical_cats/screens/research_screen.dart';
+import 'package:mythical_cats/screens/conquest_screen.dart';
+import 'package:mythical_cats/widgets/resource_panel.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final gameState = ref.watch(gameProvider);
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _currentIndex = 0;
+    // Check which gods are unlocked to determine which tabs to show
+    final hasAthena = gameState.hasUnlockedGod(God.athena);
+    final hasAres = gameState.hasUnlockedGod(God.ares);
 
-  @override
-  Widget build(BuildContext context) {
-    final screens = [
+    // Build tabs dynamically based on unlocked gods
+    final tabs = <Widget>[
+      const Tab(icon: Icon(Icons.home), text: 'Home'),
+      const Tab(icon: Icon(Icons.apartment), text: 'Buildings'),
+      const Tab(icon: Icon(Icons.emoji_events), text: 'Achievements'),
+      const Tab(icon: Icon(Icons.settings), text: 'Settings'),
+      if (hasAthena) const Tab(icon: Icon(Icons.science), text: 'Research'),
+      if (hasAres) const Tab(icon: Icon(Icons.flag), text: 'Conquest'),
+    ];
+
+    // Build tab views in the same order
+    final tabViews = <Widget>[
       const _HomeTab(),
       const BuildingsScreen(),
       const AchievementsScreen(),
       const SettingsScreen(),
+      if (hasAthena) const ResearchScreen(),
+      if (hasAres) const ConquestScreen(),
     ];
 
-    return Scaffold(
-      body: screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          bottom: TabBar(
+            tabs: tabs,
+            isScrollable: tabs.length > 5,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.apartment),
-            label: 'Buildings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_events),
-            label: 'Achievements',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
+        ),
+        body: TabBarView(
+          children: tabViews,
+        ),
       ),
     );
   }
@@ -56,6 +61,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
 class _HomeTab extends ConsumerWidget {
   const _HomeTab();
+
+  God? _getNextGod(gameState) {
+    final currentGodIndex = gameState.unlockedGods.last.index;
+    if (currentGodIndex < God.values.length - 1) {
+      return God.values[currentGodIndex + 1];
+    }
+    return null;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -66,32 +79,39 @@ class _HomeTab extends ConsumerWidget {
     final catsPerSecond = gameNotifier.catsPerSecond;
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Resource display
-            _ResourceDisplay(
-              icon: ResourceType.cats.icon,
-              label: ResourceType.cats.displayName,
-              value: cats,
-              rate: catsPerSecond,
-            ),
-            const SizedBox(height: 24),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Resource display
+              _ResourceDisplay(
+                icon: ResourceType.cats.icon,
+                label: ResourceType.cats.displayName,
+                value: cats,
+                rate: catsPerSecond,
+              ),
+              const SizedBox(height: 16),
 
-            // Ritual button (click to generate cats)
-            _RitualButton(
-              onPressed: () => gameNotifier.performRitual(),
-            ),
+              // All resources panel
+              const ResourcePanel(),
+              const SizedBox(height: 24),
 
-            const SizedBox(height: 24),
+              // Ritual button (click to generate cats)
+              _RitualButton(
+                onPressed: () => gameNotifier.performRitual(),
+              ),
 
-            // Quick stats
-            _QuickStats(
-              currentGod: gameState.unlockedGods.last.displayName,
-              totalEarned: gameState.totalCatsEarned,
-            ),
-          ],
+              const SizedBox(height: 24),
+
+              // Quick stats
+              _QuickStats(
+                currentGod: gameState.unlockedGods.last.displayName,
+                totalEarned: gameState.totalCatsEarned,
+                nextGod: _getNextGod(gameState),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -207,10 +227,12 @@ class _RitualButton extends StatelessWidget {
 class _QuickStats extends StatelessWidget {
   final String currentGod;
   final double totalEarned;
+  final God? nextGod;
 
   const _QuickStats({
     required this.currentGod,
     required this.totalEarned,
+    this.nextGod,
   });
 
   @override
@@ -233,6 +255,20 @@ class _QuickStats extends StatelessWidget {
             label: 'Total Cats Earned',
             value: NumberFormatter.format(totalEarned),
           ),
+          if (nextGod != null) ...[
+            const SizedBox(height: 8),
+            _StatRow(
+              label: 'Next God',
+              value:
+                  '${nextGod!.displayName} (${NumberFormatter.format(nextGod!.unlockRequirement!)})',
+            ),
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: (totalEarned / nextGod!.unlockRequirement!).clamp(0.0, 1.0),
+              backgroundColor: Colors.grey.shade300,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.amber.shade700),
+            ),
+          ],
         ],
       ),
     );
