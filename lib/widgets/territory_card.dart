@@ -61,7 +61,7 @@ class TerritoryCard extends ConsumerWidget {
             : ElevatedButton(
                 onPressed: canConquer
                     ? () {
-                        ref.read(conquestProvider.notifier).conquerTerritory(territory);
+                        ref.read(conquestProvider).conquerTerritory(territory);
                       }
                     : null,
                 child: const Text('Conquer'),

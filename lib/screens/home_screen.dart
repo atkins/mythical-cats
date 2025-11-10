@@ -2,53 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
 import 'package:mythical_cats/models/resource_type.dart';
+import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/utils/number_formatter.dart';
 import 'package:mythical_cats/screens/buildings_screen.dart';
 import 'package:mythical_cats/screens/achievements_screen.dart';
 import 'package:mythical_cats/screens/settings_screen.dart';
+import 'package:mythical_cats/screens/research_screen.dart';
+import 'package:mythical_cats/screens/conquest_screen.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final gameState = ref.watch(gameProvider);
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _currentIndex = 0;
+    // Check which gods are unlocked to determine which tabs to show
+    final hasAthena = gameState.hasUnlockedGod(God.athena);
+    final hasAres = gameState.hasUnlockedGod(God.ares);
 
-  @override
-  Widget build(BuildContext context) {
-    final screens = [
+    // Build tabs dynamically based on unlocked gods
+    final tabs = <Widget>[
+      const Tab(icon: Icon(Icons.home), text: 'Home'),
+      const Tab(icon: Icon(Icons.apartment), text: 'Buildings'),
+      const Tab(icon: Icon(Icons.emoji_events), text: 'Achievements'),
+      const Tab(icon: Icon(Icons.settings), text: 'Settings'),
+      if (hasAthena) const Tab(icon: Icon(Icons.science), text: 'Research'),
+      if (hasAres) const Tab(icon: Icon(Icons.flag), text: 'Conquest'),
+    ];
+
+    // Build tab views in the same order
+    final tabViews = <Widget>[
       const _HomeTab(),
       const BuildingsScreen(),
       const AchievementsScreen(),
       const SettingsScreen(),
+      if (hasAthena) const ResearchScreen(),
+      if (hasAres) const ConquestScreen(),
     ];
 
-    return Scaffold(
-      body: screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          bottom: TabBar(
+            tabs: tabs,
+            isScrollable: tabs.length > 5,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.apartment),
-            label: 'Buildings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.emoji_events),
-            label: 'Achievements',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
+        ),
+        body: TabBarView(
+          children: tabViews,
+        ),
       ),
     );
   }
