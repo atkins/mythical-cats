@@ -184,5 +184,70 @@ void main() {
       final production = notifier.getProductionRate(ResourceType.divineEssence);
       expect(production, closeTo(0.5, 0.01));
     });
+
+    test('convertInWorkshop exchanges offerings for divine essence', () {
+      final notifier = _getNotifier();
+
+      notifier.addResource(ResourceType.offerings, 1000);
+      notifier.addResource(ResourceType.cats, 500000);
+      notifier.addResource(ResourceType.divineEssence, 200);
+      notifier.buyBuilding(BuildingType.workshop, amount: 1);
+
+      final success = notifier.convertInWorkshop(100);
+
+      expect(success, true);
+
+      final state = container.read(gameProvider);
+      expect(state.getResource(ResourceType.offerings), 900);
+      expect(state.getResource(ResourceType.divineEssence), 110); // 200 - 100 (workshop cost) + 10 (100/10)
+    });
+
+    test('convertInWorkshop fails without workshop', () {
+      final notifier = _getNotifier();
+
+      notifier.addResource(ResourceType.offerings, 1000);
+
+      final success = notifier.convertInWorkshop(100);
+
+      expect(success, false);
+    });
+
+    test('convertInWorkshop fails with insufficient offerings', () {
+      final notifier = _getNotifier();
+
+      notifier.addResource(ResourceType.offerings, 50);
+      notifier.addResource(ResourceType.cats, 500000);
+      notifier.addResource(ResourceType.divineEssence, 200);
+      notifier.buyBuilding(BuildingType.workshop, amount: 1);
+
+      final success = notifier.convertInWorkshop(100);
+
+      expect(success, false);
+    });
+
+    test('convertInWorkshop uses improved ratio with divine alchemy research', () {
+      final notifier = _getNotifier();
+
+      notifier.addResource(ResourceType.offerings, 1000);
+      notifier.addResource(ResourceType.cats, 500000);
+      notifier.addResource(ResourceType.divineEssence, 200);
+      notifier.buyBuilding(BuildingType.workshop, amount: 1);
+
+      // Add Divine Alchemy research
+      final currentState = container.read(gameProvider);
+      final newCompleted = Set<String>.from(currentState.completedResearch)
+        ..add('divine_alchemy');
+      notifier.updateState(currentState.copyWith(
+        completedResearch: newCompleted,
+      ));
+
+      final success = notifier.convertInWorkshop(80);
+
+      expect(success, true);
+
+      final state = container.read(gameProvider);
+      expect(state.getResource(ResourceType.offerings), 920); // 1000 - 80
+      expect(state.getResource(ResourceType.divineEssence), 110); // 200 - 100 (workshop cost) + 10 (80/8)
+    });
   });
 }
