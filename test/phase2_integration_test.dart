@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
@@ -8,17 +9,20 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Phase 2 Integration Tests', () {
-    late GameNotifier notifier;
+    late ProviderContainer container;
 
     setUp(() {
-      notifier = GameNotifier();
+      container = ProviderContainer();
     });
 
     tearDown(() {
-      notifier.dispose();
+      container.dispose();
     });
 
+    GameNotifier _getNotifier() => container.read(gameProvider.notifier);
+
     test('Demeter unlocks and harvest field becomes available', () {
+      final notifier = _getNotifier();
       // Set up state to unlock Demeter
       notifier.state = notifier.state.copyWith(
         totalCatsEarned: 10000,
@@ -40,6 +44,7 @@ void main() {
     });
 
     test('Dionysus unlocks at 100K cats', () {
+      final notifier = _getNotifier();
       notifier.state = notifier.state.copyWith(
         totalCatsEarned: 100000,
         resources: {ResourceType.cats: 100000},
@@ -52,6 +57,7 @@ void main() {
     });
 
     test('achievements unlock at correct milestones', () {
+      final notifier = _getNotifier();
       // Click to 100 cats
       for (int i = 0; i < 100; i++) {
         notifier.performRitual();
@@ -69,6 +75,7 @@ void main() {
     });
 
     test('building achievements unlock correctly', () {
+      final notifier = _getNotifier();
       notifier.state = notifier.state.copyWith(
         resources: {ResourceType.cats: 100000},
       );
@@ -82,6 +89,7 @@ void main() {
     });
 
     test('all Tier 1 resources can be produced', () {
+      final notifier = _getNotifier();
       notifier.state = notifier.state.copyWith(
         resources: {
           ResourceType.cats: 100000,
