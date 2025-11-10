@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="ProjectModuleManager">
-    <modules>
-      <module fileurl="file://$PROJECT_DIR$/mythical_cats.iml" filepath="$PROJECT_DIR$/mythical_cats.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android/mythical_cats_android.iml" filepath="$PROJECT_DIR$/android/mythical_cats_android.iml" />
-    </modules>
-  </component>
-</project>
