@@ -149,6 +149,30 @@ class GameNotifier extends StateNotifier<GameState> {
     state = newState;
   }
 
+  /// Convert offerings to divine essence in the workshop
+  bool convertInWorkshop(double offeringsAmount) {
+    // Check if player has at least 1 workshop
+    if (state.getBuildingCount(BuildingType.workshop) < 1) {
+      return false;
+    }
+
+    // Check if player has enough offerings
+    if (state.getResource(ResourceType.offerings) < offeringsAmount) {
+      return false;
+    }
+
+    // Calculate conversion ratio (10:1 base, 8:1 with Divine Alchemy)
+    final hasDivineAlchemy = state.hasCompletedResearch('divine_alchemy');
+    final conversionRatio = hasDivineAlchemy ? 8.0 : 10.0;
+    final divineEssenceGained = offeringsAmount / conversionRatio;
+
+    // Perform conversion
+    addResource(ResourceType.offerings, -offeringsAmount);
+    addResource(ResourceType.divineEssence, divineEssenceGained);
+
+    return true;
+  }
+
   /// Get production rate for a specific resource type
   double getProductionRate(ResourceType type) {
     double baseProduction = 0;
