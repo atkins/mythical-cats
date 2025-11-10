@@ -51,3 +51,4 @@ app.*.map.json
 # Build artifacts
 build/
 .dart_tool/
+.worktrees/
