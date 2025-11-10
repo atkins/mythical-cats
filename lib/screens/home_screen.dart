@@ -9,6 +9,7 @@ import 'package:mythical_cats/screens/achievements_screen.dart';
 import 'package:mythical_cats/screens/settings_screen.dart';
 import 'package:mythical_cats/screens/research_screen.dart';
 import 'package:mythical_cats/screens/conquest_screen.dart';
+import 'package:mythical_cats/widgets/resource_panel.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -61,6 +62,14 @@ class HomeScreen extends ConsumerWidget {
 class _HomeTab extends ConsumerWidget {
   const _HomeTab();
 
+  God? _getNextGod(gameState) {
+    final currentGodIndex = gameState.unlockedGods.last.index;
+    if (currentGodIndex < God.values.length - 1) {
+      return God.values[currentGodIndex + 1];
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gameState = ref.watch(gameProvider);
@@ -70,32 +79,39 @@ class _HomeTab extends ConsumerWidget {
     final catsPerSecond = gameNotifier.catsPerSecond;
 
     return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Resource display
-            _ResourceDisplay(
-              icon: ResourceType.cats.icon,
-              label: ResourceType.cats.displayName,
-              value: cats,
-              rate: catsPerSecond,
-            ),
-            const SizedBox(height: 24),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Resource display
+              _ResourceDisplay(
+                icon: ResourceType.cats.icon,
+                label: ResourceType.cats.displayName,
+                value: cats,
+                rate: catsPerSecond,
+              ),
+              const SizedBox(height: 16),
 
-            // Ritual button (click to generate cats)
-            _RitualButton(
-              onPressed: () => gameNotifier.performRitual(),
-            ),
+              // All resources panel
+              const ResourcePanel(),
+              const SizedBox(height: 24),
 
-            const SizedBox(height: 24),
+              // Ritual button (click to generate cats)
+              _RitualButton(
+                onPressed: () => gameNotifier.performRitual(),
+              ),
 
-            // Quick stats
-            _QuickStats(
-              currentGod: gameState.unlockedGods.last.displayName,
-              totalEarned: gameState.totalCatsEarned,
-            ),
-          ],
+              const SizedBox(height: 24),
+
+              // Quick stats
+              _QuickStats(
+                currentGod: gameState.unlockedGods.last.displayName,
+                totalEarned: gameState.totalCatsEarned,
+                nextGod: _getNextGod(gameState),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -211,10 +227,12 @@ class _RitualButton extends StatelessWidget {
 class _QuickStats extends StatelessWidget {
   final String currentGod;
   final double totalEarned;
+  final God? nextGod;
 
   const _QuickStats({
     required this.currentGod,
     required this.totalEarned,
+    this.nextGod,
   });
 
   @override
@@ -237,6 +255,20 @@ class _QuickStats extends StatelessWidget {
             label: 'Total Cats Earned',
             value: NumberFormatter.format(totalEarned),
           ),
+          if (nextGod != null) ...[
+            const SizedBox(height: 8),
+            _StatRow(
+              label: 'Next God',
+              value:
+                  '${nextGod!.displayName} (${NumberFormatter.format(nextGod!.unlockRequirement!)})',
+            ),
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: (totalEarned / nextGod!.unlockRequirement!).clamp(0.0, 1.0),
+              backgroundColor: Colors.grey.shade300,
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.amber.shade700),
+            ),
+          ],
         ],
       ),
     );

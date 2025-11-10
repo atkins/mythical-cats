@@ -4,6 +4,7 @@ import 'package:mythical_cats/providers/game_provider.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/building_definition.dart';
 import 'package:mythical_cats/widgets/building_card.dart';
+import 'package:mythical_cats/widgets/workshop_converter.dart';
 
 class BuildingsScreen extends ConsumerWidget {
   const BuildingsScreen({super.key});
@@ -13,15 +14,28 @@ class BuildingsScreen extends ConsumerWidget {
     final gameState = ref.watch(gameProvider);
     final gameNotifier = ref.read(gameProvider.notifier);
 
+    // Check if workshop is owned to show converter
+    final hasWorkshop = gameState.getBuildingCount(BuildingType.workshop) > 0;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Buildings'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: ListView.builder(
-        itemCount: BuildingType.values.length,
+        itemCount: BuildingType.values.length + (hasWorkshop ? 1 : 0),
         itemBuilder: (context, index) {
-          final buildingType = BuildingType.values[index];
+          // Show workshop converter at the top if workshop is owned
+          if (hasWorkshop && index == 0) {
+            return const Padding(
+              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: WorkshopConverter(),
+            );
+          }
+
+          // Adjust index for buildings list
+          final buildingIndex = hasWorkshop ? index - 1 : index;
+          final buildingType = BuildingType.values[buildingIndex];
           final definition = BuildingDefinitions.get(buildingType);
           final owned = gameState.getBuildingCount(buildingType);
           final cost = definition.calculateCost(owned);
