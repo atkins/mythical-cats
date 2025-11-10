@@ -11,7 +11,14 @@ enum BuildingType {
   messengerWaystation, // Hermes
   hearthAltar, // Hestia
   harvestField, // Demeter
-  festivalGrounds; // Dionysus
+  festivalGrounds, // Dionysus
+
+  // Phase 3 buildings
+  academy,
+  essenceRefinery,
+  nectarBrewery,
+  workshop,
+  warMonument;
 
   /// Display name
   String get displayName {
@@ -30,6 +37,16 @@ enum BuildingType {
         return 'Harvest Field';
       case BuildingType.festivalGrounds:
         return 'Festival Grounds';
+      case BuildingType.academy:
+        return 'Academy';
+      case BuildingType.essenceRefinery:
+        return 'Essence Refinery';
+      case BuildingType.nectarBrewery:
+        return 'Nectar Brewery';
+      case BuildingType.workshop:
+        return 'Workshop';
+      case BuildingType.warMonument:
+        return 'War Monument';
     }
   }
 
@@ -50,6 +67,16 @@ enum BuildingType {
         return 'Fields blessed by Demeter that generate prayers';
       case BuildingType.festivalGrounds:
         return 'Celebration grounds that boost cat generation';
+      case BuildingType.academy:
+        return 'A center of learning that produces cats through knowledge';
+      case BuildingType.essenceRefinery:
+        return 'Refines offerings into divine essence';
+      case BuildingType.nectarBrewery:
+        return 'Brews divine essence into ambrosia';
+      case BuildingType.workshop:
+        return 'Converts offerings into divine essence';
+      case BuildingType.warMonument:
+        return 'A monument to divine warfare that generates conquest points';
     }
   }
 
@@ -68,6 +95,16 @@ enum BuildingType {
         return God.demeter;
       case BuildingType.festivalGrounds:
         return God.dionysus;
+      case BuildingType.academy:
+        return God.athena;
+      case BuildingType.essenceRefinery:
+        return God.athena;
+      case BuildingType.nectarBrewery:
+        return God.apollo;
+      case BuildingType.workshop:
+        return God.hephaestus;
+      case BuildingType.warMonument:
+        return God.ares;
     }
   }
 }
