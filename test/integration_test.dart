@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
@@ -8,17 +9,20 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('Integration Test: Early Game Loop', () {
-    late GameNotifier notifier;
+    late ProviderContainer container;
 
     setUp(() {
-      notifier = GameNotifier();
+      container = ProviderContainer();
     });
 
     tearDown(() {
-      notifier.dispose();
+      container.dispose();
     });
 
+    GameNotifier _getNotifier() => container.read(gameProvider.notifier);
+
     test('complete early game progression', () async {
+      final notifier = _getNotifier();
       // Start with 0 cats
       expect(notifier.state.getResource(ResourceType.cats), 0);
 
@@ -56,6 +60,7 @@ void main() {
     });
 
     test('buildings produce correct resources', () {
+      final notifier = _getNotifier();
       // Give resources to buy hearth altar
       notifier.state = notifier.state.copyWith(
         resources: {

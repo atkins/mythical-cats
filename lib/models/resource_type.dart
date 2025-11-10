@@ -6,7 +6,8 @@ enum ResourceType {
   divineEssence,
   ambrosia,
   ichor,
-  celestialFragments;
+  celestialFragments,
+  conquestPoints;
 
   /// Display name for UI
   String get displayName {
@@ -25,6 +26,8 @@ enum ResourceType {
         return 'Ichor';
       case ResourceType.celestialFragments:
         return 'Celestial Fragments';
+      case ResourceType.conquestPoints:
+        return 'Conquest Points';
     }
   }
 
@@ -45,6 +48,8 @@ enum ResourceType {
         return '💉';
       case ResourceType.celestialFragments:
         return '💎';
+      case ResourceType.conquestPoints:
+        return '⚔️';
     }
   }
 }

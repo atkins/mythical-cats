@@ -8,14 +8,16 @@ import 'package:mythical_cats/models/building_definition.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/achievement_definitions.dart';
 import 'package:mythical_cats/services/save_service.dart';
+import 'package:mythical_cats/providers/conquest_provider.dart';
 
 /// Game logic provider
 class GameNotifier extends StateNotifier<GameState> {
+  final Ref ref;
   Ticker? _ticker;
   Duration _lastElapsed = Duration.zero;
   Timer? _saveTimer;
 
-  GameNotifier() : super(GameState.initial()) {
+  GameNotifier(this.ref) : super(GameState.initial()) {
     _startGameLoop();
     _startAutoSave();
   }
@@ -33,39 +35,26 @@ class GameNotifier extends StateNotifier<GameState> {
 
   /// Update game state based on elapsed time
   void _updateGame(double deltaSeconds) {
-    // Calculate production
-    double catsProduced = 0;
-    double offeringsProduced = 0;
-    double prayersProduced = 0;
+    // Calculate production for all resource types
+    final production = <ResourceType, double>{};
 
-    for (final entry in state.buildings.entries) {
-      final buildingType = entry.key;
-      final count = entry.value;
-      final definition = BuildingDefinitions.get(buildingType);
-
-      final production = definition.baseProduction * count * deltaSeconds;
-
-      if (definition.productionType == ResourceType.cats) {
-        catsProduced += production;
-      } else if (definition.productionType == ResourceType.offerings) {
-        offeringsProduced += production;
-      } else if (definition.productionType == ResourceType.prayers) {
-        prayersProduced += production;
+    for (final resourceType in ResourceType.values) {
+      final rate = getProductionRate(resourceType);
+      if (rate > 0) {
+        production[resourceType] = rate * deltaSeconds;
       }
     }
 
-    // Update resources
-    if (catsProduced > 0 || offeringsProduced > 0 || prayersProduced > 0) {
+    // Update resources if any production occurred
+    if (production.isNotEmpty) {
       final newResources = Map<ResourceType, double>.from(state.resources);
 
-      if (catsProduced > 0) {
-        newResources[ResourceType.cats] = state.getResource(ResourceType.cats) + catsProduced;
-      }
-      if (offeringsProduced > 0) {
-        newResources[ResourceType.offerings] = state.getResource(ResourceType.offerings) + offeringsProduced;
-      }
-      if (prayersProduced > 0) {
-        newResources[ResourceType.prayers] = state.getResource(ResourceType.prayers) + prayersProduced;
+      double catsProduced = 0;
+      for (final entry in production.entries) {
+        newResources[entry.key] = state.getResource(entry.key) + entry.value;
+        if (entry.key == ResourceType.cats) {
+          catsProduced = entry.value;
+        }
       }
 
       state = state.copyWith(
@@ -146,16 +135,74 @@ class GameNotifier extends StateNotifier<GameState> {
     }
   }
 
-  /// Calculate total cats per second
-  double get catsPerSecond {
-    double total = 0;
-    for (final entry in state.buildings.entries) {
-      final definition = BuildingDefinitions.get(entry.key);
-      if (definition.productionType == ResourceType.cats) {
-        total += definition.baseProduction * entry.value;
+  /// Add/remove resources (helper for other providers)
+  void addResource(ResourceType type, double amount) {
+    final current = state.getResource(type);
+    final newResources = Map<ResourceType, double>.from(state.resources);
+    newResources[type] = current + amount;
+
+    state = state.copyWith(resources: newResources);
+  }
+
+  /// Update state directly (helper for other providers)
+  void updateState(GameState newState) {
+    state = newState;
+  }
+
+  /// Convert offerings to divine essence in the workshop
+  bool convertInWorkshop(double offeringsAmount) {
+    // Check if player has at least 1 workshop
+    if (state.getBuildingCount(BuildingType.workshop) < 1) {
+      return false;
+    }
+
+    // Check if player has enough offerings
+    if (state.getResource(ResourceType.offerings) < offeringsAmount) {
+      return false;
+    }
+
+    // Calculate conversion ratio (10:1 base, 8:1 with Divine Alchemy)
+    final hasDivineAlchemy = state.hasCompletedResearch('divine_alchemy');
+    final conversionRatio = hasDivineAlchemy ? 8.0 : 10.0;
+    final divineEssenceGained = offeringsAmount / conversionRatio;
+
+    // Perform conversion
+    addResource(ResourceType.offerings, -offeringsAmount);
+    addResource(ResourceType.divineEssence, divineEssenceGained);
+
+    return true;
+  }
+
+  /// Get production rate for a specific resource type
+  double getProductionRate(ResourceType type) {
+    double baseProduction = 0;
+
+    // Calculate base production from buildings
+    for (final buildingType in BuildingType.values) {
+      final count = state.getBuildingCount(buildingType);
+      if (count > 0) {
+        final definition = BuildingDefinitions.get(buildingType);
+        if (definition.productionType == type) {
+          baseProduction += definition.baseProduction * count;
+        }
       }
     }
-    return total;
+
+    // Apply conquest bonuses
+    try {
+      final conquest = ref.read(conquestProvider);
+      final bonuses = conquest.getTotalProductionBonus();
+      final bonus = bonuses[type] ?? 0;
+      return baseProduction * (1 + bonus);
+    } catch (e) {
+      // If conquest provider is not available, return base production
+      return baseProduction;
+    }
+  }
+
+  /// Calculate total cats per second
+  double get catsPerSecond {
+    return getProductionRate(ResourceType.cats);
   }
 
   /// Start auto-save timer (every 30 seconds)
@@ -245,7 +292,7 @@ class GameNotifier extends StateNotifier<GameState> {
 
 /// Provider for game state
 final gameProvider = StateNotifierProvider<GameNotifier, GameState>((ref) {
-  return GameNotifier();
+  return GameNotifier(ref);
 });
 
 /// Provider that loads initial game state
