@@ -90,6 +90,44 @@ class BuildingDefinitions {
     productionType: ResourceType.cats,
   );
 
+  // Phase 3 buildings
+  static const academy = BuildingDefinition(
+    type: BuildingType.academy,
+    baseCost: {ResourceType.cats: 50000, ResourceType.prayers: 5000},
+    baseProduction: 1.0,
+    productionType: ResourceType.cats,
+  );
+
+  static const essenceRefinery = BuildingDefinition(
+    type: BuildingType.essenceRefinery,
+    baseCost: {ResourceType.cats: 100000, ResourceType.offerings: 10000},
+    costMultiplier: 1.20,
+    baseProduction: 0.5,
+    productionType: ResourceType.divineEssence,
+  );
+
+  static const nectarBrewery = BuildingDefinition(
+    type: BuildingType.nectarBrewery,
+    baseCost: {ResourceType.cats: 1000000, ResourceType.divineEssence: 500},
+    costMultiplier: 1.25,
+    baseProduction: 0.1,
+    productionType: ResourceType.ambrosia,
+  );
+
+  static const workshop = BuildingDefinition(
+    type: BuildingType.workshop,
+    baseCost: {ResourceType.cats: 250000, ResourceType.divineEssence: 100},
+    baseProduction: 0,
+    productionType: ResourceType.divineEssence, // For conversion tracking
+  );
+
+  static const warMonument = BuildingDefinition(
+    type: BuildingType.warMonument,
+    baseCost: {ResourceType.cats: 5000000, ResourceType.ambrosia: 1000},
+    baseProduction: 1.0,
+    productionType: ResourceType.conquestPoints,
+  );
+
   /// Get definition by type
   static BuildingDefinition get(BuildingType type) {
     switch (type) {
@@ -107,6 +145,16 @@ class BuildingDefinitions {
         return harvestField;
       case BuildingType.festivalGrounds:
         return festivalGrounds;
+      case BuildingType.academy:
+        return academy;
+      case BuildingType.essenceRefinery:
+        return essenceRefinery;
+      case BuildingType.nectarBrewery:
+        return nectarBrewery;
+      case BuildingType.workshop:
+        return workshop;
+      case BuildingType.warMonument:
+        return warMonument;
     }
   }
 
@@ -119,5 +167,10 @@ class BuildingDefinitions {
     hearthAltar,
     harvestField,
     festivalGrounds,
+    academy,
+    essenceRefinery,
+    nectarBrewery,
+    workshop,
+    warMonument,
   ];
 }
