@@ -110,5 +110,30 @@ void main() {
 
       expect(restored.hasCompletedResearch('divine_architecture_1'), true);
     });
+
+    test('initial state has empty conquered territories', () {
+      final state = GameState.initial();
+      expect(state.conqueredTerritories.isEmpty, true);
+    });
+
+    test('hasConqueredTerritory returns false for unconquered', () {
+      final state = GameState.initial();
+      expect(state.hasConqueredTerritory('northern_wilds'), false);
+    });
+
+    test('hasConqueredTerritory returns true for conquered', () {
+      final state = GameState.initial().copyWith(
+        conqueredTerritories: {'northern_wilds'},
+      );
+      expect(state.hasConqueredTerritory('northern_wilds'), true);
+    });
+
+    test('conqueredTerritories serializes correctly', () {
+      final state = GameState.initial().copyWith(
+        conqueredTerritories: {'northern_wilds', 'eastern_mountains'},
+      );
+      final json = state.toJson();
+      expect(json['conqueredTerritories'], ['northern_wilds', 'eastern_mountains']);
+    });
   });
 }
