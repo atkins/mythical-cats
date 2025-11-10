@@ -5,7 +5,7 @@ import 'package:mythical_cats/models/achievement_definitions.dart';
 void main() {
   group('Achievement', () {
     test('has all required properties', () {
-      final achievement = AchievementDefinitions.first100Cats;
+      const achievement = AchievementDefinitions.first100Cats;
 
       expect(achievement.id, 'cats_100');
       expect(achievement.name, 'Feline Friend');
