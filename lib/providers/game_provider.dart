@@ -146,6 +146,20 @@ class GameNotifier extends StateNotifier<GameState> {
     }
   }
 
+  /// Add/remove resources (helper for other providers)
+  void addResource(ResourceType type, double amount) {
+    final current = state.getResource(type);
+    final newResources = Map<ResourceType, double>.from(state.resources);
+    newResources[type] = current + amount;
+
+    state = state.copyWith(resources: newResources);
+  }
+
+  /// Update state directly (helper for other providers)
+  void updateState(GameState newState) {
+    state = newState;
+  }
+
   /// Calculate total cats per second
   double get catsPerSecond {
     double total = 0;
