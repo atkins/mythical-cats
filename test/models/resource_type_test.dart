@@ -14,5 +14,13 @@ void main() {
         expect(type.icon.isNotEmpty, true);
       }
     });
+
+    test('conquestPoints has correct display name', () {
+      expect(ResourceType.conquestPoints.displayName, 'Conquest Points');
+    });
+
+    test('conquestPoints has icon', () {
+      expect(ResourceType.conquestPoints.icon.isNotEmpty, true);
+    });
   });
 }
