@@ -10,6 +10,7 @@ class GameState {
   final DateTime lastUpdate;
   final double totalCatsEarned; // For unlock tracking
   final Set<String> unlockedAchievements;
+  final Set<String> completedResearch;
 
   const GameState({
     required this.resources,
@@ -18,6 +19,7 @@ class GameState {
     required this.lastUpdate,
     this.totalCatsEarned = 0,
     this.unlockedAchievements = const {},
+    this.completedResearch = const {},
   });
 
   /// Initial game state
@@ -33,6 +35,7 @@ class GameState {
       lastUpdate: DateTime.now(),
       totalCatsEarned: 0,
       unlockedAchievements: {},
+      completedResearch: {},
     );
   }
 
@@ -44,6 +47,7 @@ class GameState {
     DateTime? lastUpdate,
     double? totalCatsEarned,
     Set<String>? unlockedAchievements,
+    Set<String>? completedResearch,
   }) {
     return GameState(
       resources: resources ?? Map.from(this.resources),
@@ -52,6 +56,7 @@ class GameState {
       lastUpdate: lastUpdate ?? this.lastUpdate,
       totalCatsEarned: totalCatsEarned ?? this.totalCatsEarned,
       unlockedAchievements: unlockedAchievements ?? Set.from(this.unlockedAchievements),
+      completedResearch: completedResearch ?? Set.from(this.completedResearch),
     );
   }
 
@@ -75,6 +80,11 @@ class GameState {
     return unlockedAchievements.contains(achievementId);
   }
 
+  /// Check if research is completed
+  bool hasCompletedResearch(String researchId) {
+    return completedResearch.contains(researchId);
+  }
+
   /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
@@ -88,6 +98,7 @@ class GameState {
       'lastUpdate': lastUpdate.toIso8601String(),
       'totalCatsEarned': totalCatsEarned,
       'unlockedAchievements': unlockedAchievements.toList(),
+      'completedResearch': completedResearch.toList(),
     };
   }
 
@@ -112,6 +123,9 @@ class GameState {
       lastUpdate: DateTime.parse(json['lastUpdate'] as String),
       totalCatsEarned: (json['totalCatsEarned'] as num).toDouble(),
       unlockedAchievements: (json['unlockedAchievements'] as List<dynamic>?)
+        ?.map((e) => e as String)
+        .toSet() ?? {},
+      completedResearch: (json['completedResearch'] as List<dynamic>?)
         ?.map((e) => e as String)
         .toSet() ?? {},
     );
