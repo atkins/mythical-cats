@@ -2,16 +2,26 @@
 
 A Flutter-based idle game where you play as a minor deity collecting mythical cats to ascend to Mount Olympus.
 
-## Phase 1 MVP Features
+## Phase 2 Features (Current)
 
+**Core Gameplay:**
 - Click to perform rituals and summon cats
-- Buy buildings that auto-generate cats
-- First 3 generic building tiers (Small Shrine, Temple, Grand Sanctuary)
-- God-specific buildings (Hermes' Messenger Waystation, Hestia's Hearth Altar)
-- Tier 1 resources (Cats, Offerings, Prayers)
+- Buy buildings that auto-generate cats, offerings, and prayers
+- 7 building types (3 generic + 4 god-specific)
+- First 4 gods unlocked (Hermes at start, Hestia at 1K, Demeter at 10K, Dionysus at 100K cats)
+- Tier 1 resources: Cats, Offerings, Prayers
+
+**Progression Systems:**
 - Auto-save every 30 seconds
 - Offline progression (up to 24 hours)
-- First two gods unlocked (Hermes at start, Hestia at 1000 cats)
+- Achievement system with 8 achievements granting permanent bonuses
+- Statistics tracking (total cats, buildings, gods, achievements)
+
+**UI/UX:**
+- Mobile-first Material 3 design
+- 4 tabs: Home, Buildings, Achievements, Settings
+- Number formatting for large values
+- Achievement progress tracking
 
 ## Getting Started
 
@@ -43,20 +53,38 @@ flutter test
 
 ```
 lib/
-  models/          # Data models (GameState, Building, Resource, God)
+  models/          # Data models (GameState, Building, Resource, God, Achievement)
   providers/       # Riverpod providers (game logic)
-  screens/         # UI screens (Home, Buildings)
+  screens/         # UI screens (Home, Buildings, Achievements, Settings)
   widgets/         # Reusable widgets
   services/        # Save/load service
   utils/           # Number formatting utilities
-test/              # Unit tests
+test/              # Unit and integration tests
 ```
 
 ## Next Steps (Future Phases)
 
-- Add gods 3-4 (Demeter, Dionysus)
+### Phase 3: Mid-Game Systems
 - Research/tech tree system (unlocked with Athena)
-- Achievements
-- Random events
-- More building types
-- Reincarnation/prestige system
+- Gods 5-8 with unique mechanics
+- Tier 2 resources (Divine Essence, Ambrosia)
+- Functional buildings (Workshops, Academies)
+- Random events system
+
+### Phase 4: Prestige System
+- Reincarnation mechanic
+- Primordial forces and skill trees
+- Persistent upgrades across runs
+
+### Phase 5: Late Game Content
+- Gods 9-12 (Hephaestus through Zeus)
+- Advanced systems (breeding, artifacts, conquest)
+- Ascension to Olympus endgame
+
+## Live Demo
+
+Play now: https://atkins.github.io/mythical-cats/
+
+## License
+
+MIT

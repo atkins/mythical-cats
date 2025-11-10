@@ -19,7 +19,7 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: ListView(
         children: [
-          _SectionHeader(title: 'Statistics'),
+          const _SectionHeader(title: 'Statistics'),
           _StatTile(
             label: 'Total Cats Earned',
             value: NumberFormatter.format(gameState.totalCatsEarned),
@@ -41,7 +41,7 @@ class SettingsScreen extends ConsumerWidget {
 
           const Divider(),
 
-          _SectionHeader(title: 'Actions'),
+          const _SectionHeader(title: 'Actions'),
           _ActionTile(
             icon: Icons.save,
             label: 'Manual Save',
@@ -63,7 +63,7 @@ class SettingsScreen extends ConsumerWidget {
 
           const Divider(),
 
-          _SectionHeader(title: 'About'),
+          const _SectionHeader(title: 'About'),
           const _InfoTile(
             label: 'Version',
             value: '0.2.0 (Phase 2)',
