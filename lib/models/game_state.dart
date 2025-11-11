@@ -115,8 +115,15 @@ class GameState {
       throw ProphecyOnCooldownException(prophecy);
     }
 
+    // Calculate actual cost with research bonuses
+    double cost = prophecy.wisdomCost.toDouble();
+
+    // Apply prophetic connection research (-15% cost)
+    if (hasCompletedResearch('prophetic_connection')) {
+      cost *= 0.85; // 15% discount
+    }
+
     // Check if have enough Wisdom
-    final cost = prophecy.wisdomCost;
     final currentWisdom = resources[ResourceType.wisdom] ?? 0;
     if (currentWisdom < cost) {
       throw InsufficientResourcesException(ResourceType.wisdom, cost, currentWisdom);

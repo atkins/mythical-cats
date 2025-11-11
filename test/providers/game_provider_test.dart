@@ -1111,4 +1111,290 @@ void main() {
       expect(notifier.getProductionRate(ResourceType.cats), closeTo(1.65, 0.01));
     });
   });
+
+  // Task 10: Research Bonuses Application
+  group('Research Bonuses to Wisdom Production', () {
+    test('Scholarly Pursuit I adds +10% Wisdom production', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.hallOfWisdom: 10}, // Base: 1.0 Wisdom/sec
+        completedResearch: {'scholarly_pursuit_i'},
+      );
+
+      // Base: 1.0, +10% = 1.1
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.1, 0.01));
+    });
+
+    test('Scholarly Pursuit II adds +15% Wisdom production', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.hallOfWisdom: 10}, // Base: 1.0 Wisdom/sec
+        completedResearch: {'scholarly_pursuit_ii'},
+      );
+
+      // Base: 1.0, +15% = 1.15
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.15, 0.01));
+    });
+
+    test('Scholarly Pursuit III adds +20% Wisdom production', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.hallOfWisdom: 10}, // Base: 1.0 Wisdom/sec
+        completedResearch: {'scholarly_pursuit_iii'},
+      );
+
+      // Base: 1.0, +20% = 1.2
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.2, 0.01));
+    });
+
+    test('Scholarly Pursuit bonuses stack multiplicatively', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.hallOfWisdom: 10}, // Base: 1.0 Wisdom/sec
+        completedResearch: {
+          'scholarly_pursuit_i', // +10%
+          'scholarly_pursuit_ii', // +15%
+          'scholarly_pursuit_iii', // +20%
+        },
+      );
+
+      // 1.0 * 1.10 * 1.15 * 1.20 = 1.518
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.518, 0.01));
+    });
+
+    test('Divine Insight adds +25% to Athena buildings only', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // 1.0 Wisdom/sec (Athena)
+          BuildingType.templeOfDelphi: 1, // 2.0 Wisdom/sec (Apollo)
+        },
+        completedResearch: {'divine_insight'},
+      );
+
+      // Athena: 1.0 * 1.25 = 1.25
+      // Apollo: 2.0 * 1.0 = 2.0
+      // Total: 3.25
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(3.25, 0.01));
+    });
+
+    test('Divine Insight applies to all Athena buildings', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // 1.0 Wisdom/sec
+          BuildingType.academyOfAthens: 5, // 5 * 0.8 = 4.0 Wisdom/sec
+          BuildingType.strategyChamber: 2, // 2 * 5.0 = 10.0 Wisdom/sec
+          BuildingType.oraclesArchive: 1, // 1 * 25.0 = 25.0 Wisdom/sec
+          // Total base: 40.0 Wisdom/sec
+        },
+        completedResearch: {'divine_insight'},
+      );
+
+      // All Athena buildings: 40.0 * 1.25 = 50.0
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(50.0, 0.01));
+    });
+
+    test('Divine Insight and Scholarly Pursuit stack correctly', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // 1.0 Wisdom/sec
+        },
+        completedResearch: {
+          'divine_insight', // +25% to Athena buildings
+          'scholarly_pursuit_i', // +10% global
+        },
+      );
+
+      // Building bonus: 1.0 * 1.25 = 1.25
+      // Global bonus: 1.25 * 1.10 = 1.375
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.375, 0.01));
+    });
+
+    test('All research bonuses stack correctly', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // 1.0 Wisdom/sec (Athena)
+          BuildingType.templeOfDelphi: 1, // 2.0 Wisdom/sec (Apollo)
+        },
+        completedResearch: {
+          'divine_insight', // +25% to Athena buildings
+          'scholarly_pursuit_i', // +10% global
+          'scholarly_pursuit_ii', // +15% global
+          'scholarly_pursuit_iii', // +20% global
+        },
+      );
+
+      // Athena: 1.0 * 1.25 (divine insight) = 1.25
+      // Apollo: 2.0
+      // Total base: 3.25
+      // Apply Scholarly Pursuit: 3.25 * 1.10 * 1.15 * 1.20 = 4.9335
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(4.9335, 0.01));
+    });
+
+    test('Research bonuses combine with primordial bonuses', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // Base: 1.0 Wisdom/sec
+        },
+        completedResearch: {'scholarly_pursuit_i'}, // +10%
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'gaia_1', 'erebus_1'}, // +10% building, +15% tier2
+        ),
+      );
+
+      // Base: 1.0
+      // Primordial: 1.0 * 1.10 (Gaia) * 1.15 (Erebus tier2) = 1.265
+      // Research: 1.265 * 1.10 (Scholarly Pursuit I) = 1.3915
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.3915, 0.01));
+    });
+
+    test('Research bonuses combine with prophecy boosts', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 250},
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // Base: 1.0 Wisdom/sec
+        },
+        completedResearch: {'scholarly_pursuit_i'}, // +10%
+      );
+
+      // Activate Prophecy of Abundance (+100%)
+      notifier.state = notifier.state.activateProphecy(ProphecyType.prophecyOfAbundance, now);
+
+      // Base: 1.0
+      // Research: 1.0 * 1.10 = 1.1
+      // Prophecy: 1.1 * 2.0 = 2.2
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(2.2, 0.01));
+    });
+
+    test('Research bonuses apply in game loop', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // Base: 1.0 Wisdom/sec
+        },
+        completedResearch: {'scholarly_pursuit_i'}, // +10%
+      );
+
+      final initialWisdom = notifier.state.getResource(ResourceType.wisdom);
+      notifier.testUpdateGame(10.0); // 10 seconds
+      final finalWisdom = notifier.state.getResource(ResourceType.wisdom);
+
+      // Production: 1.0 * 1.10 * 10 = 11.0
+      expect(finalWisdom - initialWisdom, closeTo(11.0, 0.1));
+    });
+
+    test('Divine Insight only affects Athena buildings, not Apollo', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Test Apollo buildings without Divine Insight
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.templeOfDelphi: 1, // 2.0 Wisdom/sec (Apollo)
+          BuildingType.sunChariotStable: 1, // 12.0 Wisdom/sec (Apollo)
+        },
+        completedResearch: {'divine_insight'},
+      );
+
+      // Divine Insight should NOT affect Apollo buildings
+      // Total: 2.0 + 12.0 = 14.0 (no bonus)
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(14.0, 0.01));
+    });
+
+    test('No research bonuses without completed research', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // Base: 1.0 Wisdom/sec
+        },
+        completedResearch: {},
+      );
+
+      // No bonuses, should be base production
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.0, 0.01));
+    });
+
+    test('Prophetic Connection reduces prophecy costs by 15%', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 500},
+        completedResearch: {'prophetic_connection'},
+      );
+
+      // Prophecy of Abundance normally costs 250 Wisdom
+      // With -15%, it costs 212.5 Wisdom
+      notifier.state = notifier.state.activateProphecy(ProphecyType.prophecyOfAbundance, now);
+
+      // Should have 500 - 212.5 = 287.5 Wisdom remaining
+      expect(notifier.state.getResource(ResourceType.wisdom), closeTo(287.5, 0.1));
+    });
+
+    test('Prophetic Connection applies to all prophecies', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 1000},
+        completedResearch: {'prophetic_connection'},
+      );
+
+      // Solar Blessing normally costs 100 Wisdom
+      // With -15%, it costs 85 Wisdom
+      notifier.state = notifier.state.activateProphecy(ProphecyType.solarBlessing, now);
+
+      // Should have 1000 - 85 = 915 Wisdom remaining
+      expect(notifier.state.getResource(ResourceType.wisdom), closeTo(915.0, 0.1));
+    });
+
+    test('Prophecy costs without Prophetic Connection', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 500},
+        completedResearch: {}, // No prophetic connection
+      );
+
+      // Prophecy of Abundance normally costs 250 Wisdom
+      notifier.state = notifier.state.activateProphecy(ProphecyType.prophecyOfAbundance, now);
+
+      // Should have 500 - 250 = 250 Wisdom remaining
+      expect(notifier.state.getResource(ResourceType.wisdom), closeTo(250.0, 0.1));
+    });
+  });
 }
