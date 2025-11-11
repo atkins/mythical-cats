@@ -423,6 +423,66 @@ void main() {
     });
   });
 
+  group('GameNotifier Production with Primordial Bonuses', () {
+    test('performRitual uses Chaos click power multiplier', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'chaos_1'}, // +10% = 1.1x
+        ),
+      );
+
+      notifier.performRitual();
+
+      expect(notifier.state.getResource(ResourceType.cats), closeTo(1.1, 0.01));
+    });
+
+    test('performRitual uses Chaos patron bonus', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'chaos_1', 'chaos_2'}, // 2 tiers
+          activePatron: PrimordialForce.chaos, // +50% + 20% = 70%
+        ),
+      );
+
+      // Permanent: 10% + 25% = 35%
+      // Patron: 70%
+      // Total: 1.35 + 0.7 = 2.05x
+      notifier.performRitual();
+      expect(notifier.state.getResource(ResourceType.cats), closeTo(2.05, 0.01));
+    });
+
+    test('building production uses Gaia multiplier', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Give player a building and resources
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.cats: 1000},
+        buildings: {},
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'gaia_1'}, // +10% building production
+        ),
+      );
+
+      // Buy a small shrine (produces 0.1 cats/sec)
+      notifier.buyBuilding(BuildingType.smallShrine);
+
+      // Simulate 10 seconds of production
+      // 0.1 * 10 * 1.1 (Gaia I) = 1.1 cats
+      final initialCats = notifier.state.getResource(ResourceType.cats);
+      notifier.testUpdateGame(10.0);
+      final finalCats = notifier.state.getResource(ResourceType.cats);
+
+      expect(finalCats - initialCats, closeTo(1.1, 0.1));
+    });
+  });
+
   group('GameNotifier Reincarnation', () {
     test('reincarnate resets resources to zero', () {
       final container = ProviderContainer();

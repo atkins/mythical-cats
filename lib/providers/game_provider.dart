@@ -75,11 +75,14 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Perform a ritual (manual click to generate cats)
   void performRitual() {
     final newResources = Map<ResourceType, double>.from(state.resources);
-    newResources[ResourceType.cats] = state.getResource(ResourceType.cats) + 1;
+
+    final clickMultiplier = getClickPowerMultiplier();
+    newResources[ResourceType.cats] =
+        state.getResource(ResourceType.cats) + clickMultiplier;
 
     state = state.copyWith(
       resources: newResources,
-      totalCatsEarned: state.totalCatsEarned + 1,
+      totalCatsEarned: state.totalCatsEarned + clickMultiplier,
     );
 
     _checkGodUnlocks();
@@ -89,25 +92,34 @@ class GameNotifier extends StateNotifier<GameState> {
   /// Buy a building
   bool buyBuilding(BuildingType type, {int amount = 1}) {
     final definition = BuildingDefinitions.get(type);
-    final currentCount = state.getBuildingCount(type);
-    final cost = definition.calculateBulkCost(currentCount, amount);
 
-    // Check if we can afford it
-    for (final entry in cost.entries) {
+    // Calculate total cost with Gaia cost reduction
+    final costReduction = getBuildingCostReduction();
+    final totalCost = definition.calculateBulkCost(
+      state.getBuildingCount(type),
+      amount,
+    );
+
+    final effectiveCost = totalCost.map(
+      (resource, cost) => MapEntry(resource, cost * (1 - costReduction)),
+    );
+
+    // Check affordability with effective cost
+    for (final entry in effectiveCost.entries) {
       if (state.getResource(entry.key) < entry.value) {
-        return false; // Can't afford
+        return false;
       }
     }
 
-    // Deduct resources
+    // Deduct resources using effective cost
     final newResources = Map<ResourceType, double>.from(state.resources);
-    for (final entry in cost.entries) {
+    for (final entry in effectiveCost.entries) {
       newResources[entry.key] = state.getResource(entry.key) - entry.value;
     }
 
-    // Add building
+    // Add buildings
     final newBuildings = Map<BuildingType, int>.from(state.buildings);
-    newBuildings[type] = currentCount + amount;
+    newBuildings[type] = state.getBuildingCount(type) + amount;
 
     state = state.copyWith(
       resources: newResources,
@@ -115,7 +127,6 @@ class GameNotifier extends StateNotifier<GameState> {
     );
 
     _checkAchievements();
-
     return true;
   }
 
@@ -354,6 +365,24 @@ class GameNotifier extends StateNotifier<GameState> {
       }
     }
 
+    // Apply primordial bonuses
+    final buildingMultiplier = getBuildingProductionMultiplier();
+    final tier2Multiplier = getTier2ProductionMultiplier();
+
+    double primordialBonus = 1.0;
+    if (type == ResourceType.cats ||
+        type == ResourceType.offerings ||
+        type == ResourceType.prayers) {
+      // Tier 1 resources: apply building multiplier
+      primordialBonus = buildingMultiplier;
+    } else if (type == ResourceType.divineEssence ||
+        type == ResourceType.ambrosia) {
+      // Tier 2 resources: apply building multiplier * tier2 multiplier
+      primordialBonus = buildingMultiplier * tier2Multiplier;
+    }
+
+    baseProduction *= primordialBonus;
+
     // Apply conquest bonuses
     try {
       final conquest = ref.read(conquestProvider);
@@ -516,6 +545,11 @@ class GameNotifier extends StateNotifier<GameState> {
         thisRunCatsEarned: 0,
       ),
     );
+  }
+
+  /// For testing only - expose _updateGame
+  void testUpdateGame(double deltaSeconds) {
+    _updateGame(deltaSeconds);
   }
 
   @override
