@@ -24,7 +24,13 @@ enum BuildingType {
   hallOfWisdom,
   academyOfAthens,
   strategyChamber,
-  oraclesArchive;
+  oraclesArchive,
+
+  // Apollo buildings (Phase 5)
+  templeOfDelphi,
+  sunChariotStable,
+  musesSanctuary,
+  celestialObservatory;
 
   /// Display name
   String get displayName {
@@ -61,6 +67,14 @@ enum BuildingType {
         return 'Strategy Chamber';
       case BuildingType.oraclesArchive:
         return 'Oracle\'s Archive';
+      case BuildingType.templeOfDelphi:
+        return 'Temple of Delphi';
+      case BuildingType.sunChariotStable:
+        return 'Sun Chariot Stable';
+      case BuildingType.musesSanctuary:
+        return 'Muses\' Sanctuary';
+      case BuildingType.celestialObservatory:
+        return 'Celestial Observatory';
     }
   }
 
@@ -99,6 +113,14 @@ enum BuildingType {
         return 'War room where tactical planning generates strategic insights';
       case BuildingType.oraclesArchive:
         return 'Repository of prophecies and divine foresight';
+      case BuildingType.templeOfDelphi:
+        return 'The sacred site of prophecy and oracles';
+      case BuildingType.sunChariotStable:
+        return 'Where Apollo\'s golden chariot rests, radiating enlightenment';
+      case BuildingType.musesSanctuary:
+        return 'Home to the nine muses who inspire wisdom and creativity';
+      case BuildingType.celestialObservatory:
+        return 'Tracks celestial movements to predict divine patterns';
     }
   }
 
@@ -132,6 +154,11 @@ enum BuildingType {
       case BuildingType.strategyChamber:
       case BuildingType.oraclesArchive:
         return God.athena;
+      case BuildingType.templeOfDelphi:
+      case BuildingType.sunChariotStable:
+      case BuildingType.musesSanctuary:
+      case BuildingType.celestialObservatory:
+        return God.apollo;
     }
   }
 }

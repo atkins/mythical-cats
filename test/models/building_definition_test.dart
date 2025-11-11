@@ -144,5 +144,39 @@ void main() {
         expect(building.productionType, ResourceType.wisdom);
       });
     });
+
+    group('Apollo Buildings', () {
+      test('templeOfDelphi has correct properties', () {
+        const building = BuildingDefinitions.templeOfDelphi;
+        expect(building.type, BuildingType.templeOfDelphi);
+        expect(building.baseCost[ResourceType.cats], 250000);
+        expect(building.baseProduction, 2.0);
+        expect(building.productionType, ResourceType.wisdom);
+      });
+
+      test('sunChariotStable has correct properties', () {
+        const building = BuildingDefinitions.sunChariotStable;
+        expect(building.type, BuildingType.sunChariotStable);
+        expect(building.baseCost[ResourceType.cats], 1500000);
+        expect(building.baseProduction, 12.0);
+        expect(building.productionType, ResourceType.wisdom);
+      });
+
+      test('musesSanctuary has correct properties', () {
+        const building = BuildingDefinitions.musesSanctuary;
+        expect(building.type, BuildingType.musesSanctuary);
+        expect(building.baseCost[ResourceType.cats], 8000000);
+        expect(building.baseProduction, 60.0);
+        expect(building.productionType, ResourceType.wisdom);
+      });
+
+      test('celestialObservatory has correct properties', () {
+        const building = BuildingDefinitions.celestialObservatory;
+        expect(building.type, BuildingType.celestialObservatory);
+        expect(building.baseCost[ResourceType.cats], 40000000);
+        expect(building.baseProduction, 280.0);
+        expect(building.productionType, ResourceType.wisdom);
+      });
+    });
   });
 }

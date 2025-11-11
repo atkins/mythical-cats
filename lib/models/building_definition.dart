@@ -157,6 +157,35 @@ class BuildingDefinitions {
     productionType: ResourceType.wisdom,
   );
 
+  // Apollo buildings (Phase 5)
+  static const templeOfDelphi = BuildingDefinition(
+    type: BuildingType.templeOfDelphi,
+    baseCost: {ResourceType.cats: 250000},
+    baseProduction: 2.0,
+    productionType: ResourceType.wisdom,
+  );
+
+  static const sunChariotStable = BuildingDefinition(
+    type: BuildingType.sunChariotStable,
+    baseCost: {ResourceType.cats: 1500000},
+    baseProduction: 12.0,
+    productionType: ResourceType.wisdom,
+  );
+
+  static const musesSanctuary = BuildingDefinition(
+    type: BuildingType.musesSanctuary,
+    baseCost: {ResourceType.cats: 8000000},
+    baseProduction: 60.0,
+    productionType: ResourceType.wisdom,
+  );
+
+  static const celestialObservatory = BuildingDefinition(
+    type: BuildingType.celestialObservatory,
+    baseCost: {ResourceType.cats: 40000000},
+    baseProduction: 280.0,
+    productionType: ResourceType.wisdom,
+  );
+
   /// Get definition by type
   static BuildingDefinition get(BuildingType type) {
     switch (type) {
@@ -192,6 +221,14 @@ class BuildingDefinitions {
         return strategyChamber;
       case BuildingType.oraclesArchive:
         return oraclesArchive;
+      case BuildingType.templeOfDelphi:
+        return templeOfDelphi;
+      case BuildingType.sunChariotStable:
+        return sunChariotStable;
+      case BuildingType.musesSanctuary:
+        return musesSanctuary;
+      case BuildingType.celestialObservatory:
+        return celestialObservatory;
     }
   }
 
@@ -213,5 +250,9 @@ class BuildingDefinitions {
     academyOfAthens,
     strategyChamber,
     oraclesArchive,
+    templeOfDelphi,
+    sunChariotStable,
+    musesSanctuary,
+    celestialObservatory,
   ];
 }

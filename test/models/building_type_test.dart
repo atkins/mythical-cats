@@ -65,5 +65,59 @@ void main() {
         expect(BuildingType.oraclesArchive.requiredGod, God.athena);
       });
     });
+
+    group('Apollo Buildings', () {
+      test('templeOfDelphi has correct display name', () {
+        expect(BuildingType.templeOfDelphi.displayName, 'Temple of Delphi');
+      });
+
+      test('templeOfDelphi has correct description', () {
+        expect(BuildingType.templeOfDelphi.description,
+          'The sacred site of prophecy and oracles');
+      });
+
+      test('templeOfDelphi requires Apollo', () {
+        expect(BuildingType.templeOfDelphi.requiredGod, God.apollo);
+      });
+
+      test('sunChariotStable has correct display name', () {
+        expect(BuildingType.sunChariotStable.displayName, 'Sun Chariot Stable');
+      });
+
+      test('sunChariotStable has correct description', () {
+        expect(BuildingType.sunChariotStable.description,
+          'Where Apollo\'s golden chariot rests, radiating enlightenment');
+      });
+
+      test('sunChariotStable requires Apollo', () {
+        expect(BuildingType.sunChariotStable.requiredGod, God.apollo);
+      });
+
+      test('musesSanctuary has correct display name', () {
+        expect(BuildingType.musesSanctuary.displayName, 'Muses\' Sanctuary');
+      });
+
+      test('musesSanctuary has correct description', () {
+        expect(BuildingType.musesSanctuary.description,
+          'Home to the nine muses who inspire wisdom and creativity');
+      });
+
+      test('musesSanctuary requires Apollo', () {
+        expect(BuildingType.musesSanctuary.requiredGod, God.apollo);
+      });
+
+      test('celestialObservatory has correct display name', () {
+        expect(BuildingType.celestialObservatory.displayName, 'Celestial Observatory');
+      });
+
+      test('celestialObservatory has correct description', () {
+        expect(BuildingType.celestialObservatory.description,
+          'Tracks celestial movements to predict divine patterns');
+      });
+
+      test('celestialObservatory requires Apollo', () {
+        expect(BuildingType.celestialObservatory.requiredGod, God.apollo);
+      });
+    });
   });
 }
