@@ -42,6 +42,7 @@ void main() {
       expect(ResearchBranch.resource, isNotNull);
       expect(ResearchBranch.automation, isNotNull);
       expect(ResearchBranch.godFavor, isNotNull);
+      expect(ResearchBranch.knowledge, isNotNull);
       expect(ResearchBranch.advanced, isNotNull);
     });
 
@@ -50,6 +51,7 @@ void main() {
       expect(ResearchBranch.resource.displayName, 'Resource');
       expect(ResearchBranch.automation.displayName, 'Automation');
       expect(ResearchBranch.godFavor.displayName, 'God Favor');
+      expect(ResearchBranch.knowledge.displayName, 'Knowledge');
       expect(ResearchBranch.advanced.displayName, 'Advanced');
     });
   });
