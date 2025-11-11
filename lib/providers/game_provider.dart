@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/models/game_state.dart';
@@ -171,6 +172,27 @@ class GameNotifier extends StateNotifier<GameState> {
     addResource(ResourceType.divineEssence, divineEssenceGained);
 
     return true;
+  }
+
+  /// Calculate PE earned from total cats earned in this run.
+  ///
+  /// Formula: basePE = (log(totalCats) / ln10 - 7).round() * 10
+  /// - Threshold: 1 billion cats (1,000,000,000)
+  /// - Returns 0 if below threshold
+  /// - Applies +10% bonus per tier 5 upgrade owned
+  int calculatePrimordialEssence(double totalCats) {
+    if (totalCats < 1000000000) return 0;
+
+    final basePE = (log(totalCats) / ln10 - 7).round() * 10;
+
+    // Apply PE bonuses from tier 5 upgrades (+10% each)
+    double peBonus = 0;
+    if (state.reincarnationState.ownedUpgradeIds.contains('chaos_5')) peBonus += 0.1;
+    if (state.reincarnationState.ownedUpgradeIds.contains('gaia_5')) peBonus += 0.1;
+    if (state.reincarnationState.ownedUpgradeIds.contains('nyx_5')) peBonus += 0.1;
+    if (state.reincarnationState.ownedUpgradeIds.contains('erebus_5')) peBonus += 0.1;
+
+    return (basePE * (1 + peBonus)).floor();
   }
 
   /// Get production rate for a specific resource type

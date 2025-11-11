@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
@@ -6,6 +7,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/conquest_definitions.dart';
+import 'package:mythical_cats/models/reincarnation_state.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -248,6 +250,56 @@ void main() {
       final state = container.read(gameProvider);
       expect(state.getResource(ResourceType.offerings), 920); // 1000 - 80
       expect(state.getResource(ResourceType.divineEssence), 110); // 200 - 100 (workshop cost) + 10 (80/8)
+    });
+  });
+
+  group('GameNotifier Primordial Essence', () {
+    test('calculatePrimordialEssence returns 0 below threshold', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      expect(notifier.calculatePrimordialEssence(999999999), 0);
+      expect(notifier.calculatePrimordialEssence(500000000), 0);
+    });
+
+    test('calculatePrimordialEssence returns correct base values', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      expect(notifier.calculatePrimordialEssence(1000000000), 20); // 1B
+      expect(notifier.calculatePrimordialEssence(10000000000), 30); // 10B
+      expect(notifier.calculatePrimordialEssence(100000000000), 40); // 100B
+      expect(notifier.calculatePrimordialEssence(1000000000000), 50); // 1T
+    });
+
+    test('calculatePrimordialEssence applies tier 5 bonuses', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Buy all 4 tier 5 upgrades (+40% PE total)
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'chaos_5', 'gaia_5', 'nyx_5', 'erebus_5'},
+        ),
+      );
+
+      // 1B cats = 20 base PE * 1.4 = 28 PE
+      expect(notifier.calculatePrimordialEssence(1000000000), 28);
+    });
+
+    test('calculatePrimordialEssence with partial tier 5 bonuses', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Buy 2 tier 5 upgrades (+20% PE)
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'chaos_5', 'gaia_5'},
+        ),
+      );
+
+      // 1B cats = 20 base PE * 1.2 = 24 PE
+      expect(notifier.calculatePrimordialEssence(1000000000), 24);
     });
   });
 }
