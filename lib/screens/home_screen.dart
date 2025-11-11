@@ -9,7 +9,9 @@ import 'package:mythical_cats/screens/achievements_screen.dart';
 import 'package:mythical_cats/screens/settings_screen.dart';
 import 'package:mythical_cats/screens/research_screen.dart';
 import 'package:mythical_cats/screens/conquest_screen.dart';
+import 'package:mythical_cats/screens/reincarnation_screen.dart';
 import 'package:mythical_cats/widgets/resource_panel.dart';
+import 'package:mythical_cats/widgets/prestige_stats_panel.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -17,6 +19,7 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gameState = ref.watch(gameProvider);
+    final hasReincarnation = gameState.totalCatsEarned >= 1000000000;
 
     // Check which gods are unlocked to determine which tabs to show
     final hasAthena = gameState.hasUnlockedGod(God.athena);
@@ -30,6 +33,8 @@ class HomeScreen extends ConsumerWidget {
       const Tab(icon: Icon(Icons.settings), text: 'Settings'),
       if (hasAthena) const Tab(icon: Icon(Icons.science), text: 'Research'),
       if (hasAres) const Tab(icon: Icon(Icons.flag), text: 'Conquest'),
+      if (hasReincarnation)
+        const Tab(icon: Icon(Icons.autorenew), text: 'Reincarnation'),
     ];
 
     // Build tab views in the same order
@@ -40,6 +45,7 @@ class HomeScreen extends ConsumerWidget {
       const SettingsScreen(),
       if (hasAthena) const ResearchScreen(),
       if (hasAres) const ConquestScreen(),
+      if (hasReincarnation) const ReincarnationScreen(),
     ];
 
     return DefaultTabController(
@@ -96,6 +102,26 @@ class _HomeTab extends ConsumerWidget {
               // All resources panel
               const ResourcePanel(),
               const SizedBox(height: 24),
+
+              // Prestige stats (if player has reincarnated)
+              if (gameState.reincarnationState.totalReincarnations > 0)
+                PrestigeStatsPanel(
+                  availablePE: gameState.reincarnationState.availablePrimordialEssence,
+                  totalPE: gameState.reincarnationState.totalPrimordialEssence,
+                  reincarnations: gameState.reincarnationState.totalReincarnations,
+                  activePatron: gameState.reincarnationState.activePatron,
+                  ownedUpgradeIds: gameState.reincarnationState.ownedUpgradeIds,
+                  onTap: () {
+                    // Navigate to Reincarnation tab
+                    // Calculate tab index: 5 base tabs + Research (if Athena) + Conquest (if Ares)
+                    final tabIndex = 5 +
+                        (gameState.hasUnlockedGod(God.athena) ? 1 : 0) +
+                        (gameState.hasUnlockedGod(God.ares) ? 1 : 0);
+                    DefaultTabController.of(context).animateTo(tabIndex);
+                  },
+                ),
+              if (gameState.reincarnationState.totalReincarnations > 0)
+                const SizedBox(height: 24),
 
               // Ritual button (click to generate cats)
               _RitualButton(
