@@ -10,6 +10,7 @@ import 'package:mythical_cats/screens/settings_screen.dart';
 import 'package:mythical_cats/screens/research_screen.dart';
 import 'package:mythical_cats/screens/conquest_screen.dart';
 import 'package:mythical_cats/screens/reincarnation_screen.dart';
+import 'package:mythical_cats/screens/prophecy_screen.dart';
 import 'package:mythical_cats/widgets/resource_panel.dart';
 import 'package:mythical_cats/widgets/prestige_stats_panel.dart';
 
@@ -24,6 +25,7 @@ class HomeScreen extends ConsumerWidget {
     // Check which gods are unlocked to determine which tabs to show
     final hasAthena = gameState.hasUnlockedGod(God.athena);
     final hasAres = gameState.hasUnlockedGod(God.ares);
+    final hasApollo = gameState.hasUnlockedGod(God.apollo);
 
     // Build tabs dynamically based on unlocked gods
     final tabs = <Widget>[
@@ -33,6 +35,7 @@ class HomeScreen extends ConsumerWidget {
       const Tab(icon: Icon(Icons.settings), text: 'Settings'),
       if (hasAthena) const Tab(icon: Icon(Icons.science), text: 'Research'),
       if (hasAres) const Tab(icon: Icon(Icons.flag), text: 'Conquest'),
+      if (hasApollo) const Tab(icon: Icon(Icons.auto_awesome), text: 'Prophecy'),
       if (hasReincarnation)
         const Tab(icon: Icon(Icons.autorenew), text: 'Reincarnation'),
     ];
@@ -45,6 +48,7 @@ class HomeScreen extends ConsumerWidget {
       const SettingsScreen(),
       if (hasAthena) const ResearchScreen(),
       if (hasAres) const ConquestScreen(),
+      if (hasApollo) const ProphecyScreen(),
       if (hasReincarnation) const ReincarnationScreen(),
     ];
 
@@ -113,10 +117,11 @@ class _HomeTab extends ConsumerWidget {
                   ownedUpgradeIds: gameState.reincarnationState.ownedUpgradeIds,
                   onTap: () {
                     // Navigate to Reincarnation tab
-                    // Calculate tab index: 4 base tabs + Research (if Athena) + Conquest (if Ares)
+                    // Calculate tab index: 4 base tabs + Research (if Athena) + Conquest (if Ares) + Prophecy (if Apollo)
                     final tabIndex = 4 +
                         (gameState.hasUnlockedGod(God.athena) ? 1 : 0) +
-                        (gameState.hasUnlockedGod(God.ares) ? 1 : 0);
+                        (gameState.hasUnlockedGod(God.ares) ? 1 : 0) +
+                        (gameState.hasUnlockedGod(God.apollo) ? 1 : 0);
                     DefaultTabController.of(context).animateTo(tabIndex);
                   },
                 ),
