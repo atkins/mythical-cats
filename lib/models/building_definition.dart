@@ -128,6 +128,35 @@ class BuildingDefinitions {
     productionType: ResourceType.conquestPoints,
   );
 
+  // Athena buildings (Phase 5)
+  static const hallOfWisdom = BuildingDefinition(
+    type: BuildingType.hallOfWisdom,
+    baseCost: {ResourceType.cats: 75000},
+    baseProduction: 0.1,
+    productionType: ResourceType.wisdom,
+  );
+
+  static const academyOfAthens = BuildingDefinition(
+    type: BuildingType.academyOfAthens,
+    baseCost: {ResourceType.cats: 500000},
+    baseProduction: 0.8,
+    productionType: ResourceType.wisdom,
+  );
+
+  static const strategyChamber = BuildingDefinition(
+    type: BuildingType.strategyChamber,
+    baseCost: {ResourceType.cats: 3000000},
+    baseProduction: 5.0,
+    productionType: ResourceType.wisdom,
+  );
+
+  static const oraclesArchive = BuildingDefinition(
+    type: BuildingType.oraclesArchive,
+    baseCost: {ResourceType.cats: 15000000},
+    baseProduction: 25.0,
+    productionType: ResourceType.wisdom,
+  );
+
   /// Get definition by type
   static BuildingDefinition get(BuildingType type) {
     switch (type) {
@@ -155,6 +184,14 @@ class BuildingDefinitions {
         return workshop;
       case BuildingType.warMonument:
         return warMonument;
+      case BuildingType.hallOfWisdom:
+        return hallOfWisdom;
+      case BuildingType.academyOfAthens:
+        return academyOfAthens;
+      case BuildingType.strategyChamber:
+        return strategyChamber;
+      case BuildingType.oraclesArchive:
+        return oraclesArchive;
     }
   }
 
@@ -172,5 +209,9 @@ class BuildingDefinitions {
     nectarBrewery,
     workshop,
     warMonument,
+    hallOfWisdom,
+    academyOfAthens,
+    strategyChamber,
+    oraclesArchive,
   ];
 }
