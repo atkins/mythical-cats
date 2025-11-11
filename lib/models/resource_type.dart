@@ -7,7 +7,8 @@ enum ResourceType {
   ambrosia,
   ichor,
   celestialFragments,
-  conquestPoints;
+  conquestPoints,
+  wisdom;
 
   /// Display name for UI
   String get displayName {
@@ -28,6 +29,8 @@ enum ResourceType {
         return 'Celestial Fragments';
       case ResourceType.conquestPoints:
         return 'Conquest Points';
+      case ResourceType.wisdom:
+        return 'Wisdom';
     }
   }
 
@@ -50,6 +53,49 @@ enum ResourceType {
         return '💎';
       case ResourceType.conquestPoints:
         return '⚔️';
+      case ResourceType.wisdom:
+        return '🦉';
+    }
+  }
+
+  /// Description of the resource
+  String get description {
+    switch (this) {
+      case ResourceType.cats:
+        return 'Your primary currency';
+      case ResourceType.offerings:
+        return 'Basic offerings to the gods';
+      case ResourceType.prayers:
+        return 'Spiritual devotion';
+      case ResourceType.divineEssence:
+        return 'Refined spiritual energy';
+      case ResourceType.ambrosia:
+        return 'Food of the gods';
+      case ResourceType.ichor:
+        return 'Blood of the gods';
+      case ResourceType.celestialFragments:
+        return 'Fragments of celestial power';
+      case ResourceType.conquestPoints:
+        return 'Points earned through conquest';
+      case ResourceType.wisdom:
+        return 'Divine knowledge and insight';
+    }
+  }
+
+  /// Resource tier (1 = basic, 2 = advanced)
+  int get tier {
+    switch (this) {
+      case ResourceType.cats:
+      case ResourceType.offerings:
+      case ResourceType.prayers:
+        return 1;
+      case ResourceType.divineEssence:
+      case ResourceType.ambrosia:
+      case ResourceType.ichor:
+      case ResourceType.celestialFragments:
+      case ResourceType.conquestPoints:
+      case ResourceType.wisdom:
+        return 2;
     }
   }
 }

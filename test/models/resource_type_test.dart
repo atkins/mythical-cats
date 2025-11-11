@@ -22,5 +22,16 @@ void main() {
     test('conquestPoints has icon', () {
       expect(ResourceType.conquestPoints.icon.isNotEmpty, true);
     });
+
+    // Phase 5: Wisdom resource tests
+    test('Wisdom resource type exists', () {
+      expect(ResourceType.wisdom, isNotNull);
+    });
+
+    test('Wisdom has correct display properties', () {
+      expect(ResourceType.wisdom.displayName, 'Wisdom');
+      expect(ResourceType.wisdom.description, 'Divine knowledge and insight');
+      expect(ResourceType.wisdom.tier, 2);
+    });
   });
 }
