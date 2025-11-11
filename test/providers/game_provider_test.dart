@@ -740,4 +740,55 @@ void main() {
       expect(notifier.state.reincarnationState.availablePrimordialEssence, 5);
     });
   });
+
+  group('Patron Management', () {
+    test('setActivePatron updates patron', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Set up state with some PE
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: ReincarnationState(
+          totalPrimordialEssence: 100,
+          availablePrimordialEssence: 100,
+          ownedUpgradeIds: {'chaos_1'},
+        ),
+      );
+
+      // Set patron
+      notifier.setActivePatron(PrimordialForce.chaos);
+
+      expect(
+        notifier.state.reincarnationState.activePatron,
+        PrimordialForce.chaos,
+      );
+
+      // Change patron
+      notifier.setActivePatron(PrimordialForce.gaia);
+
+      expect(
+        notifier.state.reincarnationState.activePatron,
+        PrimordialForce.gaia,
+      );
+
+      container.dispose();
+    });
+
+    test('setActivePatron can set patron to null', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: ReincarnationState(
+          activePatron: PrimordialForce.chaos,
+        ),
+      );
+
+      notifier.setActivePatron(null);
+
+      expect(notifier.state.reincarnationState.activePatron, null);
+
+      container.dispose();
+    });
+  });
 }

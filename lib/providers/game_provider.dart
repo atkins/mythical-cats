@@ -521,6 +521,16 @@ class GameNotifier extends StateNotifier<GameState> {
     );
   }
 
+  /// Set the active patron force.
+  /// Pass null to clear the patron.
+  void setActivePatron(PrimordialForce? patron) {
+    state = state.copyWith(
+      reincarnationState: state.reincarnationState.copyWith(
+        activePatron: patron,
+      ),
+    );
+  }
+
   /// Reincarnate: Reset game state and award Primordial Essence
   void reincarnate(PrimordialForce chosenPatron) {
     // Calculate PE earned from this run

@@ -1,5 +1,8 @@
 import 'primordial_force.dart';
 
+// Sentinel value for distinguishing null from undefined in copyWith
+const _undefined = Object();
+
 class ReincarnationState {
   final int totalPrimordialEssence;
   final int availablePrimordialEssence;
@@ -23,7 +26,7 @@ class ReincarnationState {
     int? totalPrimordialEssence,
     int? availablePrimordialEssence,
     Set<String>? ownedUpgradeIds,
-    PrimordialForce? activePatron,
+    Object? activePatron = _undefined,
     int? totalReincarnations,
     int? lifetimeCatsEarned,
     int? thisRunCatsEarned,
@@ -34,7 +37,9 @@ class ReincarnationState {
       availablePrimordialEssence:
           availablePrimordialEssence ?? this.availablePrimordialEssence,
       ownedUpgradeIds: ownedUpgradeIds ?? this.ownedUpgradeIds,
-      activePatron: activePatron ?? this.activePatron,
+      activePatron: activePatron == _undefined
+          ? this.activePatron
+          : activePatron as PrimordialForce?,
       totalReincarnations: totalReincarnations ?? this.totalReincarnations,
       lifetimeCatsEarned: lifetimeCatsEarned ?? this.lifetimeCatsEarned,
       thisRunCatsEarned: thisRunCatsEarned ?? this.thisRunCatsEarned,
