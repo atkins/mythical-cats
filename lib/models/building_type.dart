@@ -18,7 +18,13 @@ enum BuildingType {
   essenceRefinery,
   nectarBrewery,
   workshop,
-  warMonument;
+  warMonument,
+
+  // Athena buildings (Phase 5)
+  hallOfWisdom,
+  academyOfAthens,
+  strategyChamber,
+  oraclesArchive;
 
   /// Display name
   String get displayName {
@@ -47,6 +53,14 @@ enum BuildingType {
         return 'Workshop';
       case BuildingType.warMonument:
         return 'War Monument';
+      case BuildingType.hallOfWisdom:
+        return 'Hall of Wisdom';
+      case BuildingType.academyOfAthens:
+        return 'Academy of Athens';
+      case BuildingType.strategyChamber:
+        return 'Strategy Chamber';
+      case BuildingType.oraclesArchive:
+        return 'Oracle\'s Archive';
     }
   }
 
@@ -77,6 +91,14 @@ enum BuildingType {
         return 'Converts offerings into divine essence';
       case BuildingType.warMonument:
         return 'A monument to divine warfare that generates conquest points';
+      case BuildingType.hallOfWisdom:
+        return 'The foundational wisdom structure, a library of divine knowledge';
+      case BuildingType.academyOfAthens:
+        return 'Where mortals and minor deities study the arts and sciences';
+      case BuildingType.strategyChamber:
+        return 'War room where tactical planning generates strategic insights';
+      case BuildingType.oraclesArchive:
+        return 'Repository of prophecies and divine foresight';
     }
   }
 
@@ -105,6 +127,11 @@ enum BuildingType {
         return God.hephaestus;
       case BuildingType.warMonument:
         return God.ares;
+      case BuildingType.hallOfWisdom:
+      case BuildingType.academyOfAthens:
+      case BuildingType.strategyChamber:
+      case BuildingType.oraclesArchive:
+        return God.athena;
     }
   }
 }

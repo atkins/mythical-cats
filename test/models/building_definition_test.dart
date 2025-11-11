@@ -110,5 +110,39 @@ void main() {
       expect(BuildingDefinitions.get(BuildingType.workshop).type, BuildingType.workshop);
       expect(BuildingDefinitions.get(BuildingType.warMonument).type, BuildingType.warMonument);
     });
+
+    group('Athena Buildings', () {
+      test('hallOfWisdom has correct properties', () {
+        const building = BuildingDefinitions.hallOfWisdom;
+        expect(building.type, BuildingType.hallOfWisdom);
+        expect(building.baseCost[ResourceType.cats], 75000);
+        expect(building.baseProduction, 0.1);
+        expect(building.productionType, ResourceType.wisdom);
+      });
+
+      test('academyOfAthens has correct properties', () {
+        const building = BuildingDefinitions.academyOfAthens;
+        expect(building.type, BuildingType.academyOfAthens);
+        expect(building.baseCost[ResourceType.cats], 500000);
+        expect(building.baseProduction, 0.8);
+        expect(building.productionType, ResourceType.wisdom);
+      });
+
+      test('strategyChamber has correct properties', () {
+        const building = BuildingDefinitions.strategyChamber;
+        expect(building.type, BuildingType.strategyChamber);
+        expect(building.baseCost[ResourceType.cats], 3000000);
+        expect(building.baseProduction, 5.0);
+        expect(building.productionType, ResourceType.wisdom);
+      });
+
+      test('oraclesArchive has correct properties', () {
+        const building = BuildingDefinitions.oraclesArchive;
+        expect(building.type, BuildingType.oraclesArchive);
+        expect(building.baseCost[ResourceType.cats], 15000000);
+        expect(building.baseProduction, 25.0);
+        expect(building.productionType, ResourceType.wisdom);
+      });
+    });
   });
 }
