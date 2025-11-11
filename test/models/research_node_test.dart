@@ -5,7 +5,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 void main() {
   group('ResearchNode', () {
     test('creates node with all properties', () {
-      final node = ResearchNode(
+      const node = ResearchNode(
         id: 'test_node',
         name: 'Test Node',
         description: 'A test research node',
@@ -23,7 +23,7 @@ void main() {
     });
 
     test('node with no prerequisites', () {
-      final node = ResearchNode(
+      const node = ResearchNode(
         id: 'root_node',
         name: 'Root',
         description: 'Root node',

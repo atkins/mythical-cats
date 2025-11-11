@@ -58,7 +58,7 @@ void main() {
     });
 
     test('academy has correct properties', () {
-      final academy = BuildingDefinitions.academy;
+      const academy = BuildingDefinitions.academy;
       expect(academy.type, BuildingType.academy);
       expect(academy.baseCost[ResourceType.cats], 50000);
       expect(academy.baseCost[ResourceType.prayers], 5000);
@@ -67,7 +67,7 @@ void main() {
     });
 
     test('essenceRefinery has correct properties', () {
-      final refinery = BuildingDefinitions.essenceRefinery;
+      const refinery = BuildingDefinitions.essenceRefinery;
       expect(refinery.type, BuildingType.essenceRefinery);
       expect(refinery.baseCost[ResourceType.cats], 100000);
       expect(refinery.baseCost[ResourceType.offerings], 10000);
@@ -77,7 +77,7 @@ void main() {
     });
 
     test('nectarBrewery has correct properties', () {
-      final brewery = BuildingDefinitions.nectarBrewery;
+      const brewery = BuildingDefinitions.nectarBrewery;
       expect(brewery.type, BuildingType.nectarBrewery);
       expect(brewery.baseCost[ResourceType.cats], 1000000);
       expect(brewery.baseCost[ResourceType.divineEssence], 500);
@@ -87,7 +87,7 @@ void main() {
     });
 
     test('workshop has correct properties', () {
-      final workshop = BuildingDefinitions.workshop;
+      const workshop = BuildingDefinitions.workshop;
       expect(workshop.type, BuildingType.workshop);
       expect(workshop.baseCost[ResourceType.cats], 250000);
       expect(workshop.baseCost[ResourceType.divineEssence], 100);
@@ -95,7 +95,7 @@ void main() {
     });
 
     test('warMonument has correct properties', () {
-      final monument = BuildingDefinitions.warMonument;
+      const monument = BuildingDefinitions.warMonument;
       expect(monument.type, BuildingType.warMonument);
       expect(monument.baseCost[ResourceType.cats], 5000000);
       expect(monument.baseCost[ResourceType.ambrosia], 1000);

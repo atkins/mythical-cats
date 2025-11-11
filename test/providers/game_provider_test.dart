@@ -21,23 +21,23 @@ void main() {
       container.dispose();
     });
 
-    GameNotifier _getNotifier() => container.read(gameProvider.notifier);
+    GameNotifier getNotifier() => container.read(gameProvider.notifier);
 
     test('initial state has Hermes unlocked', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       expect(notifier.state.hasUnlockedGod(God.hermes), true);
       expect(notifier.state.getResource(ResourceType.cats), 0);
     });
 
     test('performRitual adds 1 cat', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       notifier.performRitual();
       expect(notifier.state.getResource(ResourceType.cats), 1);
       expect(notifier.state.totalCatsEarned, 1);
     });
 
     test('buyBuilding succeeds when affordable', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Give enough cats to buy a small shrine (costs 15)
       notifier.performRitual();
       for (int i = 0; i < 14; i++) {
@@ -53,14 +53,14 @@ void main() {
     });
 
     test('buyBuilding fails when not affordable', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       final success = notifier.buyBuilding(BuildingType.smallShrine);
       expect(success, false);
       expect(notifier.state.getBuildingCount(BuildingType.smallShrine), 0);
     });
 
     test('buyBuilding can buy multiple at once', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Give enough cats
       for (int i = 0; i < 50; i++) {
         notifier.performRitual();
@@ -72,7 +72,7 @@ void main() {
     });
 
     test('catsPerSecond calculates correctly', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Manually set a building to check calculation
       final newBuildings = {BuildingType.smallShrine: 10};
       notifier.state = notifier.state.copyWith(buildings: newBuildings);
@@ -82,7 +82,7 @@ void main() {
     });
 
     test('god unlocks when requirement met', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       expect(notifier.state.hasUnlockedGod(God.hestia), false);
 
       // Set total cats earned to unlock Hestia (requires 1000)
@@ -96,7 +96,7 @@ void main() {
     });
 
     test('buildings produce prayers correctly', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Give resources to buy harvest field
       notifier.state = notifier.state.copyWith(
         resources: {
@@ -121,7 +121,7 @@ void main() {
     });
 
     test('achievements unlock at correct milestones', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Click to 100 cats
       for (int i = 0; i < 100; i++) {
         notifier.performRitual();
@@ -139,7 +139,7 @@ void main() {
     });
 
     test('building achievement unlocks correctly', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Give cats to buy buildings
       notifier.state = notifier.state.copyWith(
         resources: {ResourceType.cats: 10000},
@@ -154,7 +154,7 @@ void main() {
     });
 
     test('production calculation includes conquest bonuses', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
 
       // Set up initial resources and buildings
       notifier.addResource(ResourceType.cats, 1000);
@@ -175,7 +175,7 @@ void main() {
     });
 
     test('production calculation includes Divine Essence refinery', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
 
       notifier.addResource(ResourceType.cats, 200000);
       notifier.addResource(ResourceType.offerings, 20000);
@@ -186,7 +186,7 @@ void main() {
     });
 
     test('convertInWorkshop exchanges offerings for divine essence', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
 
       notifier.addResource(ResourceType.offerings, 1000);
       notifier.addResource(ResourceType.cats, 500000);
@@ -203,7 +203,7 @@ void main() {
     });
 
     test('convertInWorkshop fails without workshop', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
 
       notifier.addResource(ResourceType.offerings, 1000);
 
@@ -213,7 +213,7 @@ void main() {
     });
 
     test('convertInWorkshop fails with insufficient offerings', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
 
       notifier.addResource(ResourceType.offerings, 50);
       notifier.addResource(ResourceType.cats, 500000);
@@ -226,7 +226,7 @@ void main() {
     });
 
     test('convertInWorkshop uses improved ratio with divine alchemy research', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
 
       notifier.addResource(ResourceType.offerings, 1000);
       notifier.addResource(ResourceType.cats, 500000);

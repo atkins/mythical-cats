@@ -5,7 +5,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 void main() {
   group('ConquestDefinitions', () {
     test('northernWilds has correct properties', () {
-      final territory = ConquestDefinitions.northernWilds;
+      const territory = ConquestDefinitions.northernWilds;
       expect(territory.id, 'northern_wilds');
       expect(territory.cost, 100);
       expect(territory.productionBonus[ResourceType.cats], 0.05);
@@ -13,7 +13,7 @@ void main() {
     });
 
     test('easternMountains requires northernWilds', () {
-      final territory = ConquestDefinitions.easternMountains;
+      const territory = ConquestDefinitions.easternMountains;
       expect(territory.prerequisite, 'northern_wilds');
       expect(territory.cost, 500);
     });

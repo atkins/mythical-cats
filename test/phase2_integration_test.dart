@@ -19,10 +19,10 @@ void main() {
       container.dispose();
     });
 
-    GameNotifier _getNotifier() => container.read(gameProvider.notifier);
+    GameNotifier getNotifier() => container.read(gameProvider.notifier);
 
     test('Demeter unlocks and harvest field becomes available', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Set up state to unlock Demeter
       notifier.state = notifier.state.copyWith(
         totalCatsEarned: 10000,
@@ -44,7 +44,7 @@ void main() {
     });
 
     test('Dionysus unlocks at 100K cats', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       notifier.state = notifier.state.copyWith(
         totalCatsEarned: 100000,
         resources: {ResourceType.cats: 100000},
@@ -57,7 +57,7 @@ void main() {
     });
 
     test('achievements unlock at correct milestones', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Click to 100 cats
       for (int i = 0; i < 100; i++) {
         notifier.performRitual();
@@ -75,7 +75,7 @@ void main() {
     });
 
     test('building achievements unlock correctly', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       notifier.state = notifier.state.copyWith(
         resources: {ResourceType.cats: 100000},
       );
@@ -89,7 +89,7 @@ void main() {
     });
 
     test('all Tier 1 resources can be produced', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       notifier.state = notifier.state.copyWith(
         resources: {
           ResourceType.cats: 100000,
