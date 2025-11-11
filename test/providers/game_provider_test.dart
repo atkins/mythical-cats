@@ -422,4 +422,161 @@ void main() {
       expect(notifier.getTier2ProductionMultiplier(), closeTo(1.45, 0.01));
     });
   });
+
+  group('GameNotifier Reincarnation', () {
+    test('reincarnate resets resources to zero', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        resources: {
+          ResourceType.cats: 50000000,
+          ResourceType.offerings: 10000,
+        },
+      );
+
+      notifier.reincarnate(PrimordialForce.chaos);
+
+      expect(notifier.state.getResource(ResourceType.cats), 0);
+      expect(notifier.state.getResource(ResourceType.offerings), 0);
+    });
+
+    test('reincarnate resets buildings', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        buildings: {BuildingType.smallShrine: 10, BuildingType.temple: 5},
+      );
+
+      notifier.reincarnate(PrimordialForce.chaos);
+
+      expect(notifier.state.getBuildingCount(BuildingType.smallShrine), 0);
+      expect(notifier.state.getBuildingCount(BuildingType.temple), 0);
+    });
+
+    test('reincarnate resets gods to just Hermes', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        unlockedGods: {God.hermes, God.hestia, God.athena},
+      );
+
+      notifier.reincarnate(PrimordialForce.chaos);
+
+      expect(notifier.state.unlockedGods.length, 1);
+      expect(notifier.state.unlockedGods.contains(God.hermes), true);
+    });
+
+    test('reincarnate preserves research', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        completedResearch: {'divine_architecture_1', 'essence_refinement'},
+      );
+
+      notifier.reincarnate(PrimordialForce.chaos);
+
+      expect(notifier.state.completedResearch.length, 2);
+      expect(notifier.state.hasCompletedResearch('divine_architecture_1'), true);
+    });
+
+    test('reincarnate preserves achievements', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        unlockedAchievements: {'cats_100', 'cats_1k'},
+      );
+
+      notifier.reincarnate(PrimordialForce.chaos);
+
+      expect(notifier.state.unlockedAchievements.length, 2);
+      expect(notifier.state.hasUnlockedAchievement('cats_100'), true);
+    });
+
+    test('reincarnate awards PE and sets patron', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+      );
+
+      notifier.reincarnate(PrimordialForce.chaos);
+
+      expect(notifier.state.reincarnationState.totalPrimordialEssence, 20);
+      expect(notifier.state.reincarnationState.availablePrimordialEssence, 20);
+      expect(notifier.state.reincarnationState.activePatron, PrimordialForce.chaos);
+    });
+
+    test('reincarnate increments reincarnation count', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+      );
+
+      notifier.reincarnate(PrimordialForce.chaos);
+      expect(notifier.state.reincarnationState.totalReincarnations, 1);
+
+      notifier.state = notifier.state.copyWith(totalCatsEarned: 5000000000);
+      notifier.reincarnate(PrimordialForce.gaia);
+      expect(notifier.state.reincarnationState.totalReincarnations, 2);
+    });
+
+    test('reincarnate accumulates lifetimeCatsEarned', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(totalCatsEarned: 2000000000);
+      notifier.reincarnate(PrimordialForce.chaos);
+
+      expect(notifier.state.reincarnationState.lifetimeCatsEarned, 2000000000);
+
+      notifier.state = notifier.state.copyWith(totalCatsEarned: 3000000000);
+      notifier.reincarnate(PrimordialForce.gaia);
+
+      expect(notifier.state.reincarnationState.lifetimeCatsEarned, 5000000000);
+    });
+
+    test('reincarnate preserves purchased upgrades', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'chaos_1', 'gaia_1'},
+        ),
+      );
+
+      notifier.reincarnate(PrimordialForce.nyx);
+
+      expect(notifier.state.reincarnationState.ownedUpgradeIds.contains('chaos_1'), true);
+      expect(notifier.state.reincarnationState.ownedUpgradeIds.contains('gaia_1'), true);
+    });
+
+    test('reincarnate resets conquered territories', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        conqueredTerritories: {'northern_wilds', 'eastern_mountains'},
+      );
+
+      notifier.reincarnate(PrimordialForce.chaos);
+
+      expect(notifier.state.conqueredTerritories.isEmpty, true);
+    });
+  });
 }
