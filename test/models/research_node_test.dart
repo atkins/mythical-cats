@@ -43,6 +43,7 @@ void main() {
       expect(ResearchBranch.automation, isNotNull);
       expect(ResearchBranch.godFavor, isNotNull);
       expect(ResearchBranch.advanced, isNotNull);
+      expect(ResearchBranch.knowledge, isNotNull);
     });
 
     test('has display names', () {
@@ -51,6 +52,7 @@ void main() {
       expect(ResearchBranch.automation.displayName, 'Automation');
       expect(ResearchBranch.godFavor.displayName, 'God Favor');
       expect(ResearchBranch.advanced.displayName, 'Advanced');
+      expect(ResearchBranch.knowledge.displayName, 'Knowledge');
     });
   });
 }

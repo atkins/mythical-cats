@@ -6,7 +6,8 @@ enum ResearchBranch {
   resource,
   automation,
   godFavor,
-  advanced;
+  advanced,
+  knowledge;
 
   String get displayName {
     switch (this) {
@@ -20,6 +21,8 @@ enum ResearchBranch {
         return 'God Favor';
       case ResearchBranch.advanced:
         return 'Advanced';
+      case ResearchBranch.knowledge:
+        return 'Knowledge';
     }
   }
 }
