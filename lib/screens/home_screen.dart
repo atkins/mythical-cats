@@ -113,8 +113,8 @@ class _HomeTab extends ConsumerWidget {
                   ownedUpgradeIds: gameState.reincarnationState.ownedUpgradeIds,
                   onTap: () {
                     // Navigate to Reincarnation tab
-                    // Calculate tab index: 5 base tabs + Research (if Athena) + Conquest (if Ares)
-                    final tabIndex = 5 +
+                    // Calculate tab index: 4 base tabs + Research (if Athena) + Conquest (if Ares)
+                    final tabIndex = 4 +
                         (gameState.hasUnlockedGod(God.athena) ? 1 : 0) +
                         (gameState.hasUnlockedGod(God.ares) ? 1 : 0);
                     DefaultTabController.of(context).animateTo(tabIndex);
