@@ -18,6 +18,7 @@ class ResourcePanel extends ConsumerWidget {
       ResourceType.offerings,
       ResourceType.divineEssence,
       ResourceType.ambrosia,
+      ResourceType.wisdom,
       ResourceType.conquestPoints,
     ].where((type) {
       final value = gameState.getResource(type);
