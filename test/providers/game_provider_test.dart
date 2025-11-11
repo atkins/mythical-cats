@@ -578,5 +578,106 @@ void main() {
 
       expect(notifier.state.conqueredTerritories.isEmpty, true);
     });
+
+    test('canPurchasePrimordialUpgrade returns false when insufficient PE', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          availablePrimordialEssence: 5,
+        ),
+      );
+
+      expect(notifier.canPurchasePrimordialUpgrade('chaos_1'), false);
+    });
+
+    test('canPurchasePrimordialUpgrade returns true when affordable', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          availablePrimordialEssence: 20,
+        ),
+      );
+
+      expect(notifier.canPurchasePrimordialUpgrade('chaos_1'), true);
+    });
+
+    test('canPurchasePrimordialUpgrade returns false when missing prerequisite', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          availablePrimordialEssence: 100,
+        ),
+      );
+
+      // Can't buy tier 2 without tier 1
+      expect(notifier.canPurchasePrimordialUpgrade('chaos_2'), false);
+    });
+
+    test('canPurchasePrimordialUpgrade returns true with prerequisite met', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          availablePrimordialEssence: 100,
+          ownedUpgradeIds: {'chaos_1'},
+        ),
+      );
+
+      expect(notifier.canPurchasePrimordialUpgrade('chaos_2'), true);
+    });
+
+    test('canPurchasePrimordialUpgrade returns false when already purchased', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          availablePrimordialEssence: 100,
+          ownedUpgradeIds: {'chaos_1'},
+        ),
+      );
+
+      expect(notifier.canPurchasePrimordialUpgrade('chaos_1'), false);
+    });
+
+    test('purchasePrimordialUpgrade deducts PE and adds upgrade', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          availablePrimordialEssence: 20,
+        ),
+      );
+
+      notifier.purchasePrimordialUpgrade('chaos_1');
+
+      expect(notifier.state.reincarnationState.ownedUpgradeIds.contains('chaos_1'), true);
+      expect(notifier.state.reincarnationState.availablePrimordialEssence, 10);
+    });
+
+    test('purchasePrimordialUpgrade fails when not affordable', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          availablePrimordialEssence: 5,
+        ),
+      );
+
+      notifier.purchasePrimordialUpgrade('chaos_1');
+
+      // Should not purchase
+      expect(notifier.state.reincarnationState.ownedUpgradeIds.contains('chaos_1'), false);
+      expect(notifier.state.reincarnationState.availablePrimordialEssence, 5);
+    });
   });
 }
