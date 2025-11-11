@@ -101,6 +101,107 @@ class ResearchDefinitions {
     prerequisites: ['nectar_brewing'],
   );
 
+  // Knowledge Branch (Phase 5: Athena & Apollo)
+  static const divineScholarship = ResearchNode(
+    id: 'divine_scholarship',
+    name: 'Divine Scholarship',
+    description: 'Begin your journey into divine knowledge. Unlocks at Athena.',
+    branch: ResearchBranch.knowledge,
+    cost: {
+      ResourceType.cats: 75000,
+      ResourceType.wisdom: 25,
+    },
+    prerequisites: [],
+  );
+
+  static const wisdomRefinement1 = ResearchNode(
+    id: 'wisdom_refinement_1',
+    name: 'Wisdom Refinement I',
+    description: '+10% Wisdom production from all buildings.',
+    branch: ResearchBranch.knowledge,
+    cost: {
+      ResourceType.cats: 200000,
+      ResourceType.wisdom: 50,
+    },
+    prerequisites: ['divine_scholarship'],
+  );
+
+  static const wisdomRefinement2 = ResearchNode(
+    id: 'wisdom_refinement_2',
+    name: 'Wisdom Refinement II',
+    description: '+15% Wisdom production from all buildings.',
+    branch: ResearchBranch.knowledge,
+    cost: {
+      ResourceType.cats: 1000000,
+      ResourceType.wisdom: 150,
+    },
+    prerequisites: ['wisdom_refinement_1'],
+  );
+
+  static const wisdomRefinement3 = ResearchNode(
+    id: 'wisdom_refinement_3',
+    name: 'Wisdom Refinement III',
+    description: '+20% Wisdom production from all buildings.',
+    branch: ResearchBranch.knowledge,
+    cost: {
+      ResourceType.cats: 5000000,
+      ResourceType.wisdom: 500,
+      ResourceType.divineEssence: 1000,
+    },
+    prerequisites: ['wisdom_refinement_2'],
+  );
+
+  static const prophecyMastery1 = ResearchNode(
+    id: 'prophecy_mastery_1',
+    name: 'Prophecy Mastery I',
+    description: 'Reduce prophecy Wisdom costs by 10%.',
+    branch: ResearchBranch.knowledge,
+    cost: {
+      ResourceType.cats: 500000,
+      ResourceType.wisdom: 100,
+    },
+    prerequisites: ['wisdom_refinement_1'],
+  );
+
+  static const prophecyMastery2 = ResearchNode(
+    id: 'prophecy_mastery_2',
+    name: 'Prophecy Mastery II',
+    description: 'Reduce prophecy cooldowns by 15%.',
+    branch: ResearchBranch.knowledge,
+    cost: {
+      ResourceType.cats: 3000000,
+      ResourceType.wisdom: 300,
+      ResourceType.divineEssence: 500,
+    },
+    prerequisites: ['prophecy_mastery_1'],
+  );
+
+  static const oraclesInsight = ResearchNode(
+    id: 'oracles_insight',
+    name: 'Oracle\'s Insight',
+    description: 'Prophecies have a 25% chance to not trigger cooldown.',
+    branch: ResearchBranch.knowledge,
+    cost: {
+      ResourceType.cats: 10000000,
+      ResourceType.wisdom: 1000,
+      ResourceType.divineEssence: 5000,
+    },
+    prerequisites: ['prophecy_mastery_2'],
+  );
+
+  static const celestialMathematics = ResearchNode(
+    id: 'celestial_mathematics',
+    name: 'Celestial Mathematics',
+    description: 'Athena and Apollo buildings produce +30% Wisdom.',
+    branch: ResearchBranch.knowledge,
+    cost: {
+      ResourceType.cats: 15000000,
+      ResourceType.wisdom: 2000,
+      ResourceType.divineEssence: 10000,
+    },
+    prerequisites: ['wisdom_refinement_3'],
+  );
+
   /// All research nodes
   static List<ResearchNode> get all => [
         divineArchitecture1,
@@ -111,6 +212,14 @@ class ResearchDefinitions {
         divineAlchemy,
         nectarBrewing,
         ambrosiaInfusion,
+        divineScholarship,
+        wisdomRefinement1,
+        wisdomRefinement2,
+        wisdomRefinement3,
+        prophecyMastery1,
+        prophecyMastery2,
+        oraclesInsight,
+        celestialMathematics,
       ];
 
   /// Get node by ID
