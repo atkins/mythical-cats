@@ -44,7 +44,7 @@ void main() {
       game.addResource(ResourceType.cats, 5000);
       game.addResource(ResourceType.prayers, 1000);
 
-      final arch1 = ResearchDefinitions.divineArchitecture1;
+      const arch1 = ResearchDefinitions.divineArchitecture1;
       expect(research.canUnlockResearch(arch1), true);
       expect(research.unlockResearch(arch1), true);
 
@@ -55,7 +55,7 @@ void main() {
       game.addResource(ResourceType.cats, 10000);
       game.addResource(ResourceType.prayers, 2000);
 
-      final sacredGeo = ResearchDefinitions.sacredGeometry;
+      const sacredGeo = ResearchDefinitions.sacredGeometry;
       expect(research.canUnlockResearch(sacredGeo), true);
       expect(research.unlockResearch(sacredGeo), true);
 
@@ -67,7 +67,7 @@ void main() {
       game.addResource(ResourceType.cats, 50000);
       game.addResource(ResourceType.prayers, 5000);
 
-      final arch2 = ResearchDefinitions.divineArchitecture2;
+      const arch2 = ResearchDefinitions.divineArchitecture2;
       expect(research.canUnlockResearch(arch2), true);
       expect(research.unlockResearch(arch2), true);
 
@@ -100,7 +100,7 @@ void main() {
 
       // 1. Conquer Northern Wilds (+5% cats)
       game.addResource(ResourceType.conquestPoints, 100);
-      final northernWilds = ConquestDefinitions.northernWilds;
+      const northernWilds = ConquestDefinitions.northernWilds;
       expect(conquest.canConquerTerritory(northernWilds), true);
       expect(conquest.conquerTerritory(northernWilds), true);
 
@@ -113,7 +113,7 @@ void main() {
 
       // 2. Conquer Eastern Mountains (requires Northern Wilds, +10% offerings)
       game.addResource(ResourceType.conquestPoints, 500);
-      final easternMountains = ConquestDefinitions.easternMountains;
+      const easternMountains = ConquestDefinitions.easternMountains;
       expect(conquest.canConquerTerritory(easternMountains), true);
       expect(conquest.conquerTerritory(easternMountains), true);
 
@@ -194,7 +194,7 @@ void main() {
       // Unlock Divine Alchemy research
       game.addResource(ResourceType.cats, 200000);
       game.addResource(ResourceType.divineEssence, 200);
-      final divineAlchemy = ResearchDefinitions.divineAlchemy;
+      const divineAlchemy = ResearchDefinitions.divineAlchemy;
       research.unlockResearch(divineAlchemy);
 
       // Test improved conversion (8:1)
@@ -270,12 +270,12 @@ void main() {
       game.addResource(ResourceType.cats, 20000);
       game.addResource(ResourceType.prayers, 5000);
 
-      final sacredGeo = ResearchDefinitions.sacredGeometry;
+      const sacredGeo = ResearchDefinitions.sacredGeometry;
       expect(research.canUnlockResearch(sacredGeo), false);
       expect(research.unlockResearch(sacredGeo), false);
 
       // Unlock prerequisite
-      final arch1 = ResearchDefinitions.divineArchitecture1;
+      const arch1 = ResearchDefinitions.divineArchitecture1;
       expect(research.unlockResearch(arch1), true);
 
       // Now Sacred Geometry should be unlockable
@@ -290,12 +290,12 @@ void main() {
       // Try to conquer Eastern Mountains without Northern Wilds
       game.addResource(ResourceType.conquestPoints, 1000);
 
-      final easternMountains = ConquestDefinitions.easternMountains;
+      const easternMountains = ConquestDefinitions.easternMountains;
       expect(conquest.canConquerTerritory(easternMountains), false);
       expect(conquest.conquerTerritory(easternMountains), false);
 
       // Conquer prerequisite
-      final northernWilds = ConquestDefinitions.northernWilds;
+      const northernWilds = ConquestDefinitions.northernWilds;
       expect(conquest.conquerTerritory(northernWilds), true);
 
       // Now Eastern Mountains should be conquerable

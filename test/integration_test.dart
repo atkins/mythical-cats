@@ -19,10 +19,10 @@ void main() {
       container.dispose();
     });
 
-    GameNotifier _getNotifier() => container.read(gameProvider.notifier);
+    GameNotifier getNotifier() => container.read(gameProvider.notifier);
 
     test('complete early game progression', () async {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Start with 0 cats
       expect(notifier.state.getResource(ResourceType.cats), 0);
 
@@ -60,7 +60,7 @@ void main() {
     });
 
     test('buildings produce correct resources', () {
-      final notifier = _getNotifier();
+      final notifier = getNotifier();
       // Give resources to buy hearth altar
       notifier.state = notifier.state.copyWith(
         resources: {

@@ -6,7 +6,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 void main() {
   group('ResearchDefinitions', () {
     test('divineArchitecture1 has correct properties', () {
-      final node = ResearchDefinitions.divineArchitecture1;
+      const node = ResearchDefinitions.divineArchitecture1;
       expect(node.id, 'divine_architecture_1');
       expect(node.name, 'Divine Architecture I');
       expect(node.branch, ResearchBranch.foundation);
@@ -16,13 +16,13 @@ void main() {
     });
 
     test('sacredGeometry requires divineArchitecture1', () {
-      final node = ResearchDefinitions.sacredGeometry;
+      const node = ResearchDefinitions.sacredGeometry;
       expect(node.id, 'sacred_geometry');
       expect(node.prerequisites, ['divine_architecture_1']);
     });
 
     test('essenceRefinement has correct cost', () {
-      final node = ResearchDefinitions.essenceRefinement;
+      const node = ResearchDefinitions.essenceRefinement;
       expect(node.cost[ResourceType.cats], 25000);
       expect(node.cost[ResourceType.prayers], 5000);
       expect(node.branch, ResearchBranch.resource);

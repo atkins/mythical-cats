@@ -5,7 +5,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 void main() {
   group('ConquestTerritory', () {
     test('creates territory with all properties', () {
-      final territory = ConquestTerritory(
+      const territory = ConquestTerritory(
         id: 'test_territory',
         name: 'Test Territory',
         cost: 100,
@@ -21,7 +21,7 @@ void main() {
     });
 
     test('territory can have prerequisite', () {
-      final territory = ConquestTerritory(
+      const territory = ConquestTerritory(
         id: 'advanced',
         name: 'Advanced',
         cost: 500,
