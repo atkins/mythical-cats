@@ -13,6 +13,7 @@ import 'package:mythical_cats/models/reincarnation_state.dart';
 import 'package:mythical_cats/models/primordial_upgrade_definitions.dart';
 import 'package:mythical_cats/services/save_service.dart';
 import 'package:mythical_cats/providers/conquest_provider.dart';
+import 'package:mythical_cats/models/prophecy.dart';
 
 /// Game logic provider
 class GameNotifier extends StateNotifier<GameState> {
@@ -39,6 +40,10 @@ class GameNotifier extends StateNotifier<GameState> {
 
   /// Update game state based on elapsed time
   void _updateGame(double deltaSeconds) {
+    // Update prophecy effects (expire timed boosts if needed)
+    final now = DateTime.now();
+    state = state.updateProphecyEffects(now);
+
     // Calculate production for all resource types
     final production = <ResourceType, double>{};
 
@@ -385,15 +390,49 @@ class GameNotifier extends StateNotifier<GameState> {
     baseProduction *= primordialBonus;
 
     // Apply conquest bonuses
+    double conquestBonus = 0;
     try {
       final conquest = ref.read(conquestProvider);
       final bonuses = conquest.getTotalProductionBonus();
-      final bonus = bonuses[type] ?? 0;
-      return baseProduction * (1 + bonus);
+      conquestBonus = bonuses[type] ?? 0;
+      baseProduction *= (1 + conquestBonus);
     } catch (e) {
-      // If conquest provider is not available, return base production
-      return baseProduction;
+      // If conquest provider is not available, skip conquest bonuses
     }
+
+    // Apply prophecy timed boost if active
+    final now = DateTime.now();
+    if (state.prophecyState.activeTimedBoost != null &&
+        state.prophecyState.activeTimedBoostExpiry != null &&
+        now.isBefore(state.prophecyState.activeTimedBoostExpiry!)) {
+      final prophecy = state.prophecyState.activeTimedBoost!;
+      final multiplier = prophecy.productionMultiplier;
+
+      if (multiplier != null) {
+        // Apply boost based on prophecy type
+        bool shouldApplyBoost = false;
+
+        if (prophecy == ProphecyType.solarBlessing && type == ResourceType.cats) {
+          // Solar Blessing: +50% cats only
+          shouldApplyBoost = true;
+        } else if (prophecy == ProphecyType.prophecyOfAbundance) {
+          // Prophecy of Abundance: +100% all resources
+          shouldApplyBoost = true;
+        } else if (prophecy == ProphecyType.celestialSurge && type == ResourceType.cats) {
+          // Celestial Surge: +200% cats only
+          shouldApplyBoost = true;
+        } else if (prophecy == ProphecyType.apollosGrandVision) {
+          // Apollo's Grand Vision: +150% all resources
+          shouldApplyBoost = true;
+        }
+
+        if (shouldApplyBoost) {
+          baseProduction *= multiplier;
+        }
+      }
+    }
+
+    return baseProduction;
   }
 
   /// Calculate total cats per second

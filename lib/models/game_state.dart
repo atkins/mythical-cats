@@ -135,6 +135,23 @@ class GameState {
     );
   }
 
+  /// Update prophecy effects (expire timed boosts if needed)
+  GameState updateProphecyEffects(DateTime now) {
+    // Check if active timed boost has expired
+    if (prophecyState.activeTimedBoost != null &&
+        prophecyState.activeTimedBoostExpiry != null &&
+        now.isAfter(prophecyState.activeTimedBoostExpiry!)) {
+      return copyWith(
+        prophecyState: prophecyState.copyWith(
+          activeTimedBoost: null,
+          activeTimedBoostExpiry: null,
+        ),
+      );
+    }
+
+    return this;
+  }
+
   /// Convert to JSON
   Map<String, dynamic> toJson() {
     return {
