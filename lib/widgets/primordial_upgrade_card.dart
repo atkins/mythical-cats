@@ -44,7 +44,7 @@ class PrimordialUpgradeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 140,
-      height: 170,
+      height: 185,
       child: Card(
         elevation: isOwned ? 2 : (canAfford && !isLocked ? 4 : 1),
         color: isOwned ? _forceColor.withOpacity(0.2) : null,
