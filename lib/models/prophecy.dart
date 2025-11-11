@@ -254,13 +254,20 @@ class ProphecyState {
 
   ProphecyState copyWith({
     Map<ProphecyType, DateTime>? cooldowns,
-    ProphecyType? activeTimedBoost,
-    DateTime? activeTimedBoostExpiry,
+    Object? activeTimedBoost = _undefined,
+    Object? activeTimedBoostExpiry = _undefined,
   }) {
     return ProphecyState(
       cooldowns: cooldowns ?? this.cooldowns,
-      activeTimedBoost: activeTimedBoost ?? this.activeTimedBoost,
-      activeTimedBoostExpiry: activeTimedBoostExpiry ?? this.activeTimedBoostExpiry,
+      activeTimedBoost: activeTimedBoost == _undefined
+          ? this.activeTimedBoost
+          : activeTimedBoost as ProphecyType?,
+      activeTimedBoostExpiry: activeTimedBoostExpiry == _undefined
+          ? this.activeTimedBoostExpiry
+          : activeTimedBoostExpiry as DateTime?,
     );
   }
 }
+
+// Sentinel value for nullable copyWith pattern
+const _undefined = Object();

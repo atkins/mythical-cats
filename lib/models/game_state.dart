@@ -2,6 +2,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
+import 'package:mythical_cats/models/prophecy.dart';
 
 /// Immutable game state
 class GameState {
@@ -14,6 +15,7 @@ class GameState {
   final Set<String> completedResearch;
   final Set<String> conqueredTerritories;
   final ReincarnationState reincarnationState;
+  final ProphecyState prophecyState;
 
   const GameState({
     required this.resources,
@@ -25,6 +27,7 @@ class GameState {
     this.completedResearch = const {},
     this.conqueredTerritories = const {},
     this.reincarnationState = const ReincarnationState(),
+    this.prophecyState = const ProphecyState(cooldowns: {}),
   });
 
   /// Initial game state
@@ -44,6 +47,7 @@ class GameState {
       completedResearch: {},
       conqueredTerritories: {},
       reincarnationState: const ReincarnationState(),
+      prophecyState: ProphecyState.initial(),
     );
   }
 
@@ -58,6 +62,7 @@ class GameState {
     Set<String>? completedResearch,
     Set<String>? conqueredTerritories,
     ReincarnationState? reincarnationState,
+    ProphecyState? prophecyState,
   }) {
     return GameState(
       resources: resources ?? Map.from(this.resources),
@@ -69,6 +74,7 @@ class GameState {
       completedResearch: completedResearch ?? Set.from(this.completedResearch),
       conqueredTerritories: conqueredTerritories ?? Set.from(this.conqueredTerritories),
       reincarnationState: reincarnationState ?? this.reincarnationState,
+      prophecyState: prophecyState ?? this.prophecyState,
     );
   }
 
@@ -100,6 +106,33 @@ class GameState {
   /// Check if territory is conquered
   bool hasConqueredTerritory(String territoryId) {
     return conqueredTerritories.contains(territoryId);
+  }
+
+  /// Activate a prophecy
+  GameState activateProphecy(ProphecyType prophecy, DateTime now) {
+    // Check if on cooldown
+    if (prophecyState.isOnCooldown(prophecy, now)) {
+      throw ProphecyOnCooldownException(prophecy);
+    }
+
+    // Check if have enough Wisdom
+    final cost = prophecy.wisdomCost;
+    final currentWisdom = resources[ResourceType.wisdom] ?? 0;
+    if (currentWisdom < cost) {
+      throw InsufficientResourcesException(ResourceType.wisdom, cost, currentWisdom);
+    }
+
+    // Deduct Wisdom
+    final updatedResources = Map<ResourceType, double>.from(resources);
+    updatedResources[ResourceType.wisdom] = currentWisdom - cost;
+
+    // Activate prophecy
+    final updatedProphecyState = prophecyState.activate(prophecy, now);
+
+    return copyWith(
+      resources: updatedResources,
+      prophecyState: updatedProphecyState,
+    );
   }
 
   /// Convert to JSON
@@ -155,4 +188,25 @@ class GameState {
         : const ReincarnationState(),
     );
   }
+}
+
+/// Exception thrown when trying to activate a prophecy on cooldown
+class ProphecyOnCooldownException implements Exception {
+  final ProphecyType prophecy;
+  ProphecyOnCooldownException(this.prophecy);
+
+  @override
+  String toString() => 'Prophecy ${prophecy.displayName} is on cooldown';
+}
+
+/// Exception thrown when trying to activate a prophecy with insufficient resources
+class InsufficientResourcesException implements Exception {
+  final ResourceType resource;
+  final double required;
+  final double current;
+
+  InsufficientResourcesException(this.resource, this.required, this.current);
+
+  @override
+  String toString() => 'Insufficient ${resource.displayName}: need $required, have $current';
 }
