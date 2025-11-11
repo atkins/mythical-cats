@@ -791,4 +791,92 @@ void main() {
       container.dispose();
     });
   });
+
+  // Task 5: Wisdom generation tests
+  group('Wisdom Production', () {
+    test('Game loop generates Wisdom from Athena buildings', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 1, // 0.1 Wisdom/sec
+        },
+      );
+
+      final initialWisdom = notifier.state.getResource(ResourceType.wisdom);
+      notifier.testUpdateGame(10.0); // 10 seconds
+      final finalWisdom = notifier.state.getResource(ResourceType.wisdom);
+
+      expect(finalWisdom - initialWisdom, closeTo(1.0, 0.01)); // 0.1 * 10 = 1.0
+    });
+
+    test('Game loop generates Wisdom from Apollo buildings', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.templeOfDelphi: 1, // 2.0 Wisdom/sec
+        },
+      );
+
+      final initialWisdom = notifier.state.getResource(ResourceType.wisdom);
+      notifier.testUpdateGame(5.0); // 5 seconds
+      final finalWisdom = notifier.state.getResource(ResourceType.wisdom);
+
+      expect(finalWisdom - initialWisdom, closeTo(10.0, 0.01)); // 2.0 * 5 = 10.0
+    });
+
+    test('Wisdom accumulates over multiple ticks', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.academyOfAthens: 1, // 0.8 Wisdom/sec
+        },
+      );
+
+      notifier.testUpdateGame(5.0); // +4.0 Wisdom
+      expect(notifier.state.getResource(ResourceType.wisdom), closeTo(4.0, 0.01));
+
+      notifier.testUpdateGame(5.0); // +4.0 Wisdom
+      expect(notifier.state.getResource(ResourceType.wisdom), closeTo(8.0, 0.01));
+    });
+
+    test('Multiple Wisdom buildings produce correctly', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // 10 * 0.1 = 1.0
+          BuildingType.templeOfDelphi: 2, // 2 * 2.0 = 4.0
+          // Total: 5.0 Wisdom/sec
+        },
+      );
+
+      notifier.testUpdateGame(10.0);
+      expect(notifier.state.getResource(ResourceType.wisdom), closeTo(50.0, 0.01));
+    });
+
+    test('Wisdom production applies tier 2 primordial bonuses', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // Base: 1.0 Wisdom/sec
+        },
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'gaia_1', 'erebus_1'}, // +10% building, +15% tier2
+        ),
+      );
+
+      // Base: 1.0, Building: 1.1x, Tier2: 1.15x = 1.0 * 1.1 * 1.15 = 1.265
+      final production = notifier.getProductionRate(ResourceType.wisdom);
+      expect(production, closeTo(1.265, 0.01));
+    });
+  });
 }
