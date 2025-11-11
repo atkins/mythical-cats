@@ -5,6 +5,7 @@ import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
 import 'package:mythical_cats/models/primordial_force.dart';
+import 'package:mythical_cats/models/prophecy.dart';
 
 void main() {
   group('GameState', () {
@@ -247,6 +248,48 @@ void main() {
 
       final state = GameState.fromJson(json);
       expect(state.resources[ResourceType.wisdom], 250.0);
+    });
+
+    // Task 7: Add Prophecy State to GameState tests
+    test('GameState initializes with empty prophecy state', () {
+      final state = GameState.initial();
+      expect(state.prophecyState, isNotNull);
+      expect(state.prophecyState.cooldowns, isEmpty);
+    });
+
+    test('GameState can activate prophecy', () {
+      final state = GameState.initial().copyWith(
+        resources: {ResourceType.wisdom: 100},
+      );
+
+      final now = DateTime.now();
+      final updated = state.activateProphecy(ProphecyType.solarBlessing, now);
+
+      expect(updated.resources[ResourceType.wisdom], 0); // 100 - 100 = 0
+      expect(updated.prophecyState.isOnCooldown(ProphecyType.solarBlessing), true);
+    });
+
+    test('Cannot activate prophecy with insufficient Wisdom', () {
+      final state = GameState.initial().copyWith(
+        resources: {ResourceType.wisdom: 50},
+      );
+
+      expect(
+        () => state.activateProphecy(ProphecyType.solarBlessing, DateTime.now()),
+        throwsA(isA<InsufficientResourcesException>()),
+      );
+    });
+
+    test('Cannot activate prophecy on cooldown', () {
+      final now = DateTime.now();
+      final state = GameState.initial()
+          .copyWith(resources: {ResourceType.wisdom: 200})
+          .activateProphecy(ProphecyType.solarBlessing, now);
+
+      expect(
+        () => state.activateProphecy(ProphecyType.solarBlessing, now),
+        throwsA(isA<ProphecyOnCooldownException>()),
+      );
     });
   });
 }
