@@ -376,7 +376,8 @@ class GameNotifier extends StateNotifier<GameState> {
       // Tier 1 resources: apply building multiplier
       primordialBonus = buildingMultiplier;
     } else if (type == ResourceType.divineEssence ||
-        type == ResourceType.ambrosia) {
+        type == ResourceType.ambrosia ||
+        type == ResourceType.wisdom) {
       // Tier 2 resources: apply building multiplier * tier2 multiplier
       primordialBonus = buildingMultiplier * tier2Multiplier;
     }
