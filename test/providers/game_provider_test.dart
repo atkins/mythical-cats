@@ -9,6 +9,7 @@ import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/conquest_definitions.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
 import 'package:mythical_cats/models/primordial_force.dart';
+import 'package:mythical_cats/models/prophecy.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -877,6 +878,237 @@ void main() {
       // Base: 1.0, Building: 1.1x, Tier2: 1.15x = 1.0 * 1.1 * 1.15 = 1.265
       final production = notifier.getProductionRate(ResourceType.wisdom);
       expect(production, closeTo(1.265, 0.01));
+    });
+  });
+
+  // Task 8: Timed Boost Application
+  group('Prophecy Timed Boost Application', () {
+    test('Solar Blessing applies +50% cat production', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 100},
+        buildings: {BuildingType.smallShrine: 10}, // Base: 10 * 0.1 = 1.0 cats/sec
+      );
+
+      // Activate Solar Blessing
+      notifier.state = notifier.state.activateProphecy(ProphecyType.solarBlessing, now);
+
+      // Check production rate with boost
+      final boostedRate = notifier.getProductionRate(ResourceType.cats);
+      expect(boostedRate, closeTo(1.5, 0.01)); // 1.0 * 1.5 = 1.5
+    });
+
+    test('Solar Blessing boost expires after duration', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 100},
+        buildings: {BuildingType.smallShrine: 10}, // Base: 1.0 cats/sec
+      );
+
+      // Activate Solar Blessing
+      notifier.state = notifier.state.activateProphecy(ProphecyType.solarBlessing, now);
+
+      // Production should be boosted
+      expect(notifier.getProductionRate(ResourceType.cats), closeTo(1.5, 0.01));
+
+      // After boost expires (15 min + 1 sec)
+      final expired = now.add(Duration(minutes: 15, seconds: 1));
+      notifier.state = notifier.state.updateProphecyEffects(expired);
+
+      final normalRate = notifier.getProductionRate(ResourceType.cats);
+      expect(normalRate, closeTo(1.0, 0.01)); // Back to normal
+    });
+
+    test('Prophecy of Abundance applies +100% to all resources', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 250},
+        buildings: {
+          BuildingType.smallShrine: 10, // 1.0 cats/sec
+          BuildingType.hallOfWisdom: 10, // 1.0 wisdom/sec
+        },
+      );
+
+      notifier.state = notifier.state.activateProphecy(ProphecyType.prophecyOfAbundance, now);
+
+      expect(notifier.getProductionRate(ResourceType.cats), closeTo(2.0, 0.01)); // 1.0 * 2.0
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(2.0, 0.01)); // 1.0 * 2.0
+    });
+
+    test('Celestial Surge applies +200% cat production', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 750},
+        buildings: {BuildingType.smallShrine: 10}, // Base: 1.0 cats/sec
+      );
+
+      notifier.state = notifier.state.activateProphecy(ProphecyType.celestialSurge, now);
+
+      // Check production rate with boost
+      final boostedRate = notifier.getProductionRate(ResourceType.cats);
+      expect(boostedRate, closeTo(3.0, 0.01)); // 1.0 * 3.0 = 3.0
+    });
+
+    test('Celestial Surge only affects cats, not other resources', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 750},
+        buildings: {
+          BuildingType.smallShrine: 10, // 1.0 cats/sec
+          BuildingType.hallOfWisdom: 10, // 1.0 wisdom/sec
+        },
+      );
+
+      notifier.state = notifier.state.activateProphecy(ProphecyType.celestialSurge, now);
+
+      expect(notifier.getProductionRate(ResourceType.cats), closeTo(3.0, 0.01));
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.0, 0.01)); // No boost
+    });
+
+    test('Apollo\'s Grand Vision applies +150% to all resources', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 2000},
+        buildings: {
+          BuildingType.smallShrine: 10, // 1.0 cats/sec
+          BuildingType.hallOfWisdom: 10, // 1.0 wisdom/sec
+        },
+      );
+
+      notifier.state = notifier.state.activateProphecy(ProphecyType.apollosGrandVision, now);
+
+      expect(notifier.getProductionRate(ResourceType.cats), closeTo(2.5, 0.01)); // 1.0 * 2.5
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(2.5, 0.01)); // 1.0 * 2.5
+    });
+
+    test('Timed boost does not apply after expiry', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 250},
+        buildings: {BuildingType.smallShrine: 10}, // 1.0 cats/sec
+      );
+
+      notifier.state = notifier.state.activateProphecy(ProphecyType.prophecyOfAbundance, now);
+
+      // Verify boost is active
+      expect(notifier.getProductionRate(ResourceType.cats), closeTo(2.0, 0.01));
+
+      // Simulate expiration (30 minutes + 1 second)
+      final expired = now.add(Duration(minutes: 30, seconds: 1));
+      notifier.state = notifier.state.updateProphecyEffects(expired);
+
+      // Should be back to normal
+      expect(notifier.getProductionRate(ResourceType.cats), closeTo(1.0, 0.01));
+    });
+
+    test('updateProphecyEffects clears expired boosts', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 100},
+        buildings: {BuildingType.smallShrine: 10},
+      );
+
+      notifier.state = notifier.state.activateProphecy(ProphecyType.solarBlessing, now);
+
+      // Verify active boost
+      expect(notifier.state.prophecyState.activeTimedBoost, ProphecyType.solarBlessing);
+      expect(notifier.state.prophecyState.activeTimedBoostExpiry, isNotNull);
+
+      // Expire the boost
+      final expired = now.add(Duration(minutes: 16));
+      notifier.state = notifier.state.updateProphecyEffects(expired);
+
+      // Should clear active boost
+      expect(notifier.state.prophecyState.activeTimedBoost, isNull);
+      expect(notifier.state.prophecyState.activeTimedBoostExpiry, isNull);
+    });
+
+    test('updateProphecyEffects does not clear active boosts', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 100},
+        buildings: {BuildingType.smallShrine: 10},
+      );
+
+      notifier.state = notifier.state.activateProphecy(ProphecyType.solarBlessing, now);
+
+      // Check while still active (5 minutes in)
+      final stillActive = now.add(Duration(minutes: 5));
+      notifier.state = notifier.state.updateProphecyEffects(stillActive);
+
+      // Should still have active boost
+      expect(notifier.state.prophecyState.activeTimedBoost, ProphecyType.solarBlessing);
+      expect(notifier.state.prophecyState.activeTimedBoostExpiry, isNotNull);
+    });
+
+    test('Timed boost applies in actual game tick', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 250, ResourceType.cats: 0},
+        buildings: {BuildingType.smallShrine: 10}, // 1.0 cats/sec base
+      );
+
+      // Activate boost
+      notifier.state = notifier.state.activateProphecy(ProphecyType.prophecyOfAbundance, now);
+
+      // Simulate 10 seconds of game time
+      // With +100% boost: 1.0 * 2.0 * 10 = 20 cats
+      notifier.testUpdateGame(10.0);
+
+      expect(notifier.state.getResource(ResourceType.cats), closeTo(20.0, 0.1));
+    });
+
+    test('Boost combines with primordial bonuses', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 100},
+        buildings: {BuildingType.smallShrine: 10}, // Base: 1.0 cats/sec
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'gaia_1'}, // +10% building production
+        ),
+      );
+
+      // Without boost: 1.0 * 1.1 = 1.1 cats/sec
+      expect(notifier.getProductionRate(ResourceType.cats), closeTo(1.1, 0.01));
+
+      // Activate Solar Blessing (+50%)
+      notifier.state = notifier.state.activateProphecy(ProphecyType.solarBlessing, now);
+
+      // With boost: 1.0 * 1.1 (primordial) * 1.5 (boost) = 1.65 cats/sec
+      expect(notifier.getProductionRate(ResourceType.cats), closeTo(1.65, 0.01));
     });
   });
 }
