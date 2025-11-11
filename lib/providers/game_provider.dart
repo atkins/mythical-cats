@@ -8,6 +8,7 @@ import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/building_definition.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/achievement_definitions.dart';
+import 'package:mythical_cats/models/primordial_force.dart';
 import 'package:mythical_cats/services/save_service.dart';
 import 'package:mythical_cats/providers/conquest_provider.dart';
 
@@ -193,6 +194,147 @@ class GameNotifier extends StateNotifier<GameState> {
     if (state.reincarnationState.ownedUpgradeIds.contains('erebus_5')) peBonus += 0.1;
 
     return (basePE * (1 + peBonus)).floor();
+  }
+
+  /// Get click power multiplier from Chaos upgrades and patron bonus
+  ///
+  /// Chaos tier bonuses: 10%, 25%, 50%, 100%, 150%
+  /// Patron bonus: 0.5 + (tier * 0.1) if Chaos is active patron
+  double getClickPowerMultiplier() {
+    double multiplier = 1.0;
+    final upgrades = state.reincarnationState.ownedUpgradeIds;
+
+    // Permanent Chaos upgrades
+    if (upgrades.contains('chaos_1')) multiplier += 0.10;
+    if (upgrades.contains('chaos_2')) multiplier += 0.25;
+    if (upgrades.contains('chaos_3')) multiplier += 0.50;
+    if (upgrades.contains('chaos_4')) multiplier += 1.00;
+    if (upgrades.contains('chaos_5')) multiplier += 1.50;
+
+    // Patron bonus
+    if (state.reincarnationState.activePatron == PrimordialForce.chaos) {
+      int tier = 0;
+      if (upgrades.contains('chaos_1')) tier++;
+      if (upgrades.contains('chaos_2')) tier++;
+      if (upgrades.contains('chaos_3')) tier++;
+      if (upgrades.contains('chaos_4')) tier++;
+      if (upgrades.contains('chaos_5')) tier++;
+      multiplier += 0.5 + (tier * 0.1);
+    }
+
+    return multiplier;
+  }
+
+  /// Get building production multiplier from Gaia upgrades and patron bonus
+  ///
+  /// Gaia tier bonuses: 10%, 25%, 50%, 100%, 150%
+  /// Patron bonus: 0.5 + (tier * 0.1) if Gaia is active patron
+  double getBuildingProductionMultiplier() {
+    double multiplier = 1.0;
+    final upgrades = state.reincarnationState.ownedUpgradeIds;
+
+    // Permanent Gaia upgrades
+    if (upgrades.contains('gaia_1')) multiplier += 0.10;
+    if (upgrades.contains('gaia_2')) multiplier += 0.25;
+    if (upgrades.contains('gaia_3')) multiplier += 0.50;
+    if (upgrades.contains('gaia_4')) multiplier += 1.00;
+    if (upgrades.contains('gaia_5')) multiplier += 1.50;
+
+    // Patron bonus
+    if (state.reincarnationState.activePatron == PrimordialForce.gaia) {
+      int tier = 0;
+      if (upgrades.contains('gaia_1')) tier++;
+      if (upgrades.contains('gaia_2')) tier++;
+      if (upgrades.contains('gaia_3')) tier++;
+      if (upgrades.contains('gaia_4')) tier++;
+      if (upgrades.contains('gaia_5')) tier++;
+      multiplier += 0.5 + (tier * 0.1);
+    }
+
+    return multiplier;
+  }
+
+  /// Get building cost reduction from Gaia upgrades
+  ///
+  /// Gaia III: -10%, Gaia IV: -15% (higher tier wins, not cumulative)
+  double getBuildingCostReduction() {
+    final upgrades = state.reincarnationState.ownedUpgradeIds;
+
+    if (upgrades.contains('gaia_4')) return 0.15;
+    if (upgrades.contains('gaia_3')) return 0.10;
+    return 0.0;
+  }
+
+  /// Get offline progression multiplier from Nyx upgrades and patron bonus
+  ///
+  /// Nyx tier bonuses: 25%, 50%, 100%, 150%, 200%
+  /// Patron bonus: 0.5 + (tier * 0.1) if Nyx is active patron
+  double getOfflineProgressionMultiplier() {
+    double multiplier = 1.0;
+    final upgrades = state.reincarnationState.ownedUpgradeIds;
+
+    // Permanent Nyx upgrades
+    if (upgrades.contains('nyx_1')) multiplier += 0.25;
+    if (upgrades.contains('nyx_2')) multiplier += 0.50;
+    if (upgrades.contains('nyx_3')) multiplier += 1.00;
+    if (upgrades.contains('nyx_4')) multiplier += 1.50;
+    if (upgrades.contains('nyx_5')) multiplier += 2.00;
+
+    // Patron bonus
+    if (state.reincarnationState.activePatron == PrimordialForce.nyx) {
+      int tier = 0;
+      if (upgrades.contains('nyx_1')) tier++;
+      if (upgrades.contains('nyx_2')) tier++;
+      if (upgrades.contains('nyx_3')) tier++;
+      if (upgrades.contains('nyx_4')) tier++;
+      if (upgrades.contains('nyx_5')) tier++;
+      multiplier += 0.5 + (tier * 0.1);
+    }
+
+    return multiplier;
+  }
+
+  /// Get offline cap hours from Nyx upgrades
+  ///
+  /// Default: 24 hours
+  /// Nyx III: 48 hours
+  /// Nyx IV: 72 hours
+  /// (higher tier wins, not cumulative)
+  int getOfflineCapHours() {
+    final upgrades = state.reincarnationState.ownedUpgradeIds;
+
+    if (upgrades.contains('nyx_4')) return 72;
+    if (upgrades.contains('nyx_3')) return 48;
+    return 24;
+  }
+
+  /// Get Tier 2 production multiplier from Erebus upgrades and patron bonus
+  ///
+  /// Erebus tier bonuses: 15%, 30%, 50%, 75%, 100%
+  /// Patron bonus: 0.5 + (tier * 0.1) if Erebus is active patron
+  double getTier2ProductionMultiplier() {
+    double multiplier = 1.0;
+    final upgrades = state.reincarnationState.ownedUpgradeIds;
+
+    // Permanent Erebus upgrades
+    if (upgrades.contains('erebus_1')) multiplier += 0.15;
+    if (upgrades.contains('erebus_2')) multiplier += 0.30;
+    if (upgrades.contains('erebus_3')) multiplier += 0.50;
+    if (upgrades.contains('erebus_4')) multiplier += 0.75;
+    if (upgrades.contains('erebus_5')) multiplier += 1.00;
+
+    // Patron bonus
+    if (state.reincarnationState.activePatron == PrimordialForce.erebus) {
+      int tier = 0;
+      if (upgrades.contains('erebus_1')) tier++;
+      if (upgrades.contains('erebus_2')) tier++;
+      if (upgrades.contains('erebus_3')) tier++;
+      if (upgrades.contains('erebus_4')) tier++;
+      if (upgrades.contains('erebus_5')) tier++;
+      multiplier += 0.5 + (tier * 0.1);
+    }
+
+    return multiplier;
   }
 
   /// Get production rate for a specific resource type
