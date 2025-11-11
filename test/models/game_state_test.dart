@@ -3,6 +3,8 @@ import 'package:mythical_cats/models/game_state.dart';
 import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
+import 'package:mythical_cats/models/reincarnation_state.dart';
+import 'package:mythical_cats/models/primordial_force.dart';
 
 void main() {
   group('GameState', () {
@@ -134,6 +136,71 @@ void main() {
       );
       final json = state.toJson();
       expect(json['conqueredTerritories'], ['northern_wilds', 'eastern_mountains']);
+    });
+
+    test('includes reincarnation state', () {
+      final state = GameState.initial();
+      expect(state.reincarnationState, isNotNull);
+      expect(state.reincarnationState.totalPrimordialEssence, 0);
+    });
+
+    test('copyWith updates reincarnation state', () {
+      final state = GameState.initial();
+      const newReincarnation = ReincarnationState(
+        totalPrimordialEssence: 100,
+        availablePrimordialEssence: 50,
+      );
+
+      final updated = state.copyWith(reincarnationState: newReincarnation);
+
+      expect(updated.reincarnationState.totalPrimordialEssence, 100);
+      expect(updated.reincarnationState.availablePrimordialEssence, 50);
+    });
+
+    test('toJson serializes reincarnation state', () {
+      final state = GameState.initial().copyWith(
+        reincarnationState: const ReincarnationState(
+          totalPrimordialEssence: 100,
+          ownedUpgradeIds: {'chaos_1'},
+          activePatron: PrimordialForce.chaos,
+        ),
+      );
+
+      final json = state.toJson();
+
+      expect(json['reincarnationState'], isNotNull);
+      expect(json['reincarnationState']['totalPrimordialEssence'], 100);
+      expect(json['reincarnationState']['ownedUpgradeIds'], ['chaos_1']);
+      expect(json['reincarnationState']['activePatron'], 'chaos');
+    });
+
+    test('fromJson deserializes reincarnation state', () {
+      final json = <String, dynamic>{
+        'resources': {'cats': 0, 'offerings': 0, 'prayers': 0},
+        'buildings': <String, dynamic>{},
+        'unlockedGods': ['hermes'],
+        'lastUpdate': DateTime.now().toIso8601String(),
+        'totalCatsEarned': 0,
+        'unlockedAchievements': [],
+        'completedResearch': [],
+        'conqueredTerritories': [],
+        'reincarnationState': {
+          'totalPrimordialEssence': 100,
+          'availablePrimordialEssence': 50,
+          'ownedUpgradeIds': ['chaos_1'],
+          'activePatron': 'chaos',
+          'totalReincarnations': 5,
+          'lifetimeCatsEarned': 1000000,
+          'thisRunCatsEarned': 10000,
+        },
+      };
+
+      final state = GameState.fromJson(json);
+
+      expect(state.reincarnationState.totalPrimordialEssence, 100);
+      expect(state.reincarnationState.availablePrimordialEssence, 50);
+      expect(state.reincarnationState.ownedUpgradeIds, {'chaos_1'});
+      expect(state.reincarnationState.activePatron, PrimordialForce.chaos);
     });
   });
 }

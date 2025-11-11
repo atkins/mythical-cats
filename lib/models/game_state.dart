@@ -1,6 +1,7 @@
 import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
+import 'package:mythical_cats/models/reincarnation_state.dart';
 
 /// Immutable game state
 class GameState {
@@ -12,6 +13,7 @@ class GameState {
   final Set<String> unlockedAchievements;
   final Set<String> completedResearch;
   final Set<String> conqueredTerritories;
+  final ReincarnationState reincarnationState;
 
   const GameState({
     required this.resources,
@@ -22,6 +24,7 @@ class GameState {
     this.unlockedAchievements = const {},
     this.completedResearch = const {},
     this.conqueredTerritories = const {},
+    this.reincarnationState = const ReincarnationState(),
   });
 
   /// Initial game state
@@ -39,6 +42,7 @@ class GameState {
       unlockedAchievements: {},
       completedResearch: {},
       conqueredTerritories: {},
+      reincarnationState: const ReincarnationState(),
     );
   }
 
@@ -52,6 +56,7 @@ class GameState {
     Set<String>? unlockedAchievements,
     Set<String>? completedResearch,
     Set<String>? conqueredTerritories,
+    ReincarnationState? reincarnationState,
   }) {
     return GameState(
       resources: resources ?? Map.from(this.resources),
@@ -62,6 +67,7 @@ class GameState {
       unlockedAchievements: unlockedAchievements ?? Set.from(this.unlockedAchievements),
       completedResearch: completedResearch ?? Set.from(this.completedResearch),
       conqueredTerritories: conqueredTerritories ?? Set.from(this.conqueredTerritories),
+      reincarnationState: reincarnationState ?? this.reincarnationState,
     );
   }
 
@@ -110,6 +116,7 @@ class GameState {
       'unlockedAchievements': unlockedAchievements.toList(),
       'completedResearch': completedResearch.toList(),
       'conqueredTerritories': conqueredTerritories.toList(),
+      'reincarnationState': reincarnationState.toJson(),
     };
   }
 
@@ -142,6 +149,9 @@ class GameState {
       conqueredTerritories: (json['conqueredTerritories'] as List<dynamic>?)
         ?.map((e) => e as String)
         .toSet() ?? {},
+      reincarnationState: json['reincarnationState'] != null
+        ? ReincarnationState.fromJson(json['reincarnationState'] as Map<String, dynamic>)
+        : const ReincarnationState(),
     );
   }
 }
