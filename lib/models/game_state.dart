@@ -34,6 +34,7 @@ class GameState {
         ResourceType.cats: 0,
         ResourceType.offerings: 0,
         ResourceType.prayers: 0,
+        ResourceType.wisdom: 0,
       },
       buildings: {},
       unlockedGods: {God.hermes},

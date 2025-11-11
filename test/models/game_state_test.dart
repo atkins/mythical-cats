@@ -202,5 +202,51 @@ void main() {
       expect(state.reincarnationState.ownedUpgradeIds, {'chaos_1'});
       expect(state.reincarnationState.activePatron, PrimordialForce.chaos);
     });
+
+    // Task 4: Add Wisdom to GameState tests
+    test('GameState initializes with 0 Wisdom', () {
+      final state = GameState.initial();
+      expect(state.resources[ResourceType.wisdom], 0);
+    });
+
+    test('GameState can store Wisdom', () {
+      final state = GameState.initial();
+      final updated = state.copyWith(
+        resources: {
+          ResourceType.cats: 0,
+          ResourceType.offerings: 0,
+          ResourceType.prayers: 0,
+          ResourceType.wisdom: 100,
+        },
+      );
+      expect(updated.resources[ResourceType.wisdom], 100);
+    });
+
+    test('Wisdom serializes correctly in toJson', () {
+      final state = GameState.initial().copyWith(
+        resources: {
+          ResourceType.cats: 50,
+          ResourceType.wisdom: 123.5,
+        },
+      );
+      final json = state.toJson();
+      expect(json['resources']['wisdom'], 123.5);
+    });
+
+    test('Wisdom deserializes correctly from JSON', () {
+      final json = <String, dynamic>{
+        'resources': {'cats': 0, 'offerings': 0, 'prayers': 0, 'wisdom': 250.0},
+        'buildings': <String, dynamic>{},
+        'unlockedGods': ['hermes'],
+        'lastUpdate': DateTime.now().toIso8601String(),
+        'totalCatsEarned': 0,
+        'unlockedAchievements': [],
+        'completedResearch': [],
+        'conqueredTerritories': [],
+      };
+
+      final state = GameState.fromJson(json);
+      expect(state.resources[ResourceType.wisdom], 250.0);
+    });
   });
 }
