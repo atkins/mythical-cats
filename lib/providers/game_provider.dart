@@ -10,6 +10,7 @@ import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/achievement_definitions.dart';
 import 'package:mythical_cats/models/primordial_force.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
+import 'package:mythical_cats/models/primordial_upgrade_definitions.dart';
 import 'package:mythical_cats/services/save_service.dart';
 import 'package:mythical_cats/providers/conquest_provider.dart';
 
@@ -445,6 +446,50 @@ class GameNotifier extends StateNotifier<GameState> {
     if (unlocked) {
       state = state.copyWith(unlockedAchievements: newAchievements);
     }
+  }
+
+  /// Check if a primordial upgrade can be purchased
+  bool canPurchasePrimordialUpgrade(String upgradeId) {
+    final upgrade = PrimordialUpgradeDefinitions.getById(upgradeId);
+    if (upgrade == null) return false;
+
+    // Already purchased
+    if (state.reincarnationState.ownedUpgradeIds.contains(upgradeId)) {
+      return false;
+    }
+
+    // Check PE cost
+    if (state.reincarnationState.availablePrimordialEssence < upgrade.cost) {
+      return false;
+    }
+
+    // Check prerequisite (must have previous tier)
+    if (upgrade.tier > 1) {
+      final prevId = '${upgrade.force.name}_${upgrade.tier - 1}';
+      if (!state.reincarnationState.ownedUpgradeIds.contains(prevId)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  /// Purchase a primordial upgrade with PE
+  void purchasePrimordialUpgrade(String upgradeId) {
+    if (!canPurchasePrimordialUpgrade(upgradeId)) return;
+
+    final upgrade = PrimordialUpgradeDefinitions.getById(upgradeId)!;
+
+    final newUpgrades = Set<String>.from(state.reincarnationState.ownedUpgradeIds)
+      ..add(upgradeId);
+
+    state = state.copyWith(
+      reincarnationState: state.reincarnationState.copyWith(
+        availablePrimordialEssence:
+            state.reincarnationState.availablePrimordialEssence - upgrade.cost,
+        ownedUpgradeIds: newUpgrades,
+      ),
+    );
   }
 
   /// Reincarnate: Reset game state and award Primordial Essence
