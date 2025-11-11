@@ -9,6 +9,7 @@ import 'package:mythical_cats/models/building_definition.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/achievement_definitions.dart';
 import 'package:mythical_cats/models/primordial_force.dart';
+import 'package:mythical_cats/models/reincarnation_state.dart';
 import 'package:mythical_cats/services/save_service.dart';
 import 'package:mythical_cats/providers/conquest_provider.dart';
 
@@ -444,6 +445,32 @@ class GameNotifier extends StateNotifier<GameState> {
     if (unlocked) {
       state = state.copyWith(unlockedAchievements: newAchievements);
     }
+  }
+
+  /// Reincarnate: Reset game state and award Primordial Essence
+  void reincarnate(PrimordialForce chosenPatron) {
+    // Calculate PE earned from this run
+    final peEarned = calculatePrimordialEssence(state.totalCatsEarned);
+
+    // Store persistent data
+    final persistedResearch = Set<String>.from(state.completedResearch);
+    final persistedAchievements = Set<String>.from(state.unlockedAchievements);
+    final persistedUpgrades = Set<String>.from(state.reincarnationState.ownedUpgradeIds);
+
+    // Reset to initial state but keep reincarnation progress
+    state = GameState.initial().copyWith(
+      completedResearch: persistedResearch,
+      unlockedAchievements: persistedAchievements,
+      reincarnationState: ReincarnationState(
+        totalReincarnations: state.reincarnationState.totalReincarnations + 1,
+        totalPrimordialEssence: state.reincarnationState.totalPrimordialEssence + peEarned,
+        availablePrimordialEssence: state.reincarnationState.availablePrimordialEssence + peEarned,
+        ownedUpgradeIds: persistedUpgrades,
+        activePatron: chosenPatron,
+        lifetimeCatsEarned: state.reincarnationState.lifetimeCatsEarned + state.totalCatsEarned.toInt(),
+        thisRunCatsEarned: 0,
+      ),
+    );
   }
 
   @override
