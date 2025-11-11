@@ -626,6 +626,12 @@ class GameNotifier extends StateNotifier<GameState> {
     );
   }
 
+  /// Activate a prophecy
+  void activateProphecy(ProphecyType prophecy) {
+    final now = DateTime.now();
+    state = state.activateProphecy(prophecy, now);
+  }
+
   /// For testing only - expose _updateGame
   void testUpdateGame(double deltaSeconds) {
     _updateGame(deltaSeconds);
