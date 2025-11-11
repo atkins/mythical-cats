@@ -8,6 +8,7 @@ import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/conquest_definitions.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
+import 'package:mythical_cats/models/primordial_force.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -300,6 +301,125 @@ void main() {
 
       // 1B cats = 20 base PE * 1.2 = 24 PE
       expect(notifier.calculatePrimordialEssence(1000000000), 24);
+    });
+  });
+
+  group('GameNotifier Bonus Calculations', () {
+    test('getClickPowerMultiplier with no upgrades', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      expect(notifier.getClickPowerMultiplier(), 1.0);
+    });
+
+    test('getClickPowerMultiplier with Chaos upgrades only', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'chaos_1', 'chaos_2', 'chaos_3'},
+        ),
+      );
+
+      // 10% + 25% + 50% = 85% = 1.85x
+      expect(notifier.getClickPowerMultiplier(), closeTo(1.85, 0.01));
+    });
+
+    test('getClickPowerMultiplier with Chaos patron bonus', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'chaos_1', 'chaos_2', 'chaos_3'},
+          activePatron: PrimordialForce.chaos,
+        ),
+      );
+
+      // Permanent: 85%, Patron: 50% + 30% (3 tiers) = 80%
+      // Total: 1.85 + 0.8 = 2.65x
+      expect(notifier.getClickPowerMultiplier(), closeTo(2.65, 0.01));
+    });
+
+    test('getBuildingProductionMultiplier with Gaia upgrades', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'gaia_1', 'gaia_2'},
+        ),
+      );
+
+      // 10% + 25% = 35% = 1.35x
+      expect(notifier.getBuildingProductionMultiplier(), closeTo(1.35, 0.01));
+    });
+
+    test('getBuildingCostReduction with Gaia upgrades', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'gaia_3', 'gaia_4'},
+        ),
+      );
+
+      // Gaia III: -10%, Gaia IV: -15% (total -15% because IV replaces III)
+      expect(notifier.getBuildingCostReduction(), 0.15);
+    });
+
+    test('getOfflineProgressionMultiplier with Nyx upgrades', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'nyx_1', 'nyx_2', 'nyx_3'},
+        ),
+      );
+
+      // 25% + 50% + 100% = 175% = 2.75x
+      expect(notifier.getOfflineProgressionMultiplier(), closeTo(2.75, 0.01));
+    });
+
+    test('getOfflineCapHours with Nyx upgrades', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Default cap
+      expect(notifier.getOfflineCapHours(), 24);
+
+      // With Nyx III
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'nyx_3'},
+        ),
+      );
+      expect(notifier.getOfflineCapHours(), 48);
+
+      // With Nyx IV
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'nyx_4'},
+        ),
+      );
+      expect(notifier.getOfflineCapHours(), 72);
+    });
+
+    test('getTier2ProductionMultiplier with Erebus upgrades', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'erebus_1', 'erebus_2'},
+        ),
+      );
+
+      // 15% + 30% = 45% = 1.45x
+      expect(notifier.getTier2ProductionMultiplier(), closeTo(1.45, 0.01));
     });
   });
 }
