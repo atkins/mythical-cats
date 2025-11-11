@@ -365,7 +365,22 @@ class GameNotifier extends StateNotifier<GameState> {
       if (count > 0) {
         final definition = BuildingDefinitions.get(buildingType);
         if (definition.productionType == type) {
-          baseProduction += definition.baseProduction * count;
+          double buildingProduction = definition.baseProduction * count;
+
+          // Apply building-specific research bonuses (for Wisdom only)
+          if (type == ResourceType.wisdom) {
+            // Divine Insight: +25% for Athena buildings
+            if (state.hasCompletedResearch('divine_insight')) {
+              if (buildingType == BuildingType.hallOfWisdom ||
+                  buildingType == BuildingType.academyOfAthens ||
+                  buildingType == BuildingType.strategyChamber ||
+                  buildingType == BuildingType.oraclesArchive) {
+                buildingProduction *= 1.25;
+              }
+            }
+          }
+
+          baseProduction += buildingProduction;
         }
       }
     }
@@ -388,6 +403,20 @@ class GameNotifier extends StateNotifier<GameState> {
     }
 
     baseProduction *= primordialBonus;
+
+    // Apply global resource bonuses (research)
+    if (type == ResourceType.wisdom) {
+      // Scholarly Pursuit bonuses stack multiplicatively
+      if (state.hasCompletedResearch('scholarly_pursuit_i')) {
+        baseProduction *= 1.10;
+      }
+      if (state.hasCompletedResearch('scholarly_pursuit_ii')) {
+        baseProduction *= 1.15;
+      }
+      if (state.hasCompletedResearch('scholarly_pursuit_iii')) {
+        baseProduction *= 1.20;
+      }
+    }
 
     // Apply conquest bonuses
     double conquestBonus = 0;
