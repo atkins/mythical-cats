@@ -78,6 +78,31 @@ class ConquestDefinitions {
     prerequisite: 'olympus_foothills',
   );
 
+  // Phase 5 territories (unlocked when Apollo is unlocked)
+  static const academyOfAthens = ConquestTerritory(
+    id: 'academy_of_athens',
+    name: 'Academy of Athens',
+    cost: 10000000,
+    productionBonus: {ResourceType.wisdom: 0.15},
+    prerequisite: 'titans_realm',
+  );
+
+  static const oracleOfDelphi = ConquestTerritory(
+    id: 'oracle_of_delphi',
+    name: 'Oracle of Delphi',
+    cost: 2500000,
+    productionBonus: {ResourceType.wisdom: 0.10},
+    prerequisite: 'titans_realm',
+  );
+
+  static const libraryOfAlexandria = ConquestTerritory(
+    id: 'library_of_alexandria',
+    name: 'Library of Alexandria',
+    cost: 5000000,
+    productionBonus: {ResourceType.wisdom: 0.25},
+    prerequisite: 'titans_realm',
+  );
+
   /// All territories
   static List<ConquestTerritory> get all => [
         northernWilds,
@@ -88,6 +113,9 @@ class ConquestDefinitions {
         underworldGates,
         olympusFoothills,
         titansRealm,
+        academyOfAthens,
+        oracleOfDelphi,
+        libraryOfAlexandria,
       ];
 
   /// Get territory by ID
