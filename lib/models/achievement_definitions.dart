@@ -61,6 +61,98 @@ class AchievementDefinitions {
     category: AchievementCategory.gods,
   );
 
+  /// Phase 5 Achievements - Athena Achievements (3)
+
+  static const seekerOfWisdom = Achievement(
+    id: 'seeker_of_wisdom',
+    name: 'Seeker of Wisdom',
+    description: 'Begin your journey into divine knowledge',
+    category: AchievementCategory.gods,
+    reward: '+0.5 Wisdom/sec permanent bonus',
+  );
+
+  static const scholarlyDevotion = Achievement(
+    id: 'scholarly_devotion',
+    name: 'Scholarly Devotion',
+    description: 'Dedicate yourself to the pursuit of wisdom',
+    category: AchievementCategory.buildings,
+    reward: 'Athena buildings produce +5% more Wisdom',
+  );
+
+  static const wisdomHoarder = Achievement(
+    id: 'wisdom_hoarder',
+    name: 'Wisdom Hoarder',
+    description: 'Amass a vast treasury of knowledge',
+    category: AchievementCategory.general,
+    reward: '+2% all resource production',
+  );
+
+  /// Phase 5 Achievements - Apollo Achievements (3)
+
+  static const godOfLight = Achievement(
+    id: 'god_of_light',
+    name: 'God of Light',
+    description: 'Bask in Apollo\'s radiant enlightenment',
+    category: AchievementCategory.gods,
+    reward: '+1 Wisdom/sec permanent bonus',
+  );
+
+  static const propheticDevotee = Achievement(
+    id: 'prophetic_devotee',
+    name: 'Prophetic Devotee',
+    description: 'Seek Apollo\'s visions with fervor',
+    category: AchievementCategory.general,
+    reward: 'All prophecy cooldowns reduced by 5%',
+  );
+
+  static const oraclesFavorite = Achievement(
+    id: 'oracles_favorite',
+    name: 'Oracle\'s Favorite',
+    description: 'Master the art of divine foresight',
+    category: AchievementCategory.general,
+    reward: 'Apollo\'s Grand Vision cooldown reduced by 30 minutes',
+    isHidden: true,
+  );
+
+  /// Phase 5 Achievements - Research & Knowledge Achievements (2)
+
+  static const philosopherKing = Achievement(
+    id: 'philosopher_king',
+    name: 'Philosopher King',
+    description: 'Achieve the pinnacle of intellectual pursuit',
+    category: AchievementCategory.research,
+    reward: 'All research costs reduced by 5%',
+  );
+
+  static const renaissanceDeity = Achievement(
+    id: 'renaissance_deity',
+    name: 'Renaissance Deity',
+    description: 'Balance wisdom and prophecy in perfect harmony',
+    category: AchievementCategory.buildings,
+    reward: '+10% Wisdom production from all sources',
+  );
+
+  /// Phase 5 Achievements - Conquest Achievement (1)
+
+  static const masterOfKnowledge = Achievement(
+    id: 'master_of_knowledge',
+    name: 'Master of Knowledge',
+    description: 'Claim dominion over the centers of learning',
+    category: AchievementCategory.conquest,
+    reward: 'All conquest costs reduced by 10%',
+  );
+
+  /// Phase 5 Achievements - Challenge Achievement (1)
+
+  static const prescientStrategist = Achievement(
+    id: 'prescient_strategist',
+    name: 'Prescient Strategist',
+    description: 'Progress through pure wisdom, untainted by material conversion',
+    category: AchievementCategory.general,
+    reward: '+25% offline cat production',
+    isHidden: true,
+  );
+
   /// All achievements list
   static List<Achievement> get all => [
     first100Cats,
@@ -71,6 +163,16 @@ class AchievementDefinitions {
     unlockHestia,
     unlockDemeter,
     unlockDionysus,
+    seekerOfWisdom,
+    scholarlyDevotion,
+    wisdomHoarder,
+    godOfLight,
+    propheticDevotee,
+    oraclesFavorite,
+    philosopherKing,
+    renaissanceDeity,
+    masterOfKnowledge,
+    prescientStrategist,
   ];
 
   /// Get achievement by ID
