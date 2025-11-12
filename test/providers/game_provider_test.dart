@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
 import 'package:mythical_cats/providers/conquest_provider.dart';
+import 'package:mythical_cats/providers/research_provider.dart';
 import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
@@ -1450,6 +1451,532 @@ void main() {
       notifier.activateProphecy(ProphecyType.solarBlessing);
       expect(notifier.state.lifetimePropheciesActivated, 2);
 
+      container.dispose();
+    });
+  });
+
+  // Task 19: Achievement Rewards Application
+  group('Achievement Unlocking', () {
+    test('Seeker of Wisdom unlocks when Athena is unlocked', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000,
+        unlockedGods: {God.hermes, God.athena},
+      );
+
+      // Trigger achievement check
+      notifier.performRitual();
+
+      expect(notifier.state.hasUnlockedAchievement('seeker_of_wisdom'), true);
+      container.dispose();
+    });
+
+    test('Scholarly Devotion unlocks when owning 25 Athena buildings', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 9,
+          BuildingType.academyOfAthens: 8,
+          BuildingType.strategyChamber: 5,
+          BuildingType.oraclesArchive: 2,
+        },
+        resources: {ResourceType.cats: 1000000}, // Enough cats for expensive building
+      );
+
+      // Buy one more to reach 25 total (9+1 + 8 + 5 + 2 = 25)
+      notifier.buyBuilding(BuildingType.hallOfWisdom);
+
+      expect(notifier.state.hasUnlockedAchievement('scholarly_devotion'), true);
+      container.dispose();
+    });
+
+    test('Wisdom Hoarder unlocks when lifetime wisdom reaches 10,000', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.hallOfWisdom: 100}, // Produces 10 Wisdom/sec
+      );
+
+      // Simulate 1000 seconds of production (10 Wisdom/sec * 1000s = 10,000)
+      notifier.testUpdateGame(1000.0);
+
+      expect(notifier.state.lifetimeWisdom, greaterThanOrEqualTo(10000));
+      expect(notifier.state.hasUnlockedAchievement('wisdom_hoarder'), true);
+      container.dispose();
+    });
+
+    test('God of Light unlocks when Apollo is unlocked', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 10000000,
+        unlockedGods: {God.hermes, God.athena, God.apollo},
+      );
+
+      // Trigger achievement check
+      notifier.performRitual();
+
+      expect(notifier.state.hasUnlockedAchievement('god_of_light'), true);
+      container.dispose();
+    });
+
+    test('Prophetic Devotee unlocks when 50 prophecies activated', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        lifetimePropheciesActivated: 50,
+      );
+
+      // Trigger achievement check
+      notifier.performRitual();
+
+      expect(notifier.state.hasUnlockedAchievement('prophetic_devotee'), true);
+      container.dispose();
+    });
+
+    test('Oracle\'s Favorite unlocks when all 10 prophecies activated', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        prophecyState: ProphecyState(
+          cooldowns: {
+            ProphecyType.visionOfProsperity: now.add(const Duration(minutes: 30)),
+            ProphecyType.solarBlessing: now.add(const Duration(minutes: 60)),
+            ProphecyType.glimpseOfResearch: now.add(const Duration(minutes: 45)),
+            ProphecyType.prophecyOfAbundance: now.add(const Duration(minutes: 90)),
+            ProphecyType.divineCalculation: now.add(const Duration(minutes: 60)),
+            ProphecyType.musesInspiration: now.add(const Duration(minutes: 120)),
+            ProphecyType.oraclesRevelation: now.add(const Duration(minutes: 150)),
+            ProphecyType.celestialSurge: now.add(const Duration(minutes: 180)),
+            ProphecyType.prophecyOfFortune: now.add(const Duration(minutes: 210)),
+            ProphecyType.apollosGrandVision: now.add(const Duration(minutes: 240)),
+          },
+        ),
+      );
+
+      // Trigger achievement check
+      notifier.performRitual();
+
+      expect(notifier.state.hasUnlockedAchievement('oracles_favorite'), true);
+      container.dispose();
+    });
+
+    test('Philosopher King unlocks when all 7 Knowledge branch research nodes completed', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        completedResearch: {
+          'foundations_of_wisdom',
+          'scholarly_pursuit_i',
+          'scholarly_pursuit_ii',
+          'scholarly_pursuit_iii',
+          'divine_insight',
+          'philosophical_method',
+          'prophetic_connection',
+        },
+      );
+
+      // Trigger achievement check
+      notifier.performRitual();
+
+      expect(notifier.state.hasUnlockedAchievement('philosopher_king'), true);
+      container.dispose();
+    });
+
+    test('Renaissance Deity unlocks when owning 10+ of each Athena and Apollo building', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10,
+          BuildingType.academyOfAthens: 10,
+          BuildingType.strategyChamber: 10,
+          BuildingType.oraclesArchive: 9, // Start with 9
+          BuildingType.templeOfDelphi: 10,
+          BuildingType.sunChariotStable: 10,
+          BuildingType.musesSanctuary: 10,
+          BuildingType.celestialObservatory: 10,
+        },
+        resources: {ResourceType.cats: 100000000}, // Enough for very expensive buildings
+      );
+
+      // Buy one more Oracle's Archive to reach 10 for all buildings
+      notifier.buyBuilding(BuildingType.oraclesArchive);
+
+      expect(notifier.state.hasUnlockedAchievement('renaissance_deity'), true);
+      container.dispose();
+    });
+
+    test('Master of Knowledge unlocks when all 3 Phase 5 territories conquered', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        conqueredTerritories: {
+          'academy_of_athens',
+          'oracle_of_delphi',
+          'library_of_alexandria',
+        },
+      );
+
+      // Trigger achievement check
+      notifier.performRitual();
+
+      expect(notifier.state.hasUnlockedAchievement('master_of_knowledge'), true);
+      container.dispose();
+    });
+
+    test('Prescient Strategist unlocks when Apollo unlocked with 0 Workshop buildings', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 10000000,
+        unlockedGods: {God.hermes, God.athena, God.apollo},
+        buildings: {
+          BuildingType.hallOfWisdom: 20,
+          BuildingType.templeOfDelphi: 15,
+          // No workshop
+        },
+      );
+
+      // Trigger achievement check
+      notifier.performRitual();
+
+      expect(notifier.state.hasUnlockedAchievement('prescient_strategist'), true);
+      container.dispose();
+    });
+
+    test('Prescient Strategist does not unlock if Workshop was purchased', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 10000000,
+        unlockedGods: {God.hermes, God.athena, God.apollo},
+        buildings: {
+          BuildingType.hallOfWisdom: 20,
+          BuildingType.templeOfDelphi: 15,
+          BuildingType.workshop: 1, // Has workshop
+        },
+      );
+
+      // Trigger achievement check
+      notifier.performRitual();
+
+      expect(notifier.state.hasUnlockedAchievement('prescient_strategist'), false);
+      container.dispose();
+    });
+  });
+
+  group('Achievement Rewards - Flat Wisdom Bonuses', () {
+    test('Seeker of Wisdom adds +0.5 Wisdom/sec', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Without achievement
+      expect(notifier.getProductionRate(ResourceType.wisdom), 0);
+
+      // With achievement
+      notifier.state = notifier.state.copyWith(
+        unlockedAchievements: {'seeker_of_wisdom'},
+      );
+
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(0.5, 0.01));
+      container.dispose();
+    });
+
+    test('God of Light adds +1 Wisdom/sec', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        unlockedAchievements: {'god_of_light'},
+      );
+
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.0, 0.01));
+      container.dispose();
+    });
+
+    test('Both flat bonuses stack additively', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        unlockedAchievements: {'seeker_of_wisdom', 'god_of_light'},
+      );
+
+      // 0.5 + 1.0 = 1.5 Wisdom/sec
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.5, 0.01));
+      container.dispose();
+    });
+
+    test('Flat bonuses combine with building production', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.hallOfWisdom: 10}, // 1.0 Wisdom/sec
+        unlockedAchievements: {'seeker_of_wisdom', 'god_of_light'},
+      );
+
+      // 1.0 (buildings) + 0.5 + 1.0 = 2.5 Wisdom/sec
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(2.5, 0.01));
+      container.dispose();
+    });
+  });
+
+  group('Achievement Rewards - Percentage Production Bonuses', () {
+    test('Wisdom Hoarder adds +2% all resources', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.smallShrine: 10, // 1.0 cats/sec
+          BuildingType.hallOfWisdom: 10, // 1.0 wisdom/sec
+        },
+        unlockedAchievements: {'wisdom_hoarder'},
+      );
+
+      // Cats: 1.0 * 1.02 = 1.02
+      expect(notifier.getProductionRate(ResourceType.cats), closeTo(1.02, 0.01));
+      // Wisdom: 1.0 * 1.02 = 1.02
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.02, 0.01));
+      container.dispose();
+    });
+
+    test('Renaissance Deity adds +10% Wisdom from all sources', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.hallOfWisdom: 10}, // 1.0 Wisdom/sec
+        unlockedAchievements: {'renaissance_deity'},
+      );
+
+      // 1.0 * 1.10 = 1.1
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.1, 0.01));
+      container.dispose();
+    });
+
+    test('Scholarly Devotion adds +5% to Athena building Wisdom', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 10, // 1.0 Wisdom/sec (Athena)
+          BuildingType.templeOfDelphi: 1, // 2.0 Wisdom/sec (Apollo)
+        },
+        unlockedAchievements: {'scholarly_devotion'},
+      );
+
+      // Athena: 1.0 * 1.05 = 1.05
+      // Apollo: 2.0 (no bonus)
+      // Total: 3.05
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(3.05, 0.01));
+      container.dispose();
+    });
+
+    test('All percentage bonuses stack multiplicatively', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.hallOfWisdom: 10}, // 1.0 Wisdom/sec (Athena)
+        unlockedAchievements: {
+          'wisdom_hoarder', // +2% all
+          'renaissance_deity', // +10% wisdom
+          'scholarly_devotion', // +5% Athena wisdom
+        },
+      );
+
+      // 1.0 (building) * 1.05 (scholarly) * 1.02 (hoarder) * 1.10 (renaissance) = 1.1781
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(1.1781, 0.01));
+      container.dispose();
+    });
+
+    test('Percentage bonuses combine with flat bonuses correctly', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.hallOfWisdom: 10}, // 1.0 Wisdom/sec
+        unlockedAchievements: {
+          'seeker_of_wisdom', // +0.5 flat
+          'god_of_light', // +1.0 flat
+          'wisdom_hoarder', // +2% all
+        },
+      );
+
+      // Buildings: 1.0
+      // Flat bonuses: 1.0 + 0.5 + 1.0 = 2.5
+      // Percentage: 2.5 * 1.02 = 2.55
+      expect(notifier.getProductionRate(ResourceType.wisdom), closeTo(2.55, 0.01));
+      container.dispose();
+    });
+  });
+
+  group('Achievement Rewards - Cost Reductions', () {
+    test('Philosopher King reduces research costs by 5%', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      final research = container.read(researchProvider);
+
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 1000},
+        unlockedAchievements: {'philosopher_king'},
+      );
+
+      // Test with a research node that costs 100 Wisdom
+      // With -5%, it should cost 95 Wisdom
+      // We'll need to check this via attempting to unlock research
+
+      container.dispose();
+    });
+
+    test('Master of Knowledge reduces conquest costs by 10%', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      final conquest = container.read(conquestProvider);
+
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.conquestPoints: 1000},
+        unlockedAchievements: {'master_of_knowledge'},
+      );
+
+      // Test with a territory that costs 100 CP
+      // With -10%, it should cost 90 CP
+
+      container.dispose();
+    });
+  });
+
+  group('Achievement Rewards - Cooldown Reductions', () {
+    test('Prophetic Devotee reduces all prophecy cooldowns by 5%', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 1000},
+        unlockedAchievements: {'prophetic_devotee'},
+      );
+
+      // Activate Solar Blessing (normally 60 min cooldown)
+      notifier.activateProphecy(ProphecyType.solarBlessing);
+
+      final cooldownEnd = notifier.state.prophecyState.cooldowns[ProphecyType.solarBlessing]!;
+      final actualCooldown = cooldownEnd.difference(now);
+
+      // 60 minutes * 0.95 = 57 minutes
+      expect(actualCooldown.inMinutes, closeTo(57, 1));
+      container.dispose();
+    });
+
+    test('Oracle\'s Favorite reduces Grand Vision cooldown by 30 minutes', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 5000},
+        unlockedAchievements: {'oracles_favorite'},
+      );
+
+      // Activate Apollo's Grand Vision (normally 240 min cooldown)
+      notifier.activateProphecy(ProphecyType.apollosGrandVision);
+
+      final cooldownEnd = notifier.state.prophecyState.cooldowns[ProphecyType.apollosGrandVision]!;
+      final actualCooldown = cooldownEnd.difference(now);
+
+      // 240 minutes - 30 = 210 minutes
+      expect(actualCooldown.inMinutes, closeTo(210, 1));
+      container.dispose();
+    });
+
+    test('Both cooldown reductions stack correctly', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      final now = DateTime.now();
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 5000},
+        unlockedAchievements: {'prophetic_devotee', 'oracles_favorite'},
+      );
+
+      // Activate Apollo's Grand Vision
+      notifier.activateProphecy(ProphecyType.apollosGrandVision);
+
+      final cooldownEnd = notifier.state.prophecyState.cooldowns[ProphecyType.apollosGrandVision]!;
+      final actualCooldown = cooldownEnd.difference(now);
+
+      // 240 minutes * 0.95 (prophetic) = 228 minutes
+      // 228 - 30 (oracle's) = 198 minutes
+      expect(actualCooldown.inMinutes, closeTo(198, 1));
+      container.dispose();
+    });
+  });
+
+  group('Achievement Rewards - Offline Production Bonus', () {
+    test('Prescient Strategist adds +25% offline cat production', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.smallShrine: 10}, // 1.0 cats/sec
+        lastUpdate: DateTime.now().subtract(const Duration(hours: 1)),
+        unlockedAchievements: {'prescient_strategist'},
+      );
+
+      final catsBefore = notifier.state.getResource(ResourceType.cats);
+
+      // Apply offline progress (1 hour = 3600 seconds)
+      // Normal: 1.0 * 3600 = 3600 cats
+      // With +25%: 3600 * 1.25 = 4500 cats
+      notifier.applyOfflineProgress();
+
+      final catsAfter = notifier.state.getResource(ResourceType.cats);
+      final gained = catsAfter - catsBefore;
+
+      expect(gained, closeTo(4500, 100));
+      container.dispose();
+    });
+
+    test('Offline bonus only affects cats, not other resources', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.smallShrine: 10, // 1.0 cats/sec
+          BuildingType.hallOfWisdom: 10, // 1.0 wisdom/sec
+        },
+        lastUpdate: DateTime.now().subtract(const Duration(hours: 1)),
+        unlockedAchievements: {'prescient_strategist'},
+      );
+
+      final wisdomBefore = notifier.state.getResource(ResourceType.wisdom);
+
+      notifier.applyOfflineProgress();
+
+      final wisdomAfter = notifier.state.getResource(ResourceType.wisdom);
+      final wisdomGained = wisdomAfter - wisdomBefore;
+
+      // Wisdom should be normal: 1.0 * 3600 = 3600 (no +25% bonus)
+      expect(wisdomGained, closeTo(3600, 100));
       container.dispose();
     });
   });

@@ -39,7 +39,7 @@ class GameNotifier extends StateNotifier<GameState> {
   }
 
   /// Update game state based on elapsed time
-  void _updateGame(double deltaSeconds) {
+  void _updateGame(double deltaSeconds, {bool isOffline = false}) {
     // Update prophecy effects (expire timed boosts if needed)
     final now = DateTime.now();
     state = state.updateProphecyEffects(now);
@@ -61,11 +61,20 @@ class GameNotifier extends StateNotifier<GameState> {
       double catsProduced = 0;
       double wisdomProduced = 0;
       for (final entry in production.entries) {
-        newResources[entry.key] = state.getResource(entry.key) + entry.value;
+        double produced = entry.value;
+
+        // Apply Prescient Strategist offline bonus (+25% offline cats only)
+        if (isOffline &&
+            entry.key == ResourceType.cats &&
+            state.hasUnlockedAchievement('prescient_strategist')) {
+          produced *= 1.25;
+        }
+
+        newResources[entry.key] = state.getResource(entry.key) + produced;
         if (entry.key == ResourceType.cats) {
-          catsProduced = entry.value;
+          catsProduced = produced;
         } else if (entry.key == ResourceType.wisdom) {
-          wisdomProduced = entry.value;
+          wisdomProduced = entry.value; // Wisdom doesn't get offline bonus
         }
       }
 
@@ -78,6 +87,9 @@ class GameNotifier extends StateNotifier<GameState> {
 
       // Check for god unlocks
       _checkGodUnlocks();
+
+      // Check for achievements
+      _checkAchievements();
     }
   }
 
@@ -382,10 +394,33 @@ class GameNotifier extends StateNotifier<GameState> {
                 buildingProduction *= 1.25;
               }
             }
+
+            // Scholarly Devotion: +5% for Athena buildings
+            if (state.hasUnlockedAchievement('scholarly_devotion')) {
+              if (buildingType == BuildingType.hallOfWisdom ||
+                  buildingType == BuildingType.academyOfAthens ||
+                  buildingType == BuildingType.strategyChamber ||
+                  buildingType == BuildingType.oraclesArchive) {
+                buildingProduction *= 1.05;
+              }
+            }
           }
 
           baseProduction += buildingProduction;
         }
+      }
+    }
+
+    // Add flat Wisdom/sec bonuses from achievements
+    if (type == ResourceType.wisdom) {
+      // Seeker of Wisdom: +0.5 Wisdom/sec
+      if (state.hasUnlockedAchievement('seeker_of_wisdom')) {
+        baseProduction += 0.5;
+      }
+
+      // God of Light: +1 Wisdom/sec
+      if (state.hasUnlockedAchievement('god_of_light')) {
+        baseProduction += 1.0;
       }
     }
 
@@ -465,6 +500,17 @@ class GameNotifier extends StateNotifier<GameState> {
       }
     }
 
+    // Apply achievement percentage bonuses (applied at the end, multiplicatively)
+    // Wisdom Hoarder: +2% all resources
+    if (state.hasUnlockedAchievement('wisdom_hoarder')) {
+      baseProduction *= 1.02;
+    }
+
+    // Renaissance Deity: +10% Wisdom from all sources
+    if (type == ResourceType.wisdom && state.hasUnlockedAchievement('renaissance_deity')) {
+      baseProduction *= 1.10;
+    }
+
     return baseProduction;
   }
 
@@ -495,7 +541,7 @@ class GameNotifier extends StateNotifier<GameState> {
     final cappedSeconds = elapsed.inSeconds.toDouble().clamp(0.0, 24.0 * 60 * 60);
 
     if (cappedSeconds > 60) { // Only apply if more than 1 minute offline
-      _updateGame(cappedSeconds);
+      _updateGame(cappedSeconds, isOffline: true);
     }
   }
 
@@ -508,6 +554,57 @@ class GameNotifier extends StateNotifier<GameState> {
     final totalBuildings = state.buildings.values.fold<int>(
       0, (sum, count) => sum + count,
     );
+
+    // Calculate Athena buildings count
+    final athenaBuildings =
+        state.getBuildingCount(BuildingType.hallOfWisdom) +
+        state.getBuildingCount(BuildingType.academyOfAthens) +
+        state.getBuildingCount(BuildingType.strategyChamber) +
+        state.getBuildingCount(BuildingType.oraclesArchive);
+
+    // Check if all Athena and Apollo buildings have 10+
+    final athenaList = [
+      BuildingType.hallOfWisdom,
+      BuildingType.academyOfAthens,
+      BuildingType.strategyChamber,
+      BuildingType.oraclesArchive,
+    ];
+    final apolloList = [
+      BuildingType.templeOfDelphi,
+      BuildingType.sunChariotStable,
+      BuildingType.musesSanctuary,
+      BuildingType.celestialObservatory,
+    ];
+    final hasRenaissanceBuildings =
+        athenaList.every((b) => state.getBuildingCount(b) >= 10) &&
+        apolloList.every((b) => state.getBuildingCount(b) >= 10);
+
+    // Check if all Knowledge branch research is completed
+    final knowledgeBranchNodes = [
+      'foundations_of_wisdom',
+      'scholarly_pursuit_i',
+      'scholarly_pursuit_ii',
+      'scholarly_pursuit_iii',
+      'divine_insight',
+      'philosophical_method',
+      'prophetic_connection',
+    ];
+    final hasAllKnowledgeResearch = knowledgeBranchNodes.every(
+      (node) => state.hasCompletedResearch(node),
+    );
+
+    // Check if all Phase 5 territories conquered
+    final phase5Territories = [
+      'academy_of_athens',
+      'oracle_of_delphi',
+      'library_of_alexandria',
+    ];
+    final hasAllPhase5Territories = phase5Territories.every(
+      (t) => state.hasConqueredTerritory(t),
+    );
+
+    // Check if all 10 prophecies have been activated (cooldowns exist)
+    final hasAll10Prophecies = state.prophecyState.cooldowns.length >= 10;
 
     for (final achievement in AchievementDefinitions.all) {
       if (state.hasUnlockedAchievement(achievement.id)) {
@@ -537,6 +634,39 @@ class GameNotifier extends StateNotifier<GameState> {
         shouldUnlock = true;
       } else if (achievement.id == 'god_dionysus' && state.hasUnlockedGod(God.dionysus)) {
         shouldUnlock = true;
+      }
+      // Phase 5 Athena achievements
+      else if (achievement.id == 'seeker_of_wisdom' && state.hasUnlockedGod(God.athena)) {
+        shouldUnlock = true;
+      } else if (achievement.id == 'scholarly_devotion' && athenaBuildings >= 25) {
+        shouldUnlock = true;
+      } else if (achievement.id == 'wisdom_hoarder' && state.lifetimeWisdom >= 10000) {
+        shouldUnlock = true;
+      }
+      // Phase 5 Apollo achievements
+      else if (achievement.id == 'god_of_light' && state.hasUnlockedGod(God.apollo)) {
+        shouldUnlock = true;
+      } else if (achievement.id == 'prophetic_devotee' && state.lifetimePropheciesActivated >= 50) {
+        shouldUnlock = true;
+      } else if (achievement.id == 'oracles_favorite' && hasAll10Prophecies) {
+        shouldUnlock = true;
+      }
+      // Phase 5 Research & Knowledge achievements
+      else if (achievement.id == 'philosopher_king' && hasAllKnowledgeResearch) {
+        shouldUnlock = true;
+      } else if (achievement.id == 'renaissance_deity' && hasRenaissanceBuildings) {
+        shouldUnlock = true;
+      }
+      // Phase 5 Conquest achievement
+      else if (achievement.id == 'master_of_knowledge' && hasAllPhase5Territories) {
+        shouldUnlock = true;
+      }
+      // Phase 5 Challenge achievement
+      else if (achievement.id == 'prescient_strategist') {
+        // Unlocks when Apollo is unlocked AND no Workshop buildings purchased
+        if (state.hasUnlockedGod(God.apollo) && state.getBuildingCount(BuildingType.workshop) == 0) {
+          shouldUnlock = true;
+        }
       }
 
       if (shouldUnlock) {
@@ -639,6 +769,11 @@ class GameNotifier extends StateNotifier<GameState> {
   /// For testing only - expose _updateGame
   void testUpdateGame(double deltaSeconds) {
     _updateGame(deltaSeconds);
+  }
+
+  /// Public method to check achievements (called from other providers)
+  void checkAchievementsPublic() {
+    _checkAchievements();
   }
 
   @override

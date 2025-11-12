@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
 import 'package:mythical_cats/models/research_node.dart';
 import 'package:mythical_cats/models/research_definitions.dart';
+import 'package:mythical_cats/models/resource_type.dart';
 
 final researchProvider = Provider<ResearchNotifier>((ref) {
   return ResearchNotifier(ref);
@@ -12,11 +13,31 @@ class ResearchNotifier {
 
   ResearchNotifier(this.ref);
 
+  /// Get the actual cost of a research node with achievement bonuses applied
+  Map<ResourceType, double> getResearchCost(ResearchNode node) {
+    final gameState = ref.read(gameProvider);
+    final result = <ResourceType, double>{};
+
+    for (final entry in node.cost.entries) {
+      double cost = entry.value;
+
+      // Philosopher King: -5% research costs
+      if (gameState.hasUnlockedAchievement('philosopher_king')) {
+        cost *= 0.95;
+      }
+
+      result[entry.key] = cost;
+    }
+
+    return result;
+  }
+
   /// Check if player can afford a research node
   bool canAffordResearch(ResearchNode node) {
     final gameState = ref.read(gameProvider);
+    final actualCost = getResearchCost(node);
 
-    for (final entry in node.cost.entries) {
+    for (final entry in actualCost.entries) {
       if (gameState.getResource(entry.key) < entry.value) {
         return false;
       }
@@ -63,9 +84,10 @@ class ResearchNotifier {
     }
 
     final game = ref.read(gameProvider.notifier);
+    final actualCost = getResearchCost(node);
 
-    // Deduct costs
-    for (final entry in node.cost.entries) {
+    // Deduct costs (with achievement discount applied)
+    for (final entry in actualCost.entries) {
       game.addResource(entry.key, -entry.value);
     }
 

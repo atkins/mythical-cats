@@ -143,8 +143,26 @@ class GameState {
     final updatedResources = Map<ResourceType, double>.from(resources);
     updatedResources[ResourceType.wisdom] = currentWisdom - cost;
 
-    // Activate prophecy
-    final updatedProphecyState = prophecyState.activate(prophecy, now);
+    // Calculate cooldown with achievement reductions
+    int cooldownMinutes = prophecy.cooldownMinutes;
+
+    // Prophetic Devotee: -5% all cooldowns
+    if (hasUnlockedAchievement('prophetic_devotee')) {
+      cooldownMinutes = (cooldownMinutes * 0.95).round();
+    }
+
+    // Oracle's Favorite: -30 minutes for Apollo's Grand Vision specifically
+    if (prophecy == ProphecyType.apollosGrandVision &&
+        hasUnlockedAchievement('oracles_favorite')) {
+      cooldownMinutes = cooldownMinutes - 30;
+    }
+
+    // Activate prophecy with adjusted cooldown
+    final updatedProphecyState = prophecyState.activateWithCooldown(
+      prophecy,
+      now,
+      Duration(minutes: cooldownMinutes),
+    );
 
     return copyWith(
       resources: updatedResources,
