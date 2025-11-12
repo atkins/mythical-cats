@@ -83,7 +83,7 @@ class ConquestDefinitions {
     id: 'academy_of_athens',
     name: 'Academy of Athens',
     cost: 10000000,
-    productionBonus: {ResourceType.wisdom: 0.15},
+    productionBonus: {ResourceType.wisdom: 0.50}, // +50% Wisdom (200K per 1%)
     prerequisite: 'titans_realm',
   );
 
