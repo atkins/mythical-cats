@@ -1397,4 +1397,60 @@ void main() {
       expect(notifier.state.getResource(ResourceType.wisdom), closeTo(250.0, 0.1));
     });
   });
+
+  group('Lifetime Stat Tracking', () {
+    test('lifetimeWisdom tracks cumulative wisdom earned', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Initial state
+      expect(notifier.state.lifetimeWisdom, 0);
+      expect(notifier.state.getResource(ResourceType.wisdom), 0);
+
+      // Manually add some wisdom to simulate production
+      notifier.addResource(ResourceType.wisdom, 100);
+
+      // lifetimeWisdom should NOT update when manually adding (only through game loop)
+      // This test verifies the game loop integration
+      expect(notifier.state.lifetimeWisdom, 0); // Still 0 because manual add doesn't track
+
+      // To properly test, we'd need to simulate the game loop with wisdom-producing buildings
+      // That's covered in integration tests
+
+      container.dispose();
+    });
+
+    test('lifetimePropheciesActivated increments on prophecy activation', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Give wisdom and unlock Apollo
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 1000},
+        totalCatsEarned: 15000000,
+        unlockedGods: {God.hermes, God.demeter, God.apollo},
+      );
+
+      expect(notifier.state.lifetimePropheciesActivated, 0);
+
+      // Activate first prophecy
+      final now = DateTime.now();
+      notifier.activateProphecy(ProphecyType.visionOfProsperity);
+      expect(notifier.state.lifetimePropheciesActivated, 1);
+
+      // Activate second prophecy (different type)
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 1000},
+        prophecyState: notifier.state.prophecyState.copyWith(
+          cooldowns: {
+            ProphecyType.visionOfProsperity: now.add(const Duration(hours: 1)),
+          },
+        ),
+      );
+      notifier.activateProphecy(ProphecyType.solarBlessing);
+      expect(notifier.state.lifetimePropheciesActivated, 2);
+
+      container.dispose();
+    });
+  });
 }

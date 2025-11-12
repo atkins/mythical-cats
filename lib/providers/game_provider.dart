@@ -59,16 +59,20 @@ class GameNotifier extends StateNotifier<GameState> {
       final newResources = Map<ResourceType, double>.from(state.resources);
 
       double catsProduced = 0;
+      double wisdomProduced = 0;
       for (final entry in production.entries) {
         newResources[entry.key] = state.getResource(entry.key) + entry.value;
         if (entry.key == ResourceType.cats) {
           catsProduced = entry.value;
+        } else if (entry.key == ResourceType.wisdom) {
+          wisdomProduced = entry.value;
         }
       }
 
       state = state.copyWith(
         resources: newResources,
         totalCatsEarned: state.totalCatsEarned + catsProduced,
+        lifetimeWisdom: state.lifetimeWisdom + wisdomProduced,
         lastUpdate: DateTime.now(),
       );
 
