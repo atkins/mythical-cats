@@ -252,6 +252,36 @@ class ProphecyState {
     );
   }
 
+  /// Activate prophecy with a custom cooldown duration (for achievement bonuses)
+  ProphecyState activateWithCooldown(
+    ProphecyType prophecy,
+    DateTime now,
+    Duration cooldownDuration,
+  ) {
+    final cooldownEnd = now.add(cooldownDuration);
+    final updatedCooldowns = Map<ProphecyType, DateTime>.from(cooldowns);
+    updatedCooldowns[prophecy] = cooldownEnd;
+
+    // If it's a timed boost, set as active
+    if (prophecy.effectType == ProphecyEffectType.timedBoost ||
+        prophecy.effectType == ProphecyEffectType.hybrid) {
+      final duration = prophecy.durationMinutes;
+      if (duration != null) {
+        return ProphecyState(
+          cooldowns: updatedCooldowns,
+          activeTimedBoost: prophecy,
+          activeTimedBoostExpiry: now.add(Duration(minutes: duration)),
+        );
+      }
+    }
+
+    return ProphecyState(
+      cooldowns: updatedCooldowns,
+      activeTimedBoost: activeTimedBoost,
+      activeTimedBoostExpiry: activeTimedBoostExpiry,
+    );
+  }
+
   ProphecyState copyWith({
     Map<ProphecyType, DateTime>? cooldowns,
     Object? activeTimedBoost = _undefined,

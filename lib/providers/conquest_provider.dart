@@ -13,10 +13,24 @@ class ConquestNotifier {
 
   ConquestNotifier(this.ref);
 
+  /// Get the actual cost of a territory with achievement bonuses applied
+  double getTerritoryCost(ConquestTerritory territory) {
+    final gameState = ref.read(gameProvider);
+    double cost = territory.cost.toDouble();
+
+    // Master of Knowledge: -10% conquest costs
+    if (gameState.hasUnlockedAchievement('master_of_knowledge')) {
+      cost *= 0.90;
+    }
+
+    return cost;
+  }
+
   /// Check if player can afford a territory
   bool _canAffordTerritory(ConquestTerritory territory) {
     final gameState = ref.read(gameProvider);
-    return gameState.getResource(ResourceType.conquestPoints) >= territory.cost;
+    final actualCost = getTerritoryCost(territory);
+    return gameState.getResource(ResourceType.conquestPoints) >= actualCost;
   }
 
   /// Check if prerequisites are met for a territory
@@ -55,9 +69,10 @@ class ConquestNotifier {
     }
 
     final game = ref.read(gameProvider.notifier);
+    final actualCost = getTerritoryCost(territory);
 
-    // Deduct cost
-    game.addResource(ResourceType.conquestPoints, -territory.cost);
+    // Deduct cost (with achievement discount applied)
+    game.addResource(ResourceType.conquestPoints, -actualCost);
 
     // Mark as conquered
     final currentState = ref.read(gameProvider);
@@ -67,6 +82,9 @@ class ConquestNotifier {
     game.updateState(currentState.copyWith(
       conqueredTerritories: newConquered,
     ));
+
+    // Check achievements after conquering
+    game.checkAchievementsPublic();
 
     return true;
   }
