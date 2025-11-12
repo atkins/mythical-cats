@@ -18,8 +18,8 @@ void main() {
       expect(territory.cost, 500);
     });
 
-    test('all 8 territories exist', () {
-      expect(ConquestDefinitions.all.length, 8);
+    test('all 11 territories exist', () {
+      expect(ConquestDefinitions.all.length, 11);
     });
 
     test('getById returns correct territory', () {
@@ -36,6 +36,35 @@ void main() {
       final ids = ConquestDefinitions.all.map((t) => t.id).toList();
       final uniqueIds = ids.toSet();
       expect(ids.length, uniqueIds.length);
+    });
+  });
+
+  group('Phase 5 Territories', () {
+    test('libraryOfAlexandria has correct properties', () {
+      const territory = ConquestDefinitions.libraryOfAlexandria;
+      expect(territory.id, 'library_of_alexandria');
+      expect(territory.name, 'Library of Alexandria');
+      expect(territory.cost, 5000000);
+      expect(territory.productionBonus[ResourceType.wisdom], 0.25);
+      expect(territory.prerequisite, 'titans_realm');
+    });
+
+    test('oracleOfDelphi has correct properties', () {
+      const territory = ConquestDefinitions.oracleOfDelphi;
+      expect(territory.id, 'oracle_of_delphi');
+      expect(territory.name, 'Oracle of Delphi');
+      expect(territory.cost, 2500000);
+      expect(territory.productionBonus.containsKey(ResourceType.wisdom), true);
+      expect(territory.prerequisite, 'titans_realm');
+    });
+
+    test('academyOfAthens has correct properties', () {
+      const territory = ConquestDefinitions.academyOfAthens;
+      expect(territory.id, 'academy_of_athens');
+      expect(territory.name, 'Academy of Athens');
+      expect(territory.cost, 10000000);
+      expect(territory.productionBonus[ResourceType.wisdom], 0.15);
+      expect(territory.prerequisite, 'titans_realm');
     });
   });
 }
