@@ -16,6 +16,8 @@ class GameState {
   final Set<String> conqueredTerritories;
   final ReincarnationState reincarnationState;
   final ProphecyState prophecyState;
+  final double lifetimeWisdom; // Lifetime total wisdom accumulated (NOT current balance)
+  final int lifetimePropheciesActivated; // Count of times any prophecy has been activated
 
   const GameState({
     required this.resources,
@@ -28,6 +30,8 @@ class GameState {
     this.conqueredTerritories = const {},
     this.reincarnationState = const ReincarnationState(),
     this.prophecyState = const ProphecyState(cooldowns: {}),
+    this.lifetimeWisdom = 0,
+    this.lifetimePropheciesActivated = 0,
   });
 
   /// Initial game state
@@ -48,6 +52,8 @@ class GameState {
       conqueredTerritories: {},
       reincarnationState: const ReincarnationState(),
       prophecyState: ProphecyState.initial(),
+      lifetimeWisdom: 0,
+      lifetimePropheciesActivated: 0,
     );
   }
 
@@ -63,6 +69,8 @@ class GameState {
     Set<String>? conqueredTerritories,
     ReincarnationState? reincarnationState,
     ProphecyState? prophecyState,
+    double? lifetimeWisdom,
+    int? lifetimePropheciesActivated,
   }) {
     return GameState(
       resources: resources ?? Map.from(this.resources),
@@ -75,6 +83,8 @@ class GameState {
       conqueredTerritories: conqueredTerritories ?? Set.from(this.conqueredTerritories),
       reincarnationState: reincarnationState ?? this.reincarnationState,
       prophecyState: prophecyState ?? this.prophecyState,
+      lifetimeWisdom: lifetimeWisdom ?? this.lifetimeWisdom,
+      lifetimePropheciesActivated: lifetimePropheciesActivated ?? this.lifetimePropheciesActivated,
     );
   }
 
@@ -139,6 +149,7 @@ class GameState {
     return copyWith(
       resources: updatedResources,
       prophecyState: updatedProphecyState,
+      lifetimePropheciesActivated: lifetimePropheciesActivated + 1,
     );
   }
 
@@ -175,6 +186,8 @@ class GameState {
       'completedResearch': completedResearch.toList(),
       'conqueredTerritories': conqueredTerritories.toList(),
       'reincarnationState': reincarnationState.toJson(),
+      'lifetimeWisdom': lifetimeWisdom,
+      'lifetimePropheciesActivated': lifetimePropheciesActivated,
     };
   }
 
@@ -210,6 +223,8 @@ class GameState {
       reincarnationState: json['reincarnationState'] != null
         ? ReincarnationState.fromJson(json['reincarnationState'] as Map<String, dynamic>)
         : const ReincarnationState(),
+      lifetimeWisdom: (json['lifetimeWisdom'] as num?)?.toDouble() ?? 0,
+      lifetimePropheciesActivated: (json['lifetimePropheciesActivated'] as int?) ?? 0,
     );
   }
 }
