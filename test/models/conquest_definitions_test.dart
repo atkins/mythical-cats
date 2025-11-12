@@ -63,7 +63,7 @@ void main() {
       expect(territory.id, 'academy_of_athens');
       expect(territory.name, 'Academy of Athens');
       expect(territory.cost, 10000000);
-      expect(territory.productionBonus[ResourceType.wisdom], 0.15);
+      expect(territory.productionBonus[ResourceType.wisdom], 0.50); // +50% Wisdom
       expect(territory.prerequisite, 'titans_realm');
     });
   });
