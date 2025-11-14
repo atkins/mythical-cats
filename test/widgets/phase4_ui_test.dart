@@ -54,7 +54,7 @@ void main() {
       container.dispose();
     });
 
-    testWidgets('Reincarnation tab appears when totalCatsEarned >= 1B',
+    testWidgets('Reincarnation destination is always visible in bottom navigation',
         (tester) async {
       final container = ProviderContainer();
       final notifier = container.read(gameProvider.notifier);
@@ -74,14 +74,14 @@ void main() {
         ),
       );
 
-      // Verify Reincarnation tab is visible
+      // Verify Reincarnation destination is visible in NavigationBar
+      expect(find.byType(NavigationBar), findsOneWidget);
       expect(find.text('Reincarnation'), findsOneWidget);
-      expect(find.widgetWithIcon(Tab, Icons.autorenew), findsOneWidget);
 
       container.dispose();
     });
 
-    testWidgets('Reincarnation tab hidden below 1B cats threshold',
+    testWidgets('Reincarnation destination visible even below 1B cats threshold',
         (tester) async {
       final container = ProviderContainer();
       final notifier = container.read(gameProvider.notifier);
@@ -101,8 +101,9 @@ void main() {
         ),
       );
 
-      // Verify Reincarnation tab is NOT visible
-      expect(find.text('Reincarnation'), findsNothing);
+      // Verify Reincarnation destination is still visible (always in nav bar)
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.text('Reincarnation'), findsOneWidget);
 
       container.dispose();
     });
@@ -740,6 +741,104 @@ void main() {
       // Verify reincarnation occurred
       final finalState = container.read(gameProvider);
       expect(finalState.reincarnationState.totalReincarnations, 1);
+
+      container.dispose();
+    });
+
+    testWidgets('HomeScreen shows bottom NavigationBar with 5 destinations',
+        (tester) async {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        unlockedGods: {God.hermes, God.athena, God.ares, God.apollo},
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: HomeScreen(),
+          ),
+        ),
+      );
+
+      // Should have bottom navigation with 5 destinations
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.text('Home'), findsOneWidget);
+      expect(find.text('Buildings'), findsOneWidget);
+      expect(find.text('Divine Powers'), findsOneWidget);
+      expect(find.text('Reincarnation'), findsOneWidget);
+      expect(find.text('Settings'), findsOneWidget);
+
+      // Should NOT have TabBar at top
+      expect(find.byType(TabBar), findsNothing);
+
+      container.dispose();
+    });
+
+    testWidgets('HomeScreen bottom NavigationBar switches between tabs',
+        (tester) async {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        unlockedGods: {God.hermes, God.athena},
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: HomeScreen(),
+          ),
+        ),
+      );
+
+      // Initially on Home tab
+      expect(find.text('Mythical Cats'), findsOneWidget); // AppBar title from _HomeTab
+
+      // Tap Divine Powers destination
+      await tester.tap(find.text('Divine Powers'));
+      await tester.pump();
+
+      // Should show Divine Powers screen
+      expect(find.text('Divine Powers'), findsAtLeastNWidgets(1)); // AppBar title
+
+      container.dispose();
+    });
+
+    testWidgets('HomeScreen preserves state when switching tabs',
+        (tester) async {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+      notifier.state = notifier.state.copyWith(
+        totalCatsEarned: 1000000000,
+        unlockedGods: {God.hermes, God.athena},
+      );
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: HomeScreen(),
+          ),
+        ),
+      );
+
+      // Go to Settings tab
+      await tester.tap(find.text('Settings'));
+      await tester.pump();
+
+      // Verify on Settings screen
+      expect(find.text('Settings'), findsAtLeastNWidgets(1));
+
+      // Go back to Home tab
+      await tester.tap(find.text('Home'));
+      await tester.pump();
+
+      // Should be back on Home tab
+      expect(find.text('Mythical Cats'), findsOneWidget);
 
       container.dispose();
     });
