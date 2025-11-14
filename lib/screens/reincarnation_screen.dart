@@ -157,6 +157,9 @@ class _ReincarnationScreenState extends ConsumerState<ReincarnationScreen> {
           ],
         ),
       ),
+      floatingActionButton: _selectedTab == ReincarnationTab.prestige
+          ? _buildReincarnationFab(gameState, gameNotifier)
+          : null,
     );
   }
 
@@ -268,6 +271,57 @@ class _ReincarnationScreenState extends ConsumerState<ReincarnationScreen> {
 
   Widget _buildPrestigeContent(BuildContext context, gameState, gameNotifier) {
     final reincState = gameState.reincarnationState;
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Patron Selector
+            PatronSelector(
+              activePatron: reincState.activePatron,
+              ownedUpgradeIds: reincState.ownedUpgradeIds,
+              onPatronSelected: (force) =>
+                  gameNotifier.setActivePatron(force),
+            ),
+            const SizedBox(height: 8),
+            // Force Sections
+            PrimordialForceSection(
+              force: PrimordialForce.chaos,
+              ownedUpgradeIds: reincState.ownedUpgradeIds,
+              availablePE: reincState.availablePrimordialEssence,
+              onPurchase: (id) =>
+                  gameNotifier.purchasePrimordialUpgrade(id),
+            ),
+            PrimordialForceSection(
+              force: PrimordialForce.gaia,
+              ownedUpgradeIds: reincState.ownedUpgradeIds,
+              availablePE: reincState.availablePrimordialEssence,
+              onPurchase: (id) =>
+                  gameNotifier.purchasePrimordialUpgrade(id),
+            ),
+            PrimordialForceSection(
+              force: PrimordialForce.nyx,
+              ownedUpgradeIds: reincState.ownedUpgradeIds,
+              availablePE: reincState.availablePrimordialEssence,
+              onPurchase: (id) =>
+                  gameNotifier.purchasePrimordialUpgrade(id),
+            ),
+            PrimordialForceSection(
+              force: PrimordialForce.erebus,
+              ownedUpgradeIds: reincState.ownedUpgradeIds,
+              availablePE: reincState.availablePrimordialEssence,
+              onPurchase: (id) =>
+                  gameNotifier.purchasePrimordialUpgrade(id),
+            ),
+            // Bottom padding for FAB
+            const SizedBox(height: 80),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReincarnationFab(gameState, gameNotifier) {
     final peEarned =
         gameNotifier.calculatePrimordialEssence(gameState.totalCatsEarned);
     final threshold = 1000000000.0;
@@ -275,60 +329,11 @@ class _ReincarnationScreenState extends ConsumerState<ReincarnationScreen> {
     final catsRemaining =
         isEnabled ? 0.0 : threshold - gameState.totalCatsEarned;
 
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Patron Selector
-              PatronSelector(
-                activePatron: reincState.activePatron,
-                ownedUpgradeIds: reincState.ownedUpgradeIds,
-                onPatronSelected: (force) =>
-                    gameNotifier.setActivePatron(force),
-              ),
-              const SizedBox(height: 8),
-              // Force Sections
-              PrimordialForceSection(
-                force: PrimordialForce.chaos,
-                ownedUpgradeIds: reincState.ownedUpgradeIds,
-                availablePE: reincState.availablePrimordialEssence,
-                onPurchase: (id) =>
-                    gameNotifier.purchasePrimordialUpgrade(id),
-              ),
-              PrimordialForceSection(
-                force: PrimordialForce.gaia,
-                ownedUpgradeIds: reincState.ownedUpgradeIds,
-                availablePE: reincState.availablePrimordialEssence,
-                onPurchase: (id) =>
-                    gameNotifier.purchasePrimordialUpgrade(id),
-              ),
-              PrimordialForceSection(
-                force: PrimordialForce.nyx,
-                ownedUpgradeIds: reincState.ownedUpgradeIds,
-                availablePE: reincState.availablePrimordialEssence,
-                onPurchase: (id) =>
-                    gameNotifier.purchasePrimordialUpgrade(id),
-              ),
-              PrimordialForceSection(
-                force: PrimordialForce.erebus,
-                ownedUpgradeIds: reincState.ownedUpgradeIds,
-                availablePE: reincState.availablePrimordialEssence,
-                onPurchase: (id) =>
-                    gameNotifier.purchasePrimordialUpgrade(id),
-              ),
-              // Bottom padding for FAB
-              const SizedBox(height: 80),
-            ],
-          ),
-        ),
-      ),
-      floatingActionButton: ReincarnationFab(
-        peEarned: peEarned,
-        isEnabled: isEnabled,
-        catsRemaining: catsRemaining,
-        onPressed: () => _showReincarnationDialog(context, ref),
-      ),
+    return ReincarnationFab(
+      peEarned: peEarned,
+      isEnabled: isEnabled,
+      catsRemaining: catsRemaining,
+      onPressed: () => _showReincarnationDialog(context, ref),
     );
   }
 }
