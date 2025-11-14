@@ -6,6 +6,7 @@ import 'package:mythical_cats/providers/conquest_provider.dart';
 import 'package:mythical_cats/providers/research_provider.dart';
 import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
+import 'package:mythical_cats/models/building_definition.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/conquest_definitions.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
@@ -1977,6 +1978,97 @@ void main() {
 
       // Wisdom should be normal: 1.0 * 3600 = 3600 (no +25% bonus)
       expect(wisdomGained, closeTo(3600, 100));
+      container.dispose();
+    });
+  });
+
+  group('Production Rate Helper Methods', () {
+    test('getPrayersPerSecond calculates from prayer-producing buildings', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Set up state with prayer-producing buildings
+      // harvestField produces prayers at 1.0/sec
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.harvestField: 5,    // 5 * 1.0 = 5.0
+        },
+      );
+
+      final rate = notifier.getPrayersPerSecond();
+      expect(rate, 5.0);
+
+      container.dispose();
+    });
+
+    test('getOfferingsPerSecond calculates from god buildings', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hearthAltar: 2, // Only hearthAltar produces offerings
+        },
+        unlockedGods: {God.hermes, God.hestia},
+      );
+
+      final rate = notifier.getOfferingsPerSecond();
+      // Calculate based on building definitions: 2 * 0.5 = 1.0
+      final expected = 2 * BuildingDefinitions.hearthAltar.baseProduction;
+      expect(rate, expected);
+
+      container.dispose();
+    });
+
+    test('getDivineEssencePerSecond calculates from refineries', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.essenceRefinery: 2},
+        unlockedGods: {God.athena},
+      );
+
+      final rate = notifier.getDivineEssencePerSecond();
+      final expected = 2 * BuildingDefinitions.essenceRefinery.baseProduction;
+      expect(rate, expected);
+
+      container.dispose();
+    });
+
+    test('getAmbrosiaPerSecond calculates from breweries', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.nectarBrewery: 1},
+        unlockedGods: {God.apollo},
+      );
+
+      final rate = notifier.getAmbrosiaPerSecond();
+      final expected = 1 * BuildingDefinitions.nectarBrewery.baseProduction;
+      expect(rate, expected);
+
+      container.dispose();
+    });
+
+    test('getWisdomPerSecond calculates from wisdom buildings', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {
+          BuildingType.hallOfWisdom: 2,
+          BuildingType.academyOfAthens: 1,
+        },
+        unlockedGods: {God.athena},
+      );
+
+      final rate = notifier.getWisdomPerSecond();
+      final expected = (2 * BuildingDefinitions.hallOfWisdom.baseProduction) +
+                       (1 * BuildingDefinitions.academyOfAthens.baseProduction);
+      expect(rate, expected);
+
       container.dispose();
     });
   });
