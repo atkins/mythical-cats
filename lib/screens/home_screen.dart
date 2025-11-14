@@ -5,72 +5,98 @@ import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/utils/number_formatter.dart';
 import 'package:mythical_cats/screens/buildings_screen.dart';
-import 'package:mythical_cats/screens/achievements_screen.dart';
+import 'package:mythical_cats/screens/divine_powers_screen.dart';
 import 'package:mythical_cats/screens/settings_screen.dart';
-import 'package:mythical_cats/screens/research_screen.dart';
-import 'package:mythical_cats/screens/conquest_screen.dart';
 import 'package:mythical_cats/screens/reincarnation_screen.dart';
-import 'package:mythical_cats/screens/prophecy_screen.dart';
 import 'package:mythical_cats/widgets/resource_panel.dart';
 import 'package:mythical_cats/widgets/prestige_stats_panel.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final gameState = ref.watch(gameProvider);
-    final hasReincarnation = gameState.totalCatsEarned >= 1000000000;
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
 
-    // Check which gods are unlocked to determine which tabs to show
-    final hasAthena = gameState.hasUnlockedGod(God.athena);
-    final hasAres = gameState.hasUnlockedGod(God.ares);
-    final hasApollo = gameState.hasUnlockedGod(God.apollo);
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  // Tab indices as constants to avoid magic numbers
+  static const int _homeTabIndex = 0;
+  static const int _buildingsTabIndex = 1;
+  static const int _divinePowersTabIndex = 2;
+  static const int _reincarnationTabIndex = 3;
+  static const int _settingsTabIndex = 4;
 
-    // Build tabs dynamically based on unlocked gods
-    final tabs = <Widget>[
-      const Tab(icon: Icon(Icons.home), text: 'Home'),
-      const Tab(icon: Icon(Icons.apartment), text: 'Buildings'),
-      const Tab(icon: Icon(Icons.emoji_events), text: 'Achievements'),
-      const Tab(icon: Icon(Icons.settings), text: 'Settings'),
-      if (hasAthena) const Tab(icon: Icon(Icons.science), text: 'Research'),
-      if (hasAres) const Tab(icon: Icon(Icons.flag), text: 'Conquest'),
-      if (hasApollo) const Tab(icon: Icon(Icons.auto_awesome), text: 'Prophecy'),
-      if (hasReincarnation)
-        const Tab(icon: Icon(Icons.autorenew), text: 'Reincarnation'),
-    ];
+  int _selectedIndex = _homeTabIndex;
 
-    // Build tab views in the same order
-    final tabViews = <Widget>[
-      const _HomeTab(),
+  void _onDestinationSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  // Public API for programmatic navigation from child widgets
+  void navigateToTab(int index) {
+    _onDestinationSelected(index);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Build screens for IndexedStack
+    final screens = [
+      _HomeTab(
+        onNavigateToReincarnation: () {
+          setState(() {
+            _selectedIndex = _reincarnationTabIndex;
+          });
+        },
+      ),
       const BuildingsScreen(),
-      const AchievementsScreen(),
+      const DivinePowersScreen(),
+      const ReincarnationScreen(),
       const SettingsScreen(),
-      if (hasAthena) const ResearchScreen(),
-      if (hasAres) const ConquestScreen(),
-      if (hasApollo) const ProphecyScreen(),
-      if (hasReincarnation) const ReincarnationScreen(),
     ];
 
-    return DefaultTabController(
-      length: tabs.length,
-      child: Scaffold(
-        appBar: AppBar(
-          bottom: TabBar(
-            tabs: tabs,
-            isScrollable: tabs.length > 5,
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: screens,
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onDestinationSelected,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home),
+            label: 'Home',
           ),
-        ),
-        body: TabBarView(
-          children: tabViews,
-        ),
+          NavigationDestination(
+            icon: Icon(Icons.apartment),
+            label: 'Buildings',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.auto_awesome),
+            label: 'Divine Powers',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.autorenew),
+            label: 'Reincarnation',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
       ),
     );
   }
 }
 
 class _HomeTab extends ConsumerWidget {
-  const _HomeTab();
+  const _HomeTab({
+    required this.onNavigateToReincarnation,
+  });
+
+  final VoidCallback onNavigateToReincarnation;
 
   God? _getNextGod(gameState) {
     final currentGodIndex = gameState.unlockedGods.last.index;
@@ -88,12 +114,16 @@ class _HomeTab extends ConsumerWidget {
     final cats = gameState.getResource(ResourceType.cats);
     final catsPerSecond = gameNotifier.catsPerSecond;
 
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mythical Cats'),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
               // Resource display
               _ResourceDisplay(
                 icon: ResourceType.cats.icon,
@@ -115,15 +145,7 @@ class _HomeTab extends ConsumerWidget {
                   reincarnations: gameState.reincarnationState.totalReincarnations,
                   activePatron: gameState.reincarnationState.activePatron,
                   ownedUpgradeIds: gameState.reincarnationState.ownedUpgradeIds,
-                  onTap: () {
-                    // Navigate to Reincarnation tab
-                    // Calculate tab index: 4 base tabs + Research (if Athena) + Conquest (if Ares) + Prophecy (if Apollo)
-                    final tabIndex = 4 +
-                        (gameState.hasUnlockedGod(God.athena) ? 1 : 0) +
-                        (gameState.hasUnlockedGod(God.ares) ? 1 : 0) +
-                        (gameState.hasUnlockedGod(God.apollo) ? 1 : 0);
-                    DefaultTabController.of(context).animateTo(tabIndex);
-                  },
+                  onTap: onNavigateToReincarnation,
                 ),
               if (gameState.reincarnationState.totalReincarnations > 0)
                 const SizedBox(height: 24),
@@ -141,7 +163,8 @@ class _HomeTab extends ConsumerWidget {
                 totalEarned: gameState.totalCatsEarned,
                 nextGod: _getNextGod(gameState),
               ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
