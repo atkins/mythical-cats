@@ -3,12 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/utils/number_formatter.dart';
+import 'package:mythical_cats/screens/research_screen.dart';
+import 'package:mythical_cats/screens/conquest_screen.dart';
+import 'package:mythical_cats/screens/prophecy_screen.dart';
 
-class DivinePowersScreen extends ConsumerWidget {
+enum DivinePowerTab { research, conquest, prophecy }
+
+class DivinePowersScreen extends ConsumerStatefulWidget {
   const DivinePowersScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DivinePowersScreen> createState() => _DivinePowersScreenState();
+}
+
+class _DivinePowersScreenState extends ConsumerState<DivinePowersScreen> {
+  DivinePowerTab? _selectedTab;
+
+  @override
+  Widget build(BuildContext context) {
     final gameState = ref.watch(gameProvider);
 
     // Check if any divine gods are unlocked (not Hermes)
@@ -21,7 +33,70 @@ class DivinePowersScreen extends ConsumerWidget {
       return _buildTeaserContent(context, gameState);
     }
 
-    return _buildDivinePowersContent(context, gameState);
+    // Build available tabs
+    final availableTabs = <DivinePowerTab>[];
+    if (hasAthena) availableTabs.add(DivinePowerTab.research);
+    if (hasAres) availableTabs.add(DivinePowerTab.conquest);
+    if (hasApollo) availableTabs.add(DivinePowerTab.prophecy);
+
+    // Set initial selection if not set
+    if (_selectedTab == null || !availableTabs.contains(_selectedTab)) {
+      _selectedTab = availableTabs.first;
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Divine Powers'),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SegmentedButton<DivinePowerTab>(
+                segments: [
+                  if (hasAthena)
+                    const ButtonSegment(
+                      value: DivinePowerTab.research,
+                      label: Text('Research'),
+                    ),
+                  if (hasAres)
+                    const ButtonSegment(
+                      value: DivinePowerTab.conquest,
+                      label: Text('Conquest'),
+                    ),
+                  if (hasApollo)
+                    const ButtonSegment(
+                      value: DivinePowerTab.prophecy,
+                      label: Text('Prophecy'),
+                    ),
+                ],
+                selected: {_selectedTab!},
+                onSelectionChanged: (Set<DivinePowerTab> selected) {
+                  setState(() {
+                    _selectedTab = selected.first;
+                  });
+                },
+              ),
+            ),
+            Expanded(
+              child: _buildSelectedContent(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSelectedContent() {
+    switch (_selectedTab!) {
+      case DivinePowerTab.research:
+        return const ResearchScreen();
+      case DivinePowerTab.conquest:
+        return const ConquestScreen();
+      case DivinePowerTab.prophecy:
+        return const ProphecyScreen();
+    }
   }
 
   Widget _buildTeaserContent(BuildContext context, gameState) {
@@ -139,13 +214,6 @@ class DivinePowersScreen extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildDivinePowersContent(BuildContext context, gameState) {
-    // Placeholder for now
-    return const Scaffold(
-      body: Center(child: Text('Divine Powers Content')),
     );
   }
 }
