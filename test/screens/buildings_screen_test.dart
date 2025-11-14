@@ -4,9 +4,58 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/screens/buildings_screen.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/widgets/building_card.dart';
+import 'package:mythical_cats/widgets/compact_resource_bar.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
 
 void main() {
+  group('BuildingsScreen CompactResourceBar Integration', () {
+    testWidgets('BuildingsScreen shows CompactResourceBar at top', (tester) async {
+      final container = ProviderContainer();
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: BuildingsScreen(),
+          ),
+        ),
+      );
+
+      // Should find CompactResourceBar
+      expect(find.byType(CompactResourceBar), findsOneWidget);
+
+      // Should find ListView for buildings
+      expect(find.byType(ListView), findsOneWidget);
+
+      container.dispose();
+    });
+
+    testWidgets('BuildingsScreen CompactResourceBar stays visible when scrolling', (tester) async {
+      final container = ProviderContainer();
+
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: BuildingsScreen(),
+          ),
+        ),
+      );
+
+      // Verify resource bar is visible initially
+      expect(find.byType(CompactResourceBar), findsOneWidget);
+
+      // Scroll down
+      await tester.drag(find.byType(ListView), const Offset(0, -500));
+      await tester.pump();
+
+      // Resource bar should still be visible (sticky)
+      expect(find.byType(CompactResourceBar), findsOneWidget);
+
+      container.dispose();
+    });
+  });
+
   group('BuildingsScreen Athena/Apollo Sections', () {
     testWidgets('BuildingsScreen renders without crashing',
         (WidgetTester tester) async {
