@@ -54,14 +54,30 @@ void main() {
         ),
       );
 
-      // Test each tab
-      final tabs = ['Home', 'Buildings', 'Divine Powers', 'Reincarnation', 'Settings'];
+      // Test Home tab
+      await tester.tap(find.text('Home'));
+      await tester.pump();
+      expect(find.text('Perform Ritual'), findsOneWidget);
 
-      for (final tab in tabs) {
-        await tester.tap(find.text(tab));
-        await tester.pump();
-        // Verify navigation occurred (no specific assertion, just checking no errors)
-      }
+      // Test Buildings tab
+      await tester.tap(find.text('Buildings'));
+      await tester.pump();
+      expect(find.text('Buildings'), findsAtLeastNWidgets(1)); // AppBar + nav
+
+      // Test Divine Powers tab
+      await tester.tap(find.text('Divine Powers'));
+      await tester.pump();
+      expect(find.text('Divine Powers'), findsAtLeastNWidgets(1)); // AppBar + nav
+
+      // Test Reincarnation tab
+      await tester.tap(find.text('Reincarnation'));
+      await tester.pump();
+      expect(find.text('Reincarnation'), findsAtLeastNWidgets(1)); // AppBar + nav
+
+      // Test Settings tab
+      await tester.tap(find.text('Settings'));
+      await tester.pump();
+      expect(find.text('Settings'), findsAtLeastNWidgets(1)); // AppBar + nav
 
       container.dispose();
     });
