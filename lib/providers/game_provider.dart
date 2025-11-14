@@ -519,6 +519,31 @@ class GameNotifier extends StateNotifier<GameState> {
     return getProductionRate(ResourceType.cats);
   }
 
+  /// Calculate total prayers per second
+  double getPrayersPerSecond() {
+    return getProductionRate(ResourceType.prayers);
+  }
+
+  /// Calculate total offerings per second
+  double getOfferingsPerSecond() {
+    return getProductionRate(ResourceType.offerings);
+  }
+
+  /// Calculate total divine essence per second
+  double getDivineEssencePerSecond() {
+    return getProductionRate(ResourceType.divineEssence);
+  }
+
+  /// Calculate total ambrosia per second
+  double getAmbrosiaPerSecond() {
+    return getProductionRate(ResourceType.ambrosia);
+  }
+
+  /// Calculate total wisdom per second
+  double getWisdomPerSecond() {
+    return getProductionRate(ResourceType.wisdom);
+  }
+
   /// Start auto-save timer (every 30 seconds)
   void _startAutoSave() {
     _saveTimer = Timer.periodic(const Duration(seconds: 30), (_) {
