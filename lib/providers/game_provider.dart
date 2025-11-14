@@ -519,6 +519,11 @@ class GameNotifier extends StateNotifier<GameState> {
     return getProductionRate(ResourceType.cats);
   }
 
+  /// Calculate total cats per second (method version for consistency)
+  double getCatsPerSecond() {
+    return getProductionRate(ResourceType.cats);
+  }
+
   /// Calculate total prayers per second
   double getPrayersPerSecond() {
     return getProductionRate(ResourceType.prayers);
