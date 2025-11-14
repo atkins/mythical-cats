@@ -120,7 +120,7 @@ class ProphecyScreen extends ConsumerWidget {
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
-            childAspectRatio: 0.8,
+            childAspectRatio: 0.95,
             crossAxisSpacing: 12,
             mainAxisSpacing: 12,
           ),

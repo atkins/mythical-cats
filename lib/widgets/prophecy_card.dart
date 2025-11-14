@@ -31,7 +31,7 @@ class ProphecyCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Active indicator
             if (isActive)
@@ -63,9 +63,13 @@ class ProphecyCard extends StatelessWidget {
             const SizedBox(height: 4),
 
             // Description
-            Text(
-              prophecy.description,
-              style: Theme.of(context).textTheme.bodySmall,
+            Expanded(
+              child: Text(
+                prophecy.description,
+                style: Theme.of(context).textTheme.bodySmall,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
             const SizedBox(height: 8),
 
@@ -87,17 +91,32 @@ class ProphecyCard extends StatelessWidget {
 
             // Cooldown or Activate button
             if (isOnCooldown)
-              Text(
-                _formatCooldown(cooldownRemaining),
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
+              Container(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Text(
+                  _formatCooldown(cooldownRemaining),
+                  style: TextStyle(
+                    color: Colors.grey.shade700,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               )
             else
-              ElevatedButton(
-                onPressed: canActivate ? onActivate : null,
-                child: const Text('Activate'),
+              SizedBox(
+                height: 36,
+                child: ElevatedButton(
+                  onPressed: canActivate ? onActivate : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.amber.shade600,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('Activate'),
+                ),
               ),
           ],
         ),
