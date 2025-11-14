@@ -19,12 +19,24 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  int _selectedIndex = 0;
+  // Tab indices as constants to avoid magic numbers
+  static const int _homeTabIndex = 0;
+  static const int _buildingsTabIndex = 1;
+  static const int _divinePowersTabIndex = 2;
+  static const int _reincarnationTabIndex = 3;
+  static const int _settingsTabIndex = 4;
+
+  int _selectedIndex = _homeTabIndex;
 
   void _onDestinationSelected(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  // Public API for programmatic navigation from child widgets
+  void navigateToTab(int index) {
+    _onDestinationSelected(index);
   }
 
   @override
@@ -124,9 +136,9 @@ class _HomeTab extends ConsumerWidget {
                   activePatron: gameState.reincarnationState.activePatron,
                   ownedUpgradeIds: gameState.reincarnationState.ownedUpgradeIds,
                   onTap: () {
-                    // Navigate to Reincarnation tab (index 3)
+                    // Navigate to Reincarnation tab
                     final homeScreenState = context.findAncestorStateOfType<_HomeScreenState>();
-                    homeScreenState?._onDestinationSelected(3);
+                    homeScreenState?.navigateToTab(_HomeScreenState._reincarnationTabIndex);
                   },
                 ),
               if (gameState.reincarnationState.totalReincarnations > 0)
