@@ -7,6 +7,7 @@ import 'package:mythical_cats/widgets/primordial_force_section.dart';
 import 'package:mythical_cats/widgets/reincarnation_fab.dart';
 import 'package:mythical_cats/screens/achievements_screen.dart';
 import 'package:mythical_cats/utils/number_formatter.dart';
+import 'package:mythical_cats/widgets/compact_resource_bar.dart';
 
 enum ReincarnationTab { prestige, achievements }
 
@@ -128,6 +129,7 @@ class _ReincarnationScreenState extends ConsumerState<ReincarnationScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            const CompactResourceBar(),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SegmentedButton<ReincarnationTab>(
@@ -171,9 +173,13 @@ class _ReincarnationScreenState extends ConsumerState<ReincarnationScreen> {
         title: const Text('Reincarnation'),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+        child: Column(
+          children: [
+            const CompactResourceBar(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
@@ -248,7 +254,10 @@ class _ReincarnationScreenState extends ConsumerState<ReincarnationScreen> {
                 ),
               ),
             ],
-          ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

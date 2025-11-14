@@ -6,6 +6,7 @@ import 'package:mythical_cats/utils/number_formatter.dart';
 import 'package:mythical_cats/screens/research_screen.dart';
 import 'package:mythical_cats/screens/conquest_screen.dart';
 import 'package:mythical_cats/screens/prophecy_screen.dart';
+import 'package:mythical_cats/widgets/compact_resource_bar.dart';
 
 enum DivinePowerTab { research, conquest, prophecy }
 
@@ -51,6 +52,7 @@ class _DivinePowersScreenState extends ConsumerState<DivinePowersScreen> {
       body: SafeArea(
         child: Column(
           children: [
+            const CompactResourceBar(),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: SegmentedButton<DivinePowerTab>(
@@ -105,9 +107,13 @@ class _DivinePowersScreenState extends ConsumerState<DivinePowersScreen> {
         title: const Text('Divine Powers'),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
+        child: Column(
+          children: [
+            const CompactResourceBar(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -138,7 +144,10 @@ class _DivinePowersScreenState extends ConsumerState<DivinePowersScreen> {
                 totalCatsEarned: gameState.totalCatsEarned,
               ),
             ],
-          ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

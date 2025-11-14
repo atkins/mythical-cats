@@ -8,6 +8,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:mythical_cats/widgets/compact_resource_bar.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
@@ -81,8 +82,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title: const Text('Settings & Stats'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: ListView(
+      body: Column(
         children: [
+          const CompactResourceBar(),
+          Expanded(
+            child: ListView(
+              children: [
           const _SectionHeader(title: 'Statistics'),
           _StatTile(
             label: 'Total Cats Earned',
@@ -161,6 +166,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 enableSuggestions: false,
               ),
             ),
+              ],
+            ),
+          ),
         ],
       ),
     );

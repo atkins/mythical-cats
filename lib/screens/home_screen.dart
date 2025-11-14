@@ -10,6 +10,7 @@ import 'package:mythical_cats/screens/settings_screen.dart';
 import 'package:mythical_cats/screens/reincarnation_screen.dart';
 import 'package:mythical_cats/widgets/resource_panel.dart';
 import 'package:mythical_cats/widgets/prestige_stats_panel.dart';
+import 'package:mythical_cats/widgets/compact_resource_bar.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -119,8 +120,12 @@ class _HomeTab extends ConsumerWidget {
         title: const Text('Mythical Cats'),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
+        child: Column(
+          children: [
+            const CompactResourceBar(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
@@ -166,6 +171,9 @@ class _HomeTab extends ConsumerWidget {
               ],
             ),
           ),
+        ),
+      ),
+          ],
         ),
       ),
     );
