@@ -6,6 +6,7 @@ import 'package:mythical_cats/models/building_definition.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/widgets/building_card.dart';
 import 'package:mythical_cats/widgets/workshop_converter.dart';
+import 'package:mythical_cats/widgets/compact_resource_bar.dart';
 
 class BuildingsScreen extends ConsumerWidget {
   const BuildingsScreen({super.key});
@@ -26,29 +27,36 @@ class BuildingsScreen extends ConsumerWidget {
         title: const Text('Buildings'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
-      body: ListView.builder(
-        itemCount: _calculateItemCount(sections, hasWorkshop),
-        itemBuilder: (context, index) {
-          // Show workshop converter at the top if workshop is owned
-          if (hasWorkshop && index == 0) {
-            return const Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: WorkshopConverter(),
-            );
-          }
+      body: Column(
+        children: [
+          const CompactResourceBar(),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _calculateItemCount(sections, hasWorkshop),
+              itemBuilder: (context, index) {
+                // Show workshop converter at the top if workshop is owned
+                if (hasWorkshop && index == 0) {
+                  return const Padding(
+                    padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+                    child: WorkshopConverter(),
+                  );
+                }
 
-          // Adjust index for sections
-          final adjustedIndex = hasWorkshop ? index - 1 : index;
+                // Adjust index for sections
+                final adjustedIndex = hasWorkshop ? index - 1 : index;
 
-          // Render sections
-          return _renderSectionItem(
-            context,
-            sections,
-            adjustedIndex,
-            gameState,
-            gameNotifier,
-          );
-        },
+                // Render sections
+                return _renderSectionItem(
+                  context,
+                  sections,
+                  adjustedIndex,
+                  gameState,
+                  gameNotifier,
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
