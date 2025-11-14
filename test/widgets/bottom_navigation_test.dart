@@ -35,7 +35,7 @@ void main() {
       await tester.pump();
 
       // Verify Home tab content still visible
-      expect(find.text('Perform Ritual'), findsOneWidget);
+      expect(find.text('Feed Kibbies'), findsOneWidget);
 
       container.dispose();
     });
@@ -57,7 +57,7 @@ void main() {
       // Test Home tab
       await tester.tap(find.text('Home'));
       await tester.pump();
-      expect(find.text('Perform Ritual'), findsOneWidget);
+      expect(find.text('Feed Kibbies'), findsOneWidget);
 
       // Test Buildings tab
       await tester.tap(find.text('Buildings'));
@@ -108,7 +108,7 @@ void main() {
       await tester.pump();
 
       // Should be on Home tab
-      expect(find.text('Perform Ritual'), findsOneWidget);
+      expect(find.text('Feed Kibbies'), findsOneWidget);
 
       // Tap the PrestigeStatsPanel
       await tester.tap(find.byType(PrestigeStatsPanel));
