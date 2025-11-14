@@ -43,7 +43,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     // Build screens for IndexedStack
     final screens = [
-      const _HomeTab(),
+      _HomeTab(
+        onNavigateToReincarnation: () {
+          setState(() {
+            _selectedIndex = _reincarnationTabIndex;
+          });
+        },
+      ),
       const BuildingsScreen(),
       const DivinePowersScreen(),
       const ReincarnationScreen(),
@@ -86,7 +92,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 }
 
 class _HomeTab extends ConsumerWidget {
-  const _HomeTab();
+  const _HomeTab({
+    required this.onNavigateToReincarnation,
+  });
+
+  final VoidCallback onNavigateToReincarnation;
 
   God? _getNextGod(gameState) {
     final currentGodIndex = gameState.unlockedGods.last.index;
@@ -135,11 +145,7 @@ class _HomeTab extends ConsumerWidget {
                   reincarnations: gameState.reincarnationState.totalReincarnations,
                   activePatron: gameState.reincarnationState.activePatron,
                   ownedUpgradeIds: gameState.reincarnationState.ownedUpgradeIds,
-                  onTap: () {
-                    // Navigate to Reincarnation tab
-                    final homeScreenState = context.findAncestorStateOfType<_HomeScreenState>();
-                    homeScreenState?.navigateToTab(_HomeScreenState._reincarnationTabIndex);
-                  },
+                  onTap: onNavigateToReincarnation,
                 ),
               if (gameState.reincarnationState.totalReincarnations > 0)
                 const SizedBox(height: 24),
