@@ -2,6 +2,10 @@
 
 A Flutter-based idle game where you play as a minor deity collecting mythical cats to ascend to Mount Olympus.
 
+## Live Demo
+
+Play now: https://atkins.github.io/mythical-cats/
+
 ## Phase 5 Features (Current)
 
 **Core Gameplay:**
@@ -128,10 +132,6 @@ test/              # 36 test files with comprehensive coverage
 - **Advanced systems**: Breeding, Artifacts, Random Events
 - **Ascension to Olympus** endgame
 - **Meta-progression** beyond reincarnation
-
-## Live Demo
-
-Play now: https://atkins.github.io/mythical-cats/
 
 ## License
 
