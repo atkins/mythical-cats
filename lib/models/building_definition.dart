@@ -54,7 +54,8 @@ class BuildingDefinitions {
   static const temple = BuildingDefinition(
     type: BuildingType.temple,
     baseCost: {ResourceType.cats: 100},
-    baseProduction: 1.0,
+    baseProduction: 0.1,
+    productionType: ResourceType.offerings,
   );
 
   static const grandSanctuary = BuildingDefinition(
