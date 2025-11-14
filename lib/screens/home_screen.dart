@@ -259,7 +259,7 @@ class _RitualButton extends StatelessWidget {
             const Icon(Icons.touch_app, size: 48),
             const SizedBox(height: 8),
             Text(
-              'Perform Ritual',
+              'Feed Kibbies',
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
