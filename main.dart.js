@@ -61233,7 +61233,7 @@ s=this.b
 return s*(B.i.kT(a-1,this.a)+1)-(s-this.d)}}
 A.aeT.prototype={}
 A.aeU.prototype={
-Jc(a){var s=Math.max(0,a.w-12)/2,r=s/0.95
+Jc(a){var s=Math.max(0,a.w-12)/2,r=s/1.4
 return new A.aeX(2,r+12,s+12,r,s,A.wg(a.x))}}
 A.ug.prototype={
 k(a){return"crossAxisOffset="+A.m(this.w)+"; "+this.a0z(0)}}
