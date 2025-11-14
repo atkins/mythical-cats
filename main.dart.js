@@ -83203,7 +83203,7 @@ l=l==null?r:l.b7(B.bH)
 B.b.P(n,A.b([B.aY,A.aa(m+"/sec",r,r,r,r,l,r,r)],o))}return A.eK(A.bv(n,B.y,B.p,B.q),B.x,r,new A.d_(B.dC,r,p,q,r,r,B.ax),r,r,B.o0,r)}}
 A.Ue.prototype={
 G(a){var s,r,q=null,p=A.a1h(q,q,B.br,q,q,q,8,q,q,B.k,q,q,q,q,new A.cE(A.e8(16),B.u),q,q,q,q,q),o=A.B(a).ok.f
-o=A.aa("Perform Ritual",q,q,q,q,o==null?q:o.eu(B.k,B.z),q,q)
+o=A.aa("Feed Kibbies",q,q,q,q,o==null?q:o.eu(B.k,B.z),q,q)
 s=B.r.gez()
 r=A.B(a).ok.y
 r=r==null?q:r.b7(B.S)
