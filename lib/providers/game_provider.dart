@@ -14,6 +14,8 @@ import 'package:mythical_cats/models/primordial_upgrade_definitions.dart';
 import 'package:mythical_cats/services/save_service.dart';
 import 'package:mythical_cats/providers/conquest_provider.dart';
 import 'package:mythical_cats/models/prophecy.dart';
+import 'package:mythical_cats/models/random_event.dart';
+import 'package:mythical_cats/models/random_event_definitions.dart';
 
 /// Game logic provider
 class GameNotifier extends StateNotifier<GameState> {
@@ -21,6 +23,8 @@ class GameNotifier extends StateNotifier<GameState> {
   Ticker? _ticker;
   Duration _lastElapsed = Duration.zero;
   Timer? _saveTimer;
+  Timer? _bonusEventClearTimer;
+  final Random _random = Random();
 
   GameNotifier(this.ref) : super(GameState.initial()) {
     _startGameLoop();
@@ -45,6 +49,19 @@ class GameNotifier extends StateNotifier<GameState> {
     // Update prophecy effects (expire timed boosts if needed)
     final now = DateTime.now();
     state = state.updateProphecyEffects(now);
+
+    // Check for random event expiration
+    if (state.activeRandomEvent != null &&
+        state.randomEventEndTime != null &&
+        now.isAfter(state.randomEventEndTime!)) {
+      state = state.copyWith(
+        activeRandomEvent: null,
+        randomEventEndTime: null,
+      );
+    }
+
+    // Try to spawn random events
+    trySpawnRandomEvent();
 
     // Calculate production for all resource types
     final production = <ResourceType, double>{};
@@ -502,6 +519,9 @@ class GameNotifier extends StateNotifier<GameState> {
       }
     }
 
+    // Apply random event multipliers
+    baseProduction *= getRandomEventMultiplier(type);
+
     // Apply achievement percentage bonuses (applied at the end, multiplicatively)
     // Wisdom Hoarder: +2% all resources
     if (state.hasUnlockedAchievement('wisdom_hoarder')) {
@@ -802,6 +822,98 @@ class GameNotifier extends StateNotifier<GameState> {
     state = state.activateProphecy(prophecy, now);
   }
 
+  /// Activate a random event
+  void activateRandomEvent(RandomEvent event) {
+    final now = DateTime.now();
+
+    if (event.type == RandomEventType.bonus) {
+      // Grant resources immediately
+      final newResources = Map<ResourceType, double>.from(state.resources);
+      event.bonusResources.forEach((type, amount) {
+        newResources[type] = (newResources[type] ?? 0) + amount;
+      });
+
+      state = state.copyWith(
+        resources: newResources,
+        activeRandomEvent: event,
+        lastRandomEventSpawnTime: now,
+      );
+
+      // Clear active event after 3 seconds (for UI notification)
+      // Cancel any existing timer first
+      _bonusEventClearTimer?.cancel();
+      _bonusEventClearTimer = Timer(Duration(seconds: 3), () {
+        if (state.activeRandomEvent?.id == event.id) {
+          state = state.copyWith(activeRandomEvent: null);
+        }
+      });
+    } else if (event.type == RandomEventType.multiplier) {
+      // Validate duration exists before using it
+      if (event.duration == null) {
+        throw ArgumentError('Multiplier event must have a duration');
+      }
+
+      // Set active with end time
+      state = state.copyWith(
+        activeRandomEvent: event,
+        randomEventEndTime: now.add(event.duration!),
+        lastRandomEventSpawnTime: now,
+      );
+    } else if (event.type == RandomEventType.discovery) {
+      // TODO: Implement discovery event handling
+      // For now, just record that the event occurred
+      state = state.copyWith(
+        activeRandomEvent: event,
+        lastRandomEventSpawnTime: now,
+      );
+
+      // Clear active event after 3 seconds (for UI notification)
+      _bonusEventClearTimer?.cancel();
+      _bonusEventClearTimer = Timer(Duration(seconds: 3), () {
+        if (state.activeRandomEvent?.id == event.id) {
+          state = state.copyWith(activeRandomEvent: null);
+        }
+      });
+    }
+  }
+
+  /// Try to spawn a random event based on probability and cooldown
+  void trySpawnRandomEvent() {
+    // Check cooldown (5 minutes)
+    final now = DateTime.now();
+    final lastSpawn = state.lastRandomEventSpawnTime ?? DateTime(2000);
+    final timeSinceLastSpawn = now.difference(lastSpawn);
+    if (timeSinceLastSpawn.inSeconds < 300) {
+      return; // Still on cooldown
+    }
+
+    // Don't spawn if event already active
+    if (state.activeRandomEvent != null) {
+      return;
+    }
+
+    // 0.1% chance per second = 0.001 probability
+    // Since game loop runs at 60 FPS, we need to adjust:
+    // Per-frame probability = 1 - (1 - 0.001)^(1/60) ≈ 0.0000167
+    // This ensures that running 60 frames equals ~0.1% chance per second
+    if (_random.nextDouble() < 0.0000167) {
+      // Spawn a random event
+      final allEvents = RandomEventDefinitions.all;
+      final event = allEvents[_random.nextInt(allEvents.length)];
+      activateRandomEvent(event);
+    }
+  }
+
+  /// Get multiplier from active random event
+  double getRandomEventMultiplier(ResourceType resourceType) {
+    if (!state.hasActiveRandomEventMultiplier) {
+      return 1.0;
+    }
+
+    final event = state.activeRandomEvent!;
+    return event.multiplier;
+  }
+
   /// For testing only - expose _updateGame
   void testUpdateGame(double deltaSeconds) {
     _updateGame(deltaSeconds);
@@ -816,6 +928,7 @@ class GameNotifier extends StateNotifier<GameState> {
   void dispose() {
     _ticker?.dispose();
     _saveTimer?.cancel();
+    _bonusEventClearTimer?.cancel();
     super.dispose();
   }
 }
