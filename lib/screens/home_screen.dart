@@ -11,6 +11,7 @@ import 'package:mythical_cats/screens/reincarnation_screen.dart';
 import 'package:mythical_cats/widgets/resource_panel.dart';
 import 'package:mythical_cats/widgets/prestige_stats_panel.dart';
 import 'package:mythical_cats/widgets/compact_resource_bar.dart';
+import 'package:mythical_cats/widgets/random_event_banner.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -119,62 +120,77 @@ class _HomeTab extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Mythical Cats'),
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const CompactResourceBar(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Padding(
-            padding: const EdgeInsets.all(16.0),
+      body: Stack(
+        children: [
+          SafeArea(
             child: Column(
               children: [
-              // Resource display
-              _ResourceDisplay(
-                icon: ResourceType.cats.icon,
-                label: ResourceType.cats.displayName,
-                value: cats,
-                rate: catsPerSecond,
-              ),
-              const SizedBox(height: 16),
+                const CompactResourceBar(),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          // Resource display
+                          _ResourceDisplay(
+                            icon: ResourceType.cats.icon,
+                            label: ResourceType.cats.displayName,
+                            value: cats,
+                            rate: catsPerSecond,
+                          ),
+                          const SizedBox(height: 16),
 
-              // All resources panel
-              const ResourcePanel(),
-              const SizedBox(height: 24),
+                          // All resources panel
+                          const ResourcePanel(),
+                          const SizedBox(height: 24),
 
-              // Prestige stats (if player has reincarnated)
-              if (gameState.reincarnationState.totalReincarnations > 0)
-                PrestigeStatsPanel(
-                  availablePE: gameState.reincarnationState.availablePrimordialEssence,
-                  totalPE: gameState.reincarnationState.totalPrimordialEssence,
-                  reincarnations: gameState.reincarnationState.totalReincarnations,
-                  activePatron: gameState.reincarnationState.activePatron,
-                  ownedUpgradeIds: gameState.reincarnationState.ownedUpgradeIds,
-                  onTap: onNavigateToReincarnation,
+                          // Prestige stats (if player has reincarnated)
+                          if (gameState.reincarnationState.totalReincarnations > 0)
+                            PrestigeStatsPanel(
+                              availablePE: gameState.reincarnationState.availablePrimordialEssence,
+                              totalPE: gameState.reincarnationState.totalPrimordialEssence,
+                              reincarnations: gameState.reincarnationState.totalReincarnations,
+                              activePatron: gameState.reincarnationState.activePatron,
+                              ownedUpgradeIds: gameState.reincarnationState.ownedUpgradeIds,
+                              onTap: onNavigateToReincarnation,
+                            ),
+                          if (gameState.reincarnationState.totalReincarnations > 0)
+                            const SizedBox(height: 24),
+
+                          // Ritual button (click to generate cats)
+                          _RitualButton(
+                            onPressed: () => gameNotifier.performRitual(),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Quick stats
+                          _QuickStats(
+                            currentGod: gameState.unlockedGods.last.displayName,
+                            totalEarned: gameState.totalCatsEarned,
+                            nextGod: _getNextGod(gameState),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              if (gameState.reincarnationState.totalReincarnations > 0)
-                const SizedBox(height: 24),
-
-              // Ritual button (click to generate cats)
-              _RitualButton(
-                onPressed: () => gameNotifier.performRitual(),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Quick stats
-              _QuickStats(
-                currentGod: gameState.unlockedGods.last.displayName,
-                totalEarned: gameState.totalCatsEarned,
-                nextGod: _getNextGod(gameState),
-              ),
               ],
             ),
           ),
-        ),
-      ),
-          ],
-        ),
+
+          // Random Event Banner (overlaid at top)
+          if (gameState.hasActiveRandomEvent)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: RandomEventBanner(
+                event: gameState.activeRandomEvent!,
+              ),
+            ),
+        ],
       ),
     );
   }

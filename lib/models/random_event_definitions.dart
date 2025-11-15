@@ -60,4 +60,13 @@ class RandomEventDefinitions {
     final index = seed.millisecondsSinceEpoch % all.length;
     return all[index];
   }
+
+  /// Get event by ID
+  static RandomEvent? getById(String id) {
+    try {
+      return all.firstWhere((event) => event.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
 }
