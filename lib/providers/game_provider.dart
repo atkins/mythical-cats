@@ -505,6 +505,9 @@ class GameNotifier extends StateNotifier<GameState> {
       }
     }
 
+    // Apply random event multipliers
+    baseProduction *= getRandomEventMultiplier(type);
+
     // Apply achievement percentage bonuses (applied at the end, multiplicatively)
     // Wisdom Hoarder: +2% all resources
     if (state.hasUnlockedAchievement('wisdom_hoarder')) {
@@ -858,6 +861,16 @@ class GameNotifier extends StateNotifier<GameState> {
         }
       });
     }
+  }
+
+  /// Get multiplier from active random event
+  double getRandomEventMultiplier(ResourceType resourceType) {
+    if (!state.hasActiveRandomEventMultiplier) {
+      return 1.0;
+    }
+
+    final event = state.activeRandomEvent!;
+    return event.multiplier;
   }
 
   /// For testing only - expose _updateGame
