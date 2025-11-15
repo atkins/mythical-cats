@@ -59,6 +59,9 @@ class GameNotifier extends StateNotifier<GameState> {
       );
     }
 
+    // Try to spawn random events
+    trySpawnRandomEvent();
+
     // Calculate production for all resource types
     final production = <ResourceType, double>{};
 
@@ -870,6 +873,32 @@ class GameNotifier extends StateNotifier<GameState> {
           state = state.copyWith(activeRandomEvent: null);
         }
       });
+    }
+  }
+
+  /// Try to spawn a random event based on probability and cooldown
+  void trySpawnRandomEvent() {
+    // Check cooldown (5 minutes)
+    final now = DateTime.now();
+    final timeSinceLastSpawn = now.difference(state.lastRandomEventSpawnTime!);
+    if (timeSinceLastSpawn.inSeconds < 300) {
+      return; // Still on cooldown
+    }
+
+    // Don't spawn if event already active
+    if (state.activeRandomEvent != null) {
+      return;
+    }
+
+    // 0.1% chance per second = 0.001 probability
+    // Since game loop runs at 60 FPS, we need to adjust:
+    // Per-frame probability = 1 - (1 - 0.001)^(1/60) ≈ 0.0000167
+    final random = Random();
+    if (random.nextDouble() < 0.0000167) {
+      // Spawn a random event
+      final allEvents = RandomEventDefinitions.all;
+      final event = allEvents[random.nextInt(allEvents.length)];
+      activateRandomEvent(event);
     }
   }
 
