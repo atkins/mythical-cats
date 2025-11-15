@@ -3,6 +3,8 @@ import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
 import 'package:mythical_cats/models/prophecy.dart';
+import 'package:mythical_cats/models/random_event.dart';
+import 'package:mythical_cats/models/random_event_definitions.dart';
 
 /// Immutable game state
 class GameState {
@@ -19,6 +21,11 @@ class GameState {
   final double lifetimeWisdom; // Lifetime total wisdom accumulated (NOT current balance)
   final int lifetimePropheciesActivated; // Count of times any prophecy has been activated
 
+  // Random Events
+  final RandomEvent? activeRandomEvent;
+  final DateTime? randomEventEndTime;
+  final DateTime? lastRandomEventSpawnTime;
+
   const GameState({
     required this.resources,
     required this.buildings,
@@ -32,6 +39,9 @@ class GameState {
     this.prophecyState = const ProphecyState(cooldowns: {}),
     this.lifetimeWisdom = 0,
     this.lifetimePropheciesActivated = 0,
+    this.activeRandomEvent,
+    this.randomEventEndTime,
+    this.lastRandomEventSpawnTime,
   });
 
   /// Initial game state
@@ -54,6 +64,7 @@ class GameState {
       prophecyState: ProphecyState.initial(),
       lifetimeWisdom: 0,
       lifetimePropheciesActivated: 0,
+      lastRandomEventSpawnTime: DateTime(2000),
     );
   }
 
@@ -71,6 +82,9 @@ class GameState {
     ProphecyState? prophecyState,
     double? lifetimeWisdom,
     int? lifetimePropheciesActivated,
+    RandomEvent? activeRandomEvent,
+    DateTime? randomEventEndTime,
+    DateTime? lastRandomEventSpawnTime,
   }) {
     return GameState(
       resources: resources ?? Map.from(this.resources),
@@ -85,6 +99,9 @@ class GameState {
       prophecyState: prophecyState ?? this.prophecyState,
       lifetimeWisdom: lifetimeWisdom ?? this.lifetimeWisdom,
       lifetimePropheciesActivated: lifetimePropheciesActivated ?? this.lifetimePropheciesActivated,
+      activeRandomEvent: activeRandomEvent ?? this.activeRandomEvent,
+      randomEventEndTime: randomEventEndTime ?? this.randomEventEndTime,
+      lastRandomEventSpawnTime: lastRandomEventSpawnTime ?? this.lastRandomEventSpawnTime,
     );
   }
 
@@ -117,6 +134,15 @@ class GameState {
   bool hasConqueredTerritory(String territoryId) {
     return conqueredTerritories.contains(territoryId);
   }
+
+  /// Check if there is an active random event
+  bool get hasActiveRandomEvent => activeRandomEvent != null;
+
+  /// Check if there is an active random event multiplier (not expired)
+  bool get hasActiveRandomEventMultiplier =>
+      activeRandomEvent?.type == RandomEventType.multiplier &&
+      randomEventEndTime != null &&
+      DateTime.now().isBefore(randomEventEndTime!);
 
   /// Activate a prophecy
   GameState activateProphecy(ProphecyType prophecy, DateTime now) {
@@ -206,6 +232,9 @@ class GameState {
       'reincarnationState': reincarnationState.toJson(),
       'lifetimeWisdom': lifetimeWisdom,
       'lifetimePropheciesActivated': lifetimePropheciesActivated,
+      'activeRandomEvent': activeRandomEvent?.id,
+      'randomEventEndTime': randomEventEndTime?.toIso8601String(),
+      'lastRandomEventSpawnTime': lastRandomEventSpawnTime?.toIso8601String(),
     };
   }
 
@@ -243,6 +272,15 @@ class GameState {
         : const ReincarnationState(),
       lifetimeWisdom: (json['lifetimeWisdom'] as num?)?.toDouble() ?? 0,
       lifetimePropheciesActivated: (json['lifetimePropheciesActivated'] as int?) ?? 0,
+      activeRandomEvent: json['activeRandomEvent'] != null
+          ? RandomEventDefinitions.getById(json['activeRandomEvent'] as String)
+          : null,
+      randomEventEndTime: json['randomEventEndTime'] != null
+          ? DateTime.parse(json['randomEventEndTime'] as String)
+          : null,
+      lastRandomEventSpawnTime: json['lastRandomEventSpawnTime'] != null
+          ? DateTime.parse(json['lastRandomEventSpawnTime'] as String)
+          : DateTime(2000),
     );
   }
 }
