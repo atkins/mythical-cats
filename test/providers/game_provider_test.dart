@@ -2352,5 +2352,30 @@ void main() {
 
       container.dispose();
     });
+
+    test('expired multiplier events are cleared on game update', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // Activate multiplier event
+      notifier.activateRandomEvent(RandomEventDefinitions.divineFavor);
+      expect(notifier.state.activeRandomEvent, isNotNull);
+      expect(notifier.state.randomEventEndTime, isNotNull);
+
+      // Fast-forward time past event duration (30 seconds + 1 second)
+      final pastEndTime = DateTime.now().subtract(Duration(seconds: 1));
+      notifier.state = notifier.state.copyWith(
+        randomEventEndTime: pastEndTime,
+      );
+
+      // Trigger game update
+      notifier.testUpdateGame(0.1); // Simulate one frame
+
+      // Event should be cleared
+      expect(notifier.state.activeRandomEvent, isNull);
+      expect(notifier.state.randomEventEndTime, isNull);
+
+      container.dispose();
+    });
   });
 }

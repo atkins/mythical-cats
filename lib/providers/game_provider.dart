@@ -49,6 +49,16 @@ class GameNotifier extends StateNotifier<GameState> {
     final now = DateTime.now();
     state = state.updateProphecyEffects(now);
 
+    // Check for random event expiration
+    if (state.activeRandomEvent != null &&
+        state.randomEventEndTime != null &&
+        now.isAfter(state.randomEventEndTime!)) {
+      state = state.copyWith(
+        activeRandomEvent: null,
+        randomEventEndTime: null,
+      );
+    }
+
     // Calculate production for all resource types
     final production = <ResourceType, double>{};
 
