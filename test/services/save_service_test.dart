@@ -7,6 +7,7 @@ import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
 import 'package:mythical_cats/models/primordial_force.dart';
+import 'package:mythical_cats/models/random_event_definitions.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -202,6 +203,24 @@ void main() {
         expect(loadedState.getResource(ResourceType.ambrosia), closeTo(12.34, 0.01));
         expect(loadedState.getResource(ResourceType.wisdom), closeTo(4567.89, 0.01));
         expect(loadedState.getResource(ResourceType.conquestPoints), closeTo(999.99, 0.01));
+      });
+
+      test('preserves active random event state', () async {
+        final originalState = GameState.initial().copyWith(
+          activeRandomEvent: RandomEventDefinitions.divineFavor,
+          randomEventEndTime: DateTime(2025, 11, 14, 12, 30),
+          lastRandomEventSpawnTime: DateTime(2025, 11, 14, 12, 0),
+        );
+
+        await SaveService.save(originalState);
+        final loadedState = await SaveService.load();
+
+        expect(loadedState!.activeRandomEvent?.id, 'divine_favor');
+        expect(loadedState.randomEventEndTime?.year, 2025);
+        expect(loadedState.randomEventEndTime?.month, 11);
+        expect(loadedState.randomEventEndTime?.day, 14);
+        expect(loadedState.lastRandomEventSpawnTime?.year, 2025);
+        expect(loadedState.lastRandomEventSpawnTime?.month, 11);
       });
     });
 
