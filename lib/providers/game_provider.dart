@@ -24,6 +24,7 @@ class GameNotifier extends StateNotifier<GameState> {
   Duration _lastElapsed = Duration.zero;
   Timer? _saveTimer;
   Timer? _bonusEventClearTimer;
+  final Random _random = Random();
 
   GameNotifier(this.ref) : super(GameState.initial()) {
     _startGameLoop();
@@ -880,7 +881,8 @@ class GameNotifier extends StateNotifier<GameState> {
   void trySpawnRandomEvent() {
     // Check cooldown (5 minutes)
     final now = DateTime.now();
-    final timeSinceLastSpawn = now.difference(state.lastRandomEventSpawnTime!);
+    final lastSpawn = state.lastRandomEventSpawnTime ?? DateTime(2000);
+    final timeSinceLastSpawn = now.difference(lastSpawn);
     if (timeSinceLastSpawn.inSeconds < 300) {
       return; // Still on cooldown
     }
@@ -893,11 +895,11 @@ class GameNotifier extends StateNotifier<GameState> {
     // 0.1% chance per second = 0.001 probability
     // Since game loop runs at 60 FPS, we need to adjust:
     // Per-frame probability = 1 - (1 - 0.001)^(1/60) ≈ 0.0000167
-    final random = Random();
-    if (random.nextDouble() < 0.0000167) {
+    // This ensures that running 60 frames equals ~0.1% chance per second
+    if (_random.nextDouble() < 0.0000167) {
       // Spawn a random event
       final allEvents = RandomEventDefinitions.all;
-      final event = allEvents[random.nextInt(allEvents.length)];
+      final event = allEvents[_random.nextInt(allEvents.length)];
       activateRandomEvent(event);
     }
   }
