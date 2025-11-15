@@ -87,20 +87,48 @@ lib/
                    # prophecy cards, primordial upgrade cards, patron selector)
   services/        # Save/load service
   utils/           # Number formatting utilities
-test/              # 36 test files with comprehensive coverage
+test/              # 39 test files (~7,400 lines) with comprehensive coverage
+  models/        # Model definition and serialization tests
+  providers/     # Game logic and state management tests
   e2e/           # End-to-end integration tests for all phases
+  services/      # Save/load and persistence tests
 ```
 
 ## Test Coverage
 
-- **Comprehensive test suite** covering all 5 phases
+**414 tests passing (100% pass rate)** across 39 test files
+
+**Test Suite Breakdown:**
+- **Provider Tests** (game_provider, research_provider, conquest_provider)
+  - Game logic, state transitions, production calculations
+  - Research unlocking, prerequisites, and bonuses
+  - Territory conquest, prerequisites, and bonus stacking
+  - Reincarnation mechanics and primordial upgrades
+  - Prophecy activation, cooldowns, and effects
+
+- **E2E Integration Tests**
+  - Phase 2-5 integration tests (complete gameplay flows)
+  - Multi-reincarnation persistence (achievements, research, upgrades)
+  - Cross-system bonus stacking (conquest + primordial + research)
+
+- **Model Tests**
+  - GameState serialization and JSON round-trips
+  - Building definitions and cost formulas
+  - Achievement definitions (all 18 achievements tested)
+  - Research definitions (15 nodes across 3 branches)
+  - Conquest definitions (11 territories with prerequisites)
+  - Prophecy types and state management
+  - Reincarnation state and primordial upgrades
+
+- **Service Tests**
+  - Save/load functionality with SharedPreferences
+  - Complex state serialization (gods, research, territories, reincarnation)
+  - Error handling for corrupt/invalid save data
+
+**Code Quality:**
 - 0 analyzer errors, 0 warnings
-- Model tests for all game entities (GameState, Prophecy, Achievements, etc.)
-- Provider tests for game logic, research, conquest, and prestige mechanics
-- **Phase 5 integration tests**: 8 tests verifying Knowledge & Prophecy systems
-- **62 achievement tests**: All 18 achievements with unlock conditions and rewards
-- **UI widget tests** for all screens including Prophecy tab
-- End-to-end integration tests for complete gameplay flows
+- Comprehensive coverage of all game systems
+- Validates game balance, progression, and state persistence
 
 ## Phase 5 Highlights (Latest Update)
 
