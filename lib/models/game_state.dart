@@ -82,8 +82,8 @@ class GameState {
     ProphecyState? prophecyState,
     double? lifetimeWisdom,
     int? lifetimePropheciesActivated,
-    RandomEvent? activeRandomEvent,
-    DateTime? randomEventEndTime,
+    Object? activeRandomEvent = _undefined,
+    Object? randomEventEndTime = _undefined,
     DateTime? lastRandomEventSpawnTime,
   }) {
     return GameState(
@@ -99,8 +99,12 @@ class GameState {
       prophecyState: prophecyState ?? this.prophecyState,
       lifetimeWisdom: lifetimeWisdom ?? this.lifetimeWisdom,
       lifetimePropheciesActivated: lifetimePropheciesActivated ?? this.lifetimePropheciesActivated,
-      activeRandomEvent: activeRandomEvent ?? this.activeRandomEvent,
-      randomEventEndTime: randomEventEndTime ?? this.randomEventEndTime,
+      activeRandomEvent: activeRandomEvent == _undefined
+          ? this.activeRandomEvent
+          : activeRandomEvent as RandomEvent?,
+      randomEventEndTime: randomEventEndTime == _undefined
+          ? this.randomEventEndTime
+          : randomEventEndTime as DateTime?,
       lastRandomEventSpawnTime: lastRandomEventSpawnTime ?? this.lastRandomEventSpawnTime,
     );
   }
@@ -305,3 +309,6 @@ class InsufficientResourcesException implements Exception {
   @override
   String toString() => 'Insufficient ${resource.displayName}: need $required, have $current';
 }
+
+// Sentinel value for nullable copyWith pattern
+const _undefined = Object();
