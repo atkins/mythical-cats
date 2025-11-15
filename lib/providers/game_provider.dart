@@ -23,6 +23,7 @@ class GameNotifier extends StateNotifier<GameState> {
   Ticker? _ticker;
   Duration _lastElapsed = Duration.zero;
   Timer? _saveTimer;
+  Timer? _bonusEventClearTimer;
 
   GameNotifier(this.ref) : super(GameState.initial()) {
     _startGameLoop();
@@ -822,18 +823,40 @@ class GameNotifier extends StateNotifier<GameState> {
       );
 
       // Clear active event after 3 seconds (for UI notification)
-      Future.delayed(Duration(seconds: 3), () {
+      // Cancel any existing timer first
+      _bonusEventClearTimer?.cancel();
+      _bonusEventClearTimer = Timer(Duration(seconds: 3), () {
         if (state.activeRandomEvent?.id == event.id) {
           state = state.copyWith(activeRandomEvent: null);
         }
       });
     } else if (event.type == RandomEventType.multiplier) {
+      // Validate duration exists before using it
+      if (event.duration == null) {
+        throw ArgumentError('Multiplier event must have a duration');
+      }
+
       // Set active with end time
       state = state.copyWith(
         activeRandomEvent: event,
         randomEventEndTime: now.add(event.duration!),
         lastRandomEventSpawnTime: now,
       );
+    } else if (event.type == RandomEventType.discovery) {
+      // TODO: Implement discovery event handling
+      // For now, just record that the event occurred
+      state = state.copyWith(
+        activeRandomEvent: event,
+        lastRandomEventSpawnTime: now,
+      );
+
+      // Clear active event after 3 seconds (for UI notification)
+      _bonusEventClearTimer?.cancel();
+      _bonusEventClearTimer = Timer(Duration(seconds: 3), () {
+        if (state.activeRandomEvent?.id == event.id) {
+          state = state.copyWith(activeRandomEvent: null);
+        }
+      });
     }
   }
 
@@ -851,6 +874,7 @@ class GameNotifier extends StateNotifier<GameState> {
   void dispose() {
     _ticker?.dispose();
     _saveTimer?.cancel();
+    _bonusEventClearTimer?.cancel();
     super.dispose();
   }
 }
