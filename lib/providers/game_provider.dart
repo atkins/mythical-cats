@@ -14,6 +14,8 @@ import 'package:mythical_cats/models/primordial_upgrade_definitions.dart';
 import 'package:mythical_cats/services/save_service.dart';
 import 'package:mythical_cats/providers/conquest_provider.dart';
 import 'package:mythical_cats/models/prophecy.dart';
+import 'package:mythical_cats/models/random_event.dart';
+import 'package:mythical_cats/models/random_event_definitions.dart';
 
 /// Game logic provider
 class GameNotifier extends StateNotifier<GameState> {
@@ -800,6 +802,39 @@ class GameNotifier extends StateNotifier<GameState> {
   void activateProphecy(ProphecyType prophecy) {
     final now = DateTime.now();
     state = state.activateProphecy(prophecy, now);
+  }
+
+  /// Activate a random event
+  void activateRandomEvent(RandomEvent event) {
+    final now = DateTime.now();
+
+    if (event.type == RandomEventType.bonus) {
+      // Grant resources immediately
+      final newResources = Map<ResourceType, double>.from(state.resources);
+      event.bonusResources.forEach((type, amount) {
+        newResources[type] = (newResources[type] ?? 0) + amount;
+      });
+
+      state = state.copyWith(
+        resources: newResources,
+        activeRandomEvent: event,
+        lastRandomEventSpawnTime: now,
+      );
+
+      // Clear active event after 3 seconds (for UI notification)
+      Future.delayed(Duration(seconds: 3), () {
+        if (state.activeRandomEvent?.id == event.id) {
+          state = state.copyWith(activeRandomEvent: null);
+        }
+      });
+    } else if (event.type == RandomEventType.multiplier) {
+      // Set active with end time
+      state = state.copyWith(
+        activeRandomEvent: event,
+        randomEventEndTime: now.add(event.duration!),
+        lastRandomEventSpawnTime: now,
+      );
+    }
   }
 
   /// For testing only - expose _updateGame
