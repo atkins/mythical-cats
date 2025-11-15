@@ -3,33 +3,24 @@ import 'package:mythical_cats/models/resource_type.dart';
 
 void main() {
   group('ResourceType', () {
-    test('has correct display names', () {
-      expect(ResourceType.cats.displayName, 'Cats');
-      expect(ResourceType.offerings.displayName, 'Offerings');
-      expect(ResourceType.prayers.displayName, 'Prayers');
-    });
-
-    test('has icons for all types', () {
+    test('all resource types have required properties', () {
       for (final type in ResourceType.values) {
-        expect(type.icon.isNotEmpty, true);
+        expect(type.displayName.isNotEmpty, true,
+            reason: '${type.name} should have a display name');
+        expect(type.icon.isNotEmpty, true,
+            reason: '${type.name} should have an icon');
       }
     });
 
-    test('conquestPoints has correct display name', () {
+    test('key resource types have correct display names', () {
+      expect(ResourceType.cats.displayName, 'Cats');
+      expect(ResourceType.offerings.displayName, 'Offerings');
+      expect(ResourceType.prayers.displayName, 'Prayers');
       expect(ResourceType.conquestPoints.displayName, 'Conquest Points');
-    });
-
-    test('conquestPoints has icon', () {
-      expect(ResourceType.conquestPoints.icon.isNotEmpty, true);
-    });
-
-    // Phase 5: Wisdom resource tests
-    test('Wisdom resource type exists', () {
-      expect(ResourceType.wisdom, isNotNull);
-    });
-
-    test('Wisdom has correct display properties', () {
       expect(ResourceType.wisdom.displayName, 'Wisdom');
+    });
+
+    test('Wisdom has correct tier and description', () {
       expect(ResourceType.wisdom.description, 'Divine knowledge and insight');
       expect(ResourceType.wisdom.tier, 2);
     });

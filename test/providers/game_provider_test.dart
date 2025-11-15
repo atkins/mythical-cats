@@ -8,6 +8,7 @@ import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/building_definition.dart';
 import 'package:mythical_cats/models/god.dart';
+import 'package:mythical_cats/models/game_state.dart';
 import 'package:mythical_cats/models/conquest_definitions.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
 import 'package:mythical_cats/models/primordial_force.dart';
@@ -2068,6 +2069,203 @@ void main() {
       final expected = (2 * BuildingDefinitions.hallOfWisdom.baseProduction) +
                        (1 * BuildingDefinitions.academyOfAthens.baseProduction);
       expect(rate, expected);
+
+      container.dispose();
+    });
+  });
+
+  group('Edge Cases and Robustness', () {
+    test('handles extremely large building counts', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.smallShrine: 1000000},
+      );
+
+      final production = notifier.getProductionRate(ResourceType.cats);
+
+      // Should not overflow or throw
+      expect(production.isFinite, true);
+      expect(production, greaterThan(0));
+
+      container.dispose();
+    });
+
+    test('handles extremely large resource values', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      const largeValue = 1e50; // Large enough to test, small enough to increment
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.cats: largeValue},
+      );
+
+      expect(notifier.state.getResource(ResourceType.cats), largeValue);
+
+      // Should handle operations on large values
+      notifier.addResource(ResourceType.cats, 1e45); // Significant increment
+      expect(notifier.state.getResource(ResourceType.cats), greaterThan(largeValue));
+
+      container.dispose();
+    });
+
+    test('offline progression caps at correct hours', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.smallShrine: 10}, // 1.0 cats/sec
+        lastUpdate: DateTime.now().subtract(const Duration(hours: 48)),
+      );
+
+      // Default cap is 24 hours
+      notifier.applyOfflineProgress();
+
+      final catsGained = notifier.state.getResource(ResourceType.cats);
+
+      // Should cap at 24 hours worth, not 48
+      // 1.0 cats/sec * 24 hours = 86,400 cats
+      expect(catsGained, lessThanOrEqualTo(86400 * 1.1)); // Allow small tolerance
+
+      container.dispose();
+    });
+
+    test('offline progression handles extreme time gaps correctly', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.smallShrine: 10},
+        lastUpdate: DateTime.now().subtract(const Duration(days: 365)),
+      );
+
+      // Should not crash or overflow
+      notifier.applyOfflineProgress();
+
+      final catsGained = notifier.state.getResource(ResourceType.cats);
+
+      // Should cap at 24 hours
+      expect(catsGained.isFinite, true);
+      expect(catsGained, greaterThan(0));
+
+      container.dispose();
+    });
+
+    test('prophecy activation requires sufficient wisdom', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.wisdom: 50}, // Not enough for Solar Blessing (costs 100)
+      );
+
+      final initialWisdom = notifier.state.getResource(ResourceType.wisdom);
+
+      // Should throw InsufficientResourcesException
+      expect(
+        () => notifier.activateProphecy(ProphecyType.solarBlessing),
+        throwsA(isA<InsufficientResourcesException>()),
+      );
+
+      // Should not deduct wisdom
+      expect(notifier.state.getResource(ResourceType.wisdom), initialWisdom);
+      expect(notifier.state.prophecyState.activeTimedBoost, isNull);
+
+      container.dispose();
+    });
+
+    test('cannot buy building with insufficient resources', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        resources: {ResourceType.cats: 10}, // Not enough for small shrine (costs 15)
+      );
+
+      final success = notifier.buyBuilding(BuildingType.smallShrine);
+
+      expect(success, false);
+      expect(notifier.state.getBuildingCount(BuildingType.smallShrine), 0);
+      expect(notifier.state.getResource(ResourceType.cats), 10); // Unchanged
+
+      container.dispose();
+    });
+
+    test('production rates with zero buildings returns zero', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {},
+      );
+
+      expect(notifier.getProductionRate(ResourceType.cats), 0);
+      expect(notifier.getProductionRate(ResourceType.offerings), 0);
+      expect(notifier.getProductionRate(ResourceType.wisdom), 0);
+
+      container.dispose();
+    });
+
+    test('multiple consecutive reincarnations accumulate PE correctly', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // First reincarnation at 1B
+      notifier.state = notifier.state.copyWith(totalCatsEarned: 1000000000);
+      notifier.reincarnate(PrimordialForce.chaos);
+      final firstPE = notifier.state.reincarnationState.totalPrimordialEssence;
+
+      // Second reincarnation at 4B
+      notifier.state = notifier.state.copyWith(totalCatsEarned: 4000000000);
+      notifier.reincarnate(PrimordialForce.gaia);
+      final secondPE = notifier.state.reincarnationState.totalPrimordialEssence;
+
+      // Should accumulate, not replace
+      expect(secondPE, greaterThan(firstPE));
+      expect(notifier.state.reincarnationState.totalReincarnations, 2);
+
+      container.dispose();
+    });
+
+    test('game loop handles very small time deltas', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        buildings: {BuildingType.smallShrine: 1},
+        resources: {ResourceType.cats: 0},
+      );
+
+      // Simulate very small time delta (1 millisecond)
+      notifier.testUpdateGame(0.001);
+
+      // Should handle gracefully without crashing
+      final cats = notifier.state.getResource(ResourceType.cats);
+      expect(cats, greaterThanOrEqualTo(0));
+
+      container.dispose();
+    });
+
+    test('clicking with primordial multipliers does not underflow or overflow', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      notifier.state = notifier.state.copyWith(
+        reincarnationState: const ReincarnationState(
+          ownedUpgradeIds: {'chaos_1', 'chaos_2', 'chaos_3', 'chaos_4', 'chaos_5'},
+          activePatron: PrimordialForce.chaos,
+        ),
+      );
+
+      // Perform many clicks
+      for (int i = 0; i < 1000; i++) {
+        notifier.performRitual();
+      }
+
+      final cats = notifier.state.getResource(ResourceType.cats);
+      expect(cats.isFinite, true);
+      expect(cats, greaterThan(0));
 
       container.dispose();
     });
