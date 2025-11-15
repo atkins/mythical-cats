@@ -2336,5 +2336,21 @@ void main() {
 
       container.dispose();
     });
+
+    test('getRandomEventMultiplier returns multiplier when active', () {
+      final container = ProviderContainer();
+      final notifier = container.read(gameProvider.notifier);
+
+      // No active event
+      expect(notifier.getRandomEventMultiplier(ResourceType.cats), 1.0);
+
+      // Activate multiplier event
+      notifier.activateRandomEvent(RandomEventDefinitions.divineFavor);
+
+      expect(notifier.getRandomEventMultiplier(ResourceType.cats), 2.0);
+      expect(notifier.getRandomEventMultiplier(ResourceType.prayers), 2.0);
+
+      container.dispose();
+    });
   });
 }
