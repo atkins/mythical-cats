@@ -6,6 +6,7 @@ import 'package:mythical_cats/models/god.dart';
 import 'package:mythical_cats/models/reincarnation_state.dart';
 import 'package:mythical_cats/models/primordial_force.dart';
 import 'package:mythical_cats/models/prophecy.dart';
+import 'package:mythical_cats/models/random_event_definitions.dart';
 
 void main() {
   group('GameState', () {
@@ -290,6 +291,53 @@ void main() {
         () => state.activateProphecy(ProphecyType.solarBlessing, now),
         throwsA(isA<ProphecyOnCooldownException>()),
       );
+    });
+
+    // Task 1: Add Random Event Fields to GameState tests
+    test('GameState has random event fields with correct defaults', () {
+      final state = GameState.initial();
+
+      expect(state.activeRandomEvent, isNull);
+      expect(state.randomEventEndTime, isNull);
+      expect(state.lastRandomEventSpawnTime, isNotNull);
+      expect(state.lastRandomEventSpawnTime!.year, 2000);
+    });
+
+    test('GameState.hasActiveRandomEvent returns correct values', () {
+      final stateWithoutEvent = GameState.initial();
+      expect(stateWithoutEvent.hasActiveRandomEvent, false);
+
+      final stateWithEvent = GameState.initial().copyWith(
+        activeRandomEvent: RandomEventDefinitions.divineCatAppears,
+      );
+      expect(stateWithEvent.hasActiveRandomEvent, true);
+    });
+
+    test('GameState.hasActiveRandomEventMultiplier checks type and expiration', () {
+      // No active event
+      final stateNoEvent = GameState.initial();
+      expect(stateNoEvent.hasActiveRandomEventMultiplier, false);
+
+      // Bonus event (not multiplier type)
+      final stateBonusEvent = GameState.initial().copyWith(
+        activeRandomEvent: RandomEventDefinitions.divineCatAppears,
+        randomEventEndTime: DateTime.now().add(Duration(seconds: 30)),
+      );
+      expect(stateBonusEvent.hasActiveRandomEventMultiplier, false);
+
+      // Multiplier event (not expired)
+      final stateActiveMultiplier = GameState.initial().copyWith(
+        activeRandomEvent: RandomEventDefinitions.divineFavor,
+        randomEventEndTime: DateTime.now().add(Duration(seconds: 30)),
+      );
+      expect(stateActiveMultiplier.hasActiveRandomEventMultiplier, true);
+
+      // Multiplier event (expired)
+      final stateExpiredMultiplier = GameState.initial().copyWith(
+        activeRandomEvent: RandomEventDefinitions.divineFavor,
+        randomEventEndTime: DateTime.now().subtract(Duration(seconds: 1)),
+      );
+      expect(stateExpiredMultiplier.hasActiveRandomEventMultiplier, false);
     });
   });
 }
