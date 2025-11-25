@@ -240,8 +240,9 @@ void main() {
 
         final loadedState = await SaveService.load();
 
-        // May return null or throw, either is acceptable
+        // May return null when JSON is invalid, that's acceptable
         // The important thing is it doesn't crash the app
+        expect(loadedState, isNull);
       });
 
       test('handles empty string save data', () async {

@@ -47,7 +47,7 @@ class PrimordialUpgradeCard extends StatelessWidget {
       height: 185,
       child: Card(
         elevation: isOwned ? 2 : (canAfford && !isLocked ? 4 : 1),
-        color: isOwned ? _forceColor.withOpacity(0.2) : null,
+        color: isOwned ? _forceColor.withValues(alpha: 0.2) : null,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -66,7 +66,7 @@ class PrimordialUpgradeCard extends StatelessWidget {
                       vertical: 2,
                     ),
                     decoration: BoxDecoration(
-                      color: _forceColor.withOpacity(0.3),
+                      color: _forceColor.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -108,7 +108,7 @@ class PrimordialUpgradeCard extends StatelessWidget {
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 6),
                   decoration: BoxDecoration(
-                    color: _forceColor.withOpacity(0.3),
+                    color: _forceColor.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(

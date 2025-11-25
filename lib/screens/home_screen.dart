@@ -23,10 +23,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   // Tab indices as constants to avoid magic numbers
   static const int _homeTabIndex = 0;
-  static const int _buildingsTabIndex = 1;
-  static const int _divinePowersTabIndex = 2;
   static const int _reincarnationTabIndex = 3;
-  static const int _settingsTabIndex = 4;
 
   int _selectedIndex = _homeTabIndex;
 

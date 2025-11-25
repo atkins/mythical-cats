@@ -4,7 +4,7 @@ import 'package:mythical_cats/models/prophecy.dart';
 void main() {
   group('ProphecyType', () {
     test('Vision of Prosperity has correct properties', () {
-      final prophecy = ProphecyType.visionOfProsperity;
+      const prophecy = ProphecyType.visionOfProsperity;
       expect(prophecy.displayName, 'Vision of Prosperity');
       expect(prophecy.wisdomCost, 50);
       expect(prophecy.cooldownMinutes, 30);
@@ -13,7 +13,7 @@ void main() {
     });
 
     test('Solar Blessing has correct properties', () {
-      final prophecy = ProphecyType.solarBlessing;
+      const prophecy = ProphecyType.solarBlessing;
       expect(prophecy.displayName, 'Solar Blessing');
       expect(prophecy.wisdomCost, 100);
       expect(prophecy.cooldownMinutes, 60);
@@ -39,7 +39,7 @@ void main() {
 
       expect(state.isOnCooldown(ProphecyType.visionOfProsperity), true);
       expect(state.getCooldownRemaining(ProphecyType.visionOfProsperity, now),
-          Duration(minutes: 30));
+          const Duration(minutes: 30));
     });
 
     test('Cooldown expires after duration', () {
@@ -51,7 +51,7 @@ void main() {
 
       expect(state.isOnCooldown(ProphecyType.visionOfProsperity), true);
 
-      final later = now.add(Duration(minutes: 31));
+      final later = now.add(const Duration(minutes: 31));
       expect(state.isOnCooldown(ProphecyType.visionOfProsperity, later), false);
     });
   });

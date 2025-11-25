@@ -3,12 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/screens/divine_powers_screen.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
-import 'package:mythical_cats/models/game_state.dart';
 import 'package:mythical_cats/models/god.dart';
-
-// Import DivinePowerTab enum
-// ignore: implementation_imports
-import 'package:mythical_cats/screens/divine_powers_screen.dart' show DivinePowerTab;
 
 void main() {
   group('DivinePowersScreen', () {

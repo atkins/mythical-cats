@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mythical_cats/widgets/primordial_force_section.dart';
 import 'package:mythical_cats/models/primordial_force.dart';
-import 'package:mythical_cats/models/primordial_upgrade_definitions.dart';
 
 void main() {
   group('PrimordialForceSection', () {

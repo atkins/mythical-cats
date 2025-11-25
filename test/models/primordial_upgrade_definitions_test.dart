@@ -5,8 +5,8 @@ import 'package:mythical_cats/models/primordial_force.dart';
 void main() {
   group('PrimordialUpgradeDefinitions', () {
     test('chaos upgrades have correct tier progression', () {
-      final chaos1 = PrimordialUpgradeDefinitions.chaosI;
-      final chaos5 = PrimordialUpgradeDefinitions.chaosV;
+      const chaos1 = PrimordialUpgradeDefinitions.chaosI;
+      const chaos5 = PrimordialUpgradeDefinitions.chaosV;
 
       expect(chaos1.force, PrimordialForce.chaos);
       expect(chaos1.tier, 1);

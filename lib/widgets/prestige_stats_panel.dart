@@ -112,7 +112,7 @@ class PrestigeStatsPanel extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: patronColor?.withOpacity(0.1) ?? Colors.grey.shade100,
+                  color: patronColor?.withValues(alpha: 0.1) ?? Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Row(

@@ -24,7 +24,7 @@ void main() {
 
       // Set up state to allow spawning
       gameNotifier.state = gameNotifier.state.copyWith(
-        lastRandomEventSpawnTime: DateTime.now().subtract(Duration(minutes: 6)),
+        lastRandomEventSpawnTime: DateTime.now().subtract(const Duration(minutes: 6)),
         resources: {ResourceType.cats: 100},
       );
 
@@ -36,7 +36,7 @@ void main() {
       expect(gameNotifier.state.getResource(ResourceType.cats), 150); // +50 cats
 
       // Wait for auto-clear (3 seconds for bonus events)
-      await Future.delayed(Duration(seconds: 4));
+      await Future.delayed(const Duration(seconds: 4));
 
       // Verify event cleared
       expect(gameNotifier.state.activeRandomEvent, isNull);
@@ -110,19 +110,19 @@ void main() {
       // Set initial state
       gameNotifier.state = gameNotifier.state.copyWith(
         resources: {ResourceType.cats: 100},
-        lastRandomEventSpawnTime: DateTime.now().subtract(Duration(minutes: 6)),
+        lastRandomEventSpawnTime: DateTime.now().subtract(const Duration(minutes: 6)),
       );
 
       // First event
       gameNotifier.activateRandomEvent(RandomEventDefinitions.divineCatAppears);
       expect(gameNotifier.state.getResource(ResourceType.cats), 150);
 
-      await Future.delayed(Duration(seconds: 4));
+      await Future.delayed(const Duration(seconds: 4));
       expect(gameNotifier.state.activeRandomEvent, isNull);
 
       // Update spawn time to allow second event
       gameNotifier.state = gameNotifier.state.copyWith(
-        lastRandomEventSpawnTime: DateTime.now().subtract(Duration(minutes: 6)),
+        lastRandomEventSpawnTime: DateTime.now().subtract(const Duration(minutes: 6)),
       );
 
       // Second event
@@ -130,7 +130,7 @@ void main() {
       expect(gameNotifier.state.activeRandomEvent?.id, 'prayer_circle');
       expect(gameNotifier.state.getResource(ResourceType.prayers), 50);
 
-      await Future.delayed(Duration(seconds: 4));
+      await Future.delayed(const Duration(seconds: 4));
       expect(gameNotifier.state.activeRandomEvent, isNull);
     });
   });

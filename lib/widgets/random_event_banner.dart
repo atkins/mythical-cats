@@ -6,9 +6,9 @@ class RandomEventBanner extends StatelessWidget {
   final RandomEvent? event;
 
   const RandomEventBanner({
-    Key? key,
+    super.key,
     required this.event,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

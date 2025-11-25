@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mythical_cats/models/random_event.dart';
 import 'package:mythical_cats/models/random_event_definitions.dart';
 import 'package:mythical_cats/widgets/random_event_banner.dart';
 
 void main() {
   testWidgets('RandomEventBanner displays bonus event', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: RandomEventBanner(
             event: RandomEventDefinitions.divineCatAppears,
@@ -22,7 +21,7 @@ void main() {
 
   testWidgets('RandomEventBanner displays multiplier event', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: RandomEventBanner(
             event: RandomEventDefinitions.divineFavor,
@@ -37,7 +36,7 @@ void main() {
 
   testWidgets('RandomEventBanner shows nothing when event is null', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: RandomEventBanner(
             event: null,
@@ -51,7 +50,7 @@ void main() {
 
   testWidgets('RandomEventBanner uses correct colors for event types', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: RandomEventBanner(
             event: RandomEventDefinitions.divineFavor,

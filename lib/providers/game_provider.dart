@@ -572,6 +572,7 @@ class GameNotifier extends StateNotifier<GameState> {
   }
 
   /// Start auto-save timer (every 30 seconds)
+  // ignore: unused_element - Intentionally disabled, see constructor TODO
   void _startAutoSave() {
     _saveTimer = Timer.periodic(const Duration(seconds: 30), (_) {
       SaveService.save(state);
@@ -842,7 +843,7 @@ class GameNotifier extends StateNotifier<GameState> {
       // Clear active event after 3 seconds (for UI notification)
       // Cancel any existing timer first
       _bonusEventClearTimer?.cancel();
-      _bonusEventClearTimer = Timer(Duration(seconds: 3), () {
+      _bonusEventClearTimer = Timer(const Duration(seconds: 3), () {
         if (state.activeRandomEvent?.id == event.id) {
           state = state.copyWith(activeRandomEvent: null);
         }
@@ -869,7 +870,7 @@ class GameNotifier extends StateNotifier<GameState> {
 
       // Clear active event after 3 seconds (for UI notification)
       _bonusEventClearTimer?.cancel();
-      _bonusEventClearTimer = Timer(Duration(seconds: 3), () {
+      _bonusEventClearTimer = Timer(const Duration(seconds: 3), () {
         if (state.activeRandomEvent?.id == event.id) {
           state = state.copyWith(activeRandomEvent: null);
         }

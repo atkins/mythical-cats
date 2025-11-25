@@ -91,7 +91,7 @@ void main() {
         },
       );
 
-      final foundationsNode = ResearchDefinitions.foundationsOfWisdom;
+      const foundationsNode = ResearchDefinitions.foundationsOfWisdom;
       final canUnlockFoundations = researchNotifier.canUnlockResearch(foundationsNode);
       expect(canUnlockFoundations, true,
           reason: 'Should be able to unlock Foundations of Wisdom');
@@ -165,7 +165,6 @@ void main() {
       // STEP 7: ACTIVATE A PROPHECY (verify cost deduction, cooldown, effects)
       // =================================================================
       final wisdomBeforeProphecy = gameNotifier.state.getResource(ResourceType.wisdom);
-      final now = DateTime.now();
 
       // Activate Solar Blessing (Tier 1, costs 100 wisdom, +50% cat production for 15 min)
       gameNotifier.activateProphecy(ProphecyType.solarBlessing);
@@ -514,7 +513,7 @@ void main() {
         completedResearch: {'divine_alchemy'},
       );
 
-      final essenceToWisdomNode = ResearchDefinitions.essenceToWisdomConversion;
+      const essenceToWisdomNode = ResearchDefinitions.essenceToWisdomConversion;
       final costWithoutPhilosopher = researchNotifier.getResearchCost(essenceToWisdomNode);
 
       gameNotifier.state = gameNotifier.state.copyWith(

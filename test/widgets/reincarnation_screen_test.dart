@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/screens/reincarnation_screen.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
-import 'package:mythical_cats/models/game_state.dart';
 
 void main() {
   group('ReincarnationScreen', () {

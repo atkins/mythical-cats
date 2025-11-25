@@ -28,7 +28,6 @@ void main() {
 
     test('all bonus systems stack multiplicatively for cat production', () {
       final gameNotifier = container.read(gameProvider.notifier);
-      final researchNotifier = container.read(researchProvider);
       final conquestNotifier = container.read(conquestProvider);
 
       // Set up base buildings (10 small shrines = 1.0 cats/sec base)
@@ -59,7 +58,7 @@ void main() {
 
       // Buy Gaia upgrade (production boost)
       gameNotifier.state = gameNotifier.state.copyWith(
-        reincarnationState: ReincarnationState(
+        reincarnationState: const ReincarnationState(
           totalPrimordialEssence: 100,
           availablePrimordialEssence: 50,
           totalReincarnations: 1,
@@ -159,7 +158,6 @@ void main() {
 
     test('all systems combined create significant production boost', () {
       final gameNotifier = container.read(gameProvider.notifier);
-      final researchNotifier = container.read(researchProvider);
       final conquestNotifier = container.read(conquestProvider);
 
       // Set up minimal production (1 small shrine)
@@ -266,6 +264,8 @@ void main() {
       );
 
       final withChaosPatron = gameNotifier.getProductionRate(ResourceType.cats);
+      expect(withChaosPatron, isNotNull);
+      expect(withChaosPatron.isFinite, true);
 
       // Switch to Gaia patron
       gameNotifier.setActivePatron(PrimordialForce.gaia);

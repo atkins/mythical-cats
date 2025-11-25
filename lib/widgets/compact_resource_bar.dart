@@ -65,7 +65,7 @@ class CompactResourceBar extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.2),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -88,7 +88,7 @@ class CompactResourceBar extends ConsumerWidget {
     return Text(
       '${info.emoji} $formattedValue ($formattedRate)',
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: Theme.of(context).textTheme.bodySmall?.color?.withOpacity(0.87),
+            color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.87),
           ),
     );
   }

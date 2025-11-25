@@ -35,7 +35,7 @@ class ProphecyScreen extends ConsumerWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
-                    Icon(Icons.lightbulb, color: Colors.purple, size: 32),
+                    const Icon(Icons.lightbulb, color: Colors.purple, size: 32),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

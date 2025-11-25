@@ -1,9 +1,7 @@
-import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mythical_cats/providers/game_provider.dart';
 import 'package:mythical_cats/providers/conquest_provider.dart';
-import 'package:mythical_cats/providers/research_provider.dart';
 import 'package:mythical_cats/models/resource_type.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/models/building_definition.dart';
@@ -753,7 +751,7 @@ void main() {
 
       // Set up state with some PE
       notifier.state = notifier.state.copyWith(
-        reincarnationState: ReincarnationState(
+        reincarnationState: const ReincarnationState(
           totalPrimordialEssence: 100,
           availablePrimordialEssence: 100,
           ownedUpgradeIds: {'chaos_1'},
@@ -784,7 +782,7 @@ void main() {
       final notifier = container.read(gameProvider.notifier);
 
       notifier.state = notifier.state.copyWith(
-        reincarnationState: ReincarnationState(
+        reincarnationState: const ReincarnationState(
           activePatron: PrimordialForce.chaos,
         ),
       );
@@ -922,7 +920,7 @@ void main() {
       expect(notifier.getProductionRate(ResourceType.cats), closeTo(1.5, 0.01));
 
       // After boost expires (15 min + 1 sec)
-      final expired = now.add(Duration(minutes: 15, seconds: 1));
+      final expired = now.add(const Duration(minutes: 15, seconds: 1));
       notifier.state = notifier.state.updateProphecyEffects(expired);
 
       final normalRate = notifier.getProductionRate(ResourceType.cats);
@@ -1019,7 +1017,7 @@ void main() {
       expect(notifier.getProductionRate(ResourceType.cats), closeTo(2.0, 0.01));
 
       // Simulate expiration (30 minutes + 1 second)
-      final expired = now.add(Duration(minutes: 30, seconds: 1));
+      final expired = now.add(const Duration(minutes: 30, seconds: 1));
       notifier.state = notifier.state.updateProphecyEffects(expired);
 
       // Should be back to normal
@@ -1043,7 +1041,7 @@ void main() {
       expect(notifier.state.prophecyState.activeTimedBoostExpiry, isNotNull);
 
       // Expire the boost
-      final expired = now.add(Duration(minutes: 16));
+      final expired = now.add(const Duration(minutes: 16));
       notifier.state = notifier.state.updateProphecyEffects(expired);
 
       // Should clear active boost
@@ -1064,7 +1062,7 @@ void main() {
       notifier.state = notifier.state.activateProphecy(ProphecyType.solarBlessing, now);
 
       // Check while still active (5 minutes in)
-      final stillActive = now.add(Duration(minutes: 5));
+      final stillActive = now.add(const Duration(minutes: 5));
       notifier.state = notifier.state.updateProphecyEffects(stillActive);
 
       // Should still have active boost
@@ -1836,7 +1834,6 @@ void main() {
     test('Philosopher King reduces research costs by 5%', () {
       final container = ProviderContainer();
       final notifier = container.read(gameProvider.notifier);
-      final research = container.read(researchProvider);
 
       notifier.state = notifier.state.copyWith(
         resources: {ResourceType.wisdom: 1000},
@@ -1845,7 +1842,7 @@ void main() {
 
       // Test with a research node that costs 100 Wisdom
       // With -5%, it should cost 95 Wisdom
-      // We'll need to check this via attempting to unlock research
+      // TODO: implement actual cost reduction check via research provider
 
       container.dispose();
     });
@@ -1853,7 +1850,6 @@ void main() {
     test('Master of Knowledge reduces conquest costs by 10%', () {
       final container = ProviderContainer();
       final notifier = container.read(gameProvider.notifier);
-      final conquest = container.read(conquestProvider);
 
       notifier.state = notifier.state.copyWith(
         resources: {ResourceType.conquestPoints: 1000},
@@ -2314,10 +2310,10 @@ void main() {
       expect(notifier.state.randomEventEndTime, isNotNull);
 
       final endTime = notifier.state.randomEventEndTime!;
-      final expectedEndTime = beforeActivation.add(Duration(seconds: 30));
+      final expectedEndTime = beforeActivation.add(const Duration(seconds: 30));
 
-      expect(endTime.isAfter(expectedEndTime.subtract(Duration(seconds: 1))), true);
-      expect(endTime.isBefore(afterActivation.add(Duration(seconds: 31))), true);
+      expect(endTime.isAfter(expectedEndTime.subtract(const Duration(seconds: 1))), true);
+      expect(endTime.isBefore(afterActivation.add(const Duration(seconds: 31))), true);
 
       container.dispose();
     });
@@ -2328,7 +2324,7 @@ void main() {
 
       final initialTime = notifier.state.lastRandomEventSpawnTime!;
 
-      await Future.delayed(Duration(milliseconds: 10));
+      await Future.delayed(const Duration(milliseconds: 10));
 
       notifier.activateRandomEvent(RandomEventDefinitions.divineCatAppears);
 
@@ -2363,7 +2359,7 @@ void main() {
       expect(notifier.state.randomEventEndTime, isNotNull);
 
       // Fast-forward time past event duration (30 seconds + 1 second)
-      final pastEndTime = DateTime.now().subtract(Duration(seconds: 1));
+      final pastEndTime = DateTime.now().subtract(const Duration(seconds: 1));
       notifier.state = notifier.state.copyWith(
         randomEventEndTime: pastEndTime,
       );
@@ -2383,7 +2379,7 @@ void main() {
       final notifier = container.read(gameProvider.notifier);
 
       // Set last spawn time to 6 minutes ago (past cooldown)
-      final sixMinutesAgo = DateTime.now().subtract(Duration(minutes: 6));
+      final sixMinutesAgo = DateTime.now().subtract(const Duration(minutes: 6));
       notifier.state = notifier.state.copyWith(
         lastRandomEventSpawnTime: sixMinutesAgo,
       );
@@ -2406,7 +2402,7 @@ void main() {
       final notifier = container.read(gameProvider.notifier);
 
       // Set last spawn time to 2 minutes ago (within cooldown)
-      final twoMinutesAgo = DateTime.now().subtract(Duration(minutes: 2));
+      final twoMinutesAgo = DateTime.now().subtract(const Duration(minutes: 2));
       notifier.state = notifier.state.copyWith(
         lastRandomEventSpawnTime: twoMinutesAgo,
       );

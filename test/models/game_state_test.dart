@@ -321,21 +321,21 @@ void main() {
       // Bonus event (not multiplier type)
       final stateBonusEvent = GameState.initial().copyWith(
         activeRandomEvent: RandomEventDefinitions.divineCatAppears,
-        randomEventEndTime: DateTime.now().add(Duration(seconds: 30)),
+        randomEventEndTime: DateTime.now().add(const Duration(seconds: 30)),
       );
       expect(stateBonusEvent.hasActiveRandomEventMultiplier, false);
 
       // Multiplier event (not expired)
       final stateActiveMultiplier = GameState.initial().copyWith(
         activeRandomEvent: RandomEventDefinitions.divineFavor,
-        randomEventEndTime: DateTime.now().add(Duration(seconds: 30)),
+        randomEventEndTime: DateTime.now().add(const Duration(seconds: 30)),
       );
       expect(stateActiveMultiplier.hasActiveRandomEventMultiplier, true);
 
       // Multiplier event (expired)
       final stateExpiredMultiplier = GameState.initial().copyWith(
         activeRandomEvent: RandomEventDefinitions.divineFavor,
-        randomEventEndTime: DateTime.now().subtract(Duration(seconds: 1)),
+        randomEventEndTime: DateTime.now().subtract(const Duration(seconds: 1)),
       );
       expect(stateExpiredMultiplier.hasActiveRandomEventMultiplier, false);
     });

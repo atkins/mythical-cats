@@ -115,7 +115,7 @@ class _ReincarnationScreenState extends ConsumerState<ReincarnationScreen> {
     final gameState = ref.watch(gameProvider);
     final gameNotifier = ref.read(gameProvider.notifier);
 
-    final threshold = 1000000000.0; // 1B
+    const threshold = 1000000000.0; // 1B
     final isUnlocked = gameState.totalCatsEarned >= threshold;
 
     if (!isUnlocked) {
@@ -333,7 +333,7 @@ class _ReincarnationScreenState extends ConsumerState<ReincarnationScreen> {
   Widget _buildReincarnationFab(gameState, gameNotifier) {
     final peEarned =
         gameNotifier.calculatePrimordialEssence(gameState.totalCatsEarned);
-    final threshold = 1000000000.0;
+    const threshold = 1000000000.0;
     final isEnabled = gameState.totalCatsEarned >= threshold;
     final catsRemaining =
         isEnabled ? 0.0 : threshold - gameState.totalCatsEarned;

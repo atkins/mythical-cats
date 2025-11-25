@@ -34,7 +34,7 @@ void main() {
             prophecy: ProphecyType.solarBlessing,
             currentWisdom: 100,
             isOnCooldown: true,
-            cooldownRemaining: Duration(minutes: 45, seconds: 23),
+            cooldownRemaining: const Duration(minutes: 45, seconds: 23),
             isActive: false,
             onActivate: () {},
           ),
@@ -102,7 +102,7 @@ void main() {
             prophecy: ProphecyType.solarBlessing,
             currentWisdom: 0,
             isOnCooldown: true,
-            cooldownRemaining: Duration(minutes: 30),
+            cooldownRemaining: const Duration(minutes: 30),
             isActive: true, // Active timed boost
             onActivate: () {},
           ),

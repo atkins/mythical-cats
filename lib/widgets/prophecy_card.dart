@@ -76,7 +76,7 @@ class ProphecyCard extends StatelessWidget {
             // Wisdom cost
             Row(
               children: [
-                Icon(Icons.lightbulb, color: Colors.purple, size: 16),
+                const Icon(Icons.lightbulb, color: Colors.purple, size: 16),
                 const SizedBox(width: 4),
                 Text(
                   NumberFormatter.format(prophecy.wisdomCost),

@@ -5,7 +5,6 @@ import 'package:mythical_cats/screens/buildings_screen.dart';
 import 'package:mythical_cats/models/building_type.dart';
 import 'package:mythical_cats/widgets/building_card.dart';
 import 'package:mythical_cats/widgets/compact_resource_bar.dart';
-import 'package:mythical_cats/providers/game_provider.dart';
 
 void main() {
   group('BuildingsScreen CompactResourceBar Integration', () {
