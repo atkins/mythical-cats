@@ -40,6 +40,39 @@ flutter build web --base-href /mythical-cats/
 flutter build web --base-href /mythical-cats/ --verbose
 ```
 
+### Deployment to GitHub Pages
+```bash
+# Deployment is automated via GitHub Actions on release creation
+
+# Option 1: Create release via GitHub UI
+# 1. Go to repository → Releases → "Create a new release"
+# 2. Click "Choose a tag" → type new tag (e.g., v1.0.1)
+# 3. Add release title and notes
+# 4. Click "Publish release"
+# 5. Workflow triggers automatically
+
+# Option 2: Create release via GitHub CLI
+gh release create v1.0.1 --title "Release 1.0.1" --notes "Description of changes"
+
+# Monitor deployment progress
+# Visit repository Actions tab - typically takes 3-5 minutes
+
+# Repository Settings (one-time setup)
+# Settings → Pages → Source: "GitHub Actions"
+```
+
+**Deployment Workflow:**
+- Triggers: On published release (not drafts)
+- Validation: Runs all tests - deployment fails if tests fail
+- Build: `flutter build web --base-href /mythical-cats/`
+- Deploy: Uses official GitHub Pages actions
+- Live URL: https://atkins.github.io/mythical-cats/
+
+**Troubleshooting:**
+- If deployment fails, check Actions tab for error details
+- Tests must pass before deployment proceeds
+- Ensure repository Pages source is set to "GitHub Actions"
+
 ### Code Generation
 The project uses code generation for Riverpod providers and JSON serialization. If you modify provider annotations or JSON models, run:
 ```bash
