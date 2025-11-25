@@ -33,11 +33,11 @@ flutter analyze
 
 ### Building
 ```bash
-# Build web version (production)
-flutter build web
+# Build web version (production) - base-href required for GitHub Pages
+flutter build web --base-href /mythical-cats/
 
 # Build with verbose output
-flutter build web --verbose
+flutter build web --base-href /mythical-cats/ --verbose
 ```
 
 ### Code Generation
