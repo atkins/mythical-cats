@@ -6,6 +6,31 @@ A Flutter-based idle game where you play as a minor deity collecting mythical ca
 
 Play now: https://atkins.github.io/mythical-cats/
 
+## Developer Mode & Cheat Codes
+
+For testing, debugging, or just having fun, the game includes a hidden Developer Mode with powerful tools.
+
+### Activating Developer Mode
+
+1. Go to **Settings** tab (gear icon)
+2. Scroll to the bottom of the screen
+3. In the subtle text field, type: `idkfa`
+4. Developer Tools section will appear with an orange header
+
+### Developer Tools
+
+Once activated, you'll have access to:
+
+| Feature | Description |
+|---------|-------------|
+| **Quick Presets** | Jump to different game stages (Early, Mid, Late, Endgame) |
+| **Add Resources** | Instantly add +1K/1M/1B Cats, +1K Prayers/Offerings, +100 Wisdom |
+| **Unlock All Gods** | Immediately unlock all 12 Olympian gods |
+| **Max Buildings** | Set all building types to 10 each |
+| **Lock Button** | Re-hide developer tools when done |
+
+Developer mode state persists between sessions. Use the lock icon to hide the tools again.
+
 ## Phase 5 Features (Current)
 
 **Core Gameplay:**
